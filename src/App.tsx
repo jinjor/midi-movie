@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import FileUploadComponent from "./FileUploadComponent";
-import * as midiManager from "midi-file";
+
+import { Tracks } from "./Tracks";
+import { Note, Track, parseMidiData } from "./midi";
 
 function App() {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -59,12 +61,10 @@ function App() {
   const handleLoadMidi = (file: File) => {
     void (async () => {
       const buffer = await file.arrayBuffer();
-      const parsed = midiManager.parseMidi(new Uint8Array(buffer));
-      const events = collectEvents(parsed);
-      const notes = collectNotes(parsed.header.timeDivision ?? 480, events);
+      const { tracks, notes } = parseMidiData(buffer);
       setNotes(notes);
-      setTracks(parsed.tracks);
-      setEnabledTracks(new Array(parsed.tracks.length).fill(true));
+      setTracks(tracks);
+      setEnabledTracks(new Array(tracks.length).fill(true));
     })();
   };
   const handleLoadImage = (file: File) => {
@@ -193,39 +193,6 @@ function App() {
     </>
   );
 }
-type Track = {
-  // name: string;
-};
-const Tracks = ({
-  tracks,
-  enabledTracks,
-  onChange,
-}: {
-  tracks: Track[];
-  enabledTracks: boolean[];
-  onChange: (enabledTracks: boolean[]) => void;
-}) => {
-  return (
-    <ul>
-      {tracks.map((_tracks, i) => (
-        <li key={i}>
-          <label>
-            <input
-              type="checkbox"
-              checked={enabledTracks[i]}
-              onChange={(e) => {
-                const newEnabledTracks = [...enabledTracks];
-                newEnabledTracks[i] = e.target.checked;
-                onChange(newEnabledTracks);
-              }}
-            />
-            {i}
-          </label>
-        </li>
-      ))}
-    </ul>
-  );
-};
 
 function createPatch(
   size: Size,
@@ -280,94 +247,6 @@ function applyPatch(el: SVGElement, patch: Record<string, string | number>) {
 }
 
 export default App;
-
-type Event = {
-  time: number;
-} & (
-  | {
-      type: "noteOn";
-      trackIndex: number;
-      noteNumber: number;
-    }
-  | {
-      type: "noteOff";
-      trackIndex: number;
-      noteNumber: number;
-    }
-  | {
-      type: "setTempo";
-      microsecondsPerBeat: number;
-    }
-);
-type Note = {
-  trackIndex: number;
-  fromSec: number;
-  toSec: number;
-  noteNumber: number;
-};
-function collectEvents(parsed: midiManager.MidiData): Event[] {
-  const events: Event[] = [];
-  for (const [index, track] of parsed.tracks.entries()) {
-    let time = 0;
-    for (const e of track) {
-      time += e.deltaTime;
-      if (e.type === "setTempo") {
-        events.push({
-          time,
-          type: "setTempo",
-          microsecondsPerBeat: (e as any).microsecondsPerBeat,
-        });
-      } else if (e.type === "noteOn") {
-        events.push({
-          time,
-          type: "noteOn",
-          trackIndex: index,
-          noteNumber: e.noteNumber,
-        });
-      } else if (e.type === "noteOff") {
-        events.push({
-          time,
-          type: "noteOff",
-          trackIndex: index,
-          noteNumber: e.noteNumber,
-        });
-      }
-    }
-  }
-  return events.sort((a, b) => a.time - b.time);
-}
-function collectNotes(timeDivision: number, events: Event[]): Note[] {
-  const notes: Note[] = [];
-  const noteMap = new Map<string, Note>();
-  let microsecondsPerBeat = 500000; // bpm=120
-  let time = 0;
-  let sec = 0;
-  for (const event of events) {
-    sec +=
-      ((event.time - time) / timeDivision) * (microsecondsPerBeat / 1000000);
-    time = event.time;
-    if (event.type === "setTempo") {
-      microsecondsPerBeat = event.microsecondsPerBeat;
-    } else if (event.type === "noteOn") {
-      const key = `${event.trackIndex}-${event.noteNumber}`;
-      noteMap.set(key, {
-        trackIndex: event.trackIndex,
-        fromSec: sec,
-        toSec: -1,
-        noteNumber: event.noteNumber,
-      });
-    } else if (event.type === "noteOff") {
-      const key = `${event.trackIndex}-${event.noteNumber}`;
-      const note = noteMap.get(key);
-      if (note) {
-        note.toSec = sec;
-        notes.push(note);
-      }
-      noteMap.delete(key);
-    }
-  }
-  return notes.sort((a, b) => a.fromSec - b.fromSec);
-}
 
 type Size = { width: number; height: number };
 async function getImageSize(file: File): Promise<Size> {
