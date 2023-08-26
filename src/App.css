@@ -1,12 +1,41 @@
+.panes {
+  display: grid;
+  grid-template-rows: 100px 1fr;
+  grid-template-columns: 250px 1fr 350px;
+}
 .pane {
   padding: 20px;
+  background-color: var(--color-bg-foreground);
+  border: solid 1px var(--color-bg-background);
+}
+.resourcePane {
+  grid-row: 1;
+  grid-column: 1 / span 3;
+}
+.trackPane {
+  grid-row: 2;
+  grid-column: 1;
+}
+.previewPane {
+  grid-row: 2;
+  grid-column: 2;
+}
+.propertyPane {
+  grid-row: 2;
+  grid-column: 3;
+}
+.property {
+  display: block;
 }
 .controls {
-  padding: 10px;
+  margin-top: 5px;
 }
 .tracks {
   padding-left: 0;
 }
 .track {
   list-style-type: none;
+}
+.display {
+  background-color: #000;
 }

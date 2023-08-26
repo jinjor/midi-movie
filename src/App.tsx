@@ -109,88 +109,86 @@ function App() {
     }
   }, [size, notes, startTime, enabledTracks]);
   return (
-    <>
-      <div>
-        <div className="pane">
-          <div>
-            <label>
-              midi:
-              <FileUploadComponent onLoad={handleLoadMidi} />
-            </label>
-          </div>
-          <div>
-            <label>
-              image:
-              <FileUploadComponent onLoad={handleLoadImage} />
-            </label>
-          </div>
-          <div>
-            <label>
-              minNote:
-              <input
-                type="number"
-                defaultValue={minNoteRef.current}
-                onChange={(e) => {
-                  minNoteRef.current = Number(e.target.value);
-                }}
-              />
-            </label>
-            <label>
-              maxNote:
-              <input
-                type="number"
-                defaultValue={maxNoteRef.current}
-                onChange={(e) => {
-                  maxNoteRef.current = Number(e.target.value);
-                }}
-              />
-            </label>
-          </div>
+    <div className="panes">
+      <div className="pane resourcePane">
+        <div>
+          <label>
+            midi:
+            <FileUploadComponent onLoad={handleLoadMidi} />
+          </label>
+        </div>
+        <div>
+          <label>
+            image:
+            <FileUploadComponent onLoad={handleLoadImage} />
+          </label>
         </div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "200px 1fr" }}>
-        <div className="pane">
-          <Tracks
-            tracks={tracks}
-            enabledTracks={enabledTracks}
-            onChange={handleSelectTracks}
-          />
-        </div>
-        <div className="pane">
-          <svg
-            ref={svgRef}
-            width={size.width}
-            height={size.height}
-            style={{
-              backgroundImage: imageUrl
-                ? `linear-gradient(
+
+      <div className="pane trackPane">
+        <Tracks
+          tracks={tracks}
+          enabledTracks={enabledTracks}
+          onChange={handleSelectTracks}
+        />
+      </div>
+      <div className="pane previewPane">
+        <svg
+          className="display"
+          ref={svgRef}
+          width={size.width}
+          height={size.height}
+          style={{
+            backgroundImage: imageUrl
+              ? `linear-gradient(
           rgba(0, 0, 0, 0.6), 
           rgba(0, 0, 0, 0.6)
         ),url(${imageUrl})`
-                : undefined,
-            }}
-          >
-            <rect
-              x={size.width / 2}
-              y={0}
-              width={0.5}
-              height={size.height}
-              fill="#aaa"
-            />
-            {notes.map((_note, i) => {
-              return <rect className="note" key={i} />;
-            })}
-          </svg>
-          <div className="controls">
-            {startTime == null ? (
-              <button onClick={handlePlay}>play</button>
-            ) : (
-              <button onClick={handleStop}>stop</button>
-            )}
-          </div>
+              : undefined,
+          }}
+        >
+          <rect
+            x={size.width / 2}
+            y={0}
+            width={0.5}
+            height={size.height}
+            fill="#aaa"
+          />
+          {notes.map((_note, i) => {
+            return <rect className="note" key={i} />;
+          })}
+        </svg>
+        <div className="controls">
+          {startTime == null ? (
+            <button onClick={handlePlay}>play</button>
+          ) : (
+            <button onClick={handleStop}>stop</button>
+          )}
         </div>
       </div>
-    </>
+      <div className="pane propertyPane">
+        <label className="property">
+          minNote:
+          <input
+            type="number"
+            defaultValue={minNoteRef.current}
+            onChange={(e) => {
+              minNoteRef.current = Number(e.target.value);
+            }}
+          />
+        </label>
+        <label className="property">
+          maxNote:
+          <input
+            type="number"
+            defaultValue={maxNoteRef.current}
+            onChange={(e) => {
+              maxNoteRef.current = Number(e.target.value);
+            }}
+          />
+        </label>
+      </div>
+    </div>
   );
 }
 

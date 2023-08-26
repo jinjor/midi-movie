@@ -1,14 +1,30 @@
+:root {
+  --color-bg-background: #000;
+  --color-bg-foreground: #222229;
+  --color-bg-button: var(--color-bg-foreground);
+  --color-border-default: #444;
+}
 html,
 body {
   margin: 0;
   padding: 0;
   font-family: "Roboto", sans-serif;
   font-size: 16px;
-  background-color: #000;
+  background-color: var(--color-bg-background);
   color: #fff;
 }
 * {
   box-sizing: border-box;
+}
+button {
+  color: inherit;
+  background-color: var(--color-bg-button);
+  border: solid 1px var(--color-border-default) !important;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 5px 10px;
+  appearance: none;
 }
 #root {
   width: 100%;
