@@ -13,6 +13,7 @@ function App() {
   const [notes, setNotes] = useState<Note[]>([]);
   const minNoteRef = useRef<number>(0);
   const maxNoteRef = useRef<number>(127);
+  const [tracks, setTracks] = useState<Track[]>([]);
   const [enabledTracks, setEnabledTracks] = useState<boolean[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [timer, setTimer] = useState<number | null>(null);
@@ -62,6 +63,7 @@ function App() {
       const events = collectEvents(parsed);
       const notes = collectNotes(parsed.header.timeDivision ?? 480, events);
       setNotes(notes);
+      setTracks(parsed.tracks);
       setEnabledTracks(new Array(parsed.tracks.length).fill(true));
     })();
   };
@@ -74,6 +76,9 @@ function App() {
       setImageUrl(url);
       setSize(size);
     })();
+  };
+  const handleSelectTracks = (enabledTracks: boolean[]) => {
+    setEnabledTracks(enabledTracks);
   };
   useEffect(() => {
     const svg = svgRef.current!;
@@ -106,108 +111,122 @@ function App() {
   return (
     <>
       <div>
-        <label>
-          midi:
-          <FileUploadComponent onLoad={handleLoadMidi} />
-        </label>
+        <div className="pane">
+          <div>
+            <label>
+              midi:
+              <FileUploadComponent onLoad={handleLoadMidi} />
+            </label>
+          </div>
+          <div>
+            <label>
+              image:
+              <FileUploadComponent onLoad={handleLoadImage} />
+            </label>
+          </div>
+          <div>
+            <label>
+              minNote:
+              <input
+                type="number"
+                defaultValue={minNoteRef.current}
+                onChange={(e) => {
+                  minNoteRef.current = Number(e.target.value);
+                }}
+              />
+            </label>
+            <label>
+              maxNote:
+              <input
+                type="number"
+                defaultValue={maxNoteRef.current}
+                onChange={(e) => {
+                  maxNoteRef.current = Number(e.target.value);
+                }}
+              />
+            </label>
+          </div>
+        </div>
       </div>
-      <div>
-        <label>
-          image:
-          <FileUploadComponent onLoad={handleLoadImage} />
-        </label>
-      </div>
-      <div>
-        <label>
-          minNote:
-          <input
-            type="number"
-            defaultValue={minNoteRef.current}
-            onChange={(e) => {
-              minNoteRef.current = Number(e.target.value);
-            }}
+      <div style={{ display: "grid", gridTemplateColumns: "200px 1fr" }}>
+        <div className="pane">
+          <Tracks
+            tracks={tracks}
+            enabledTracks={enabledTracks}
+            onChange={handleSelectTracks}
           />
-        </label>
-        <label>
-          maxNote:
-          <input
-            type="number"
-            defaultValue={maxNoteRef.current}
-            onChange={(e) => {
-              maxNoteRef.current = Number(e.target.value);
+        </div>
+        <div className="pane">
+          <svg
+            ref={svgRef}
+            width={size.width}
+            height={size.height}
+            style={{
+              backgroundImage: imageUrl
+                ? `linear-gradient(
+          rgba(0, 0, 0, 0.6), 
+          rgba(0, 0, 0, 0.6)
+        ),url(${imageUrl})`
+                : undefined,
             }}
-          />
-        </label>
+          >
+            <rect
+              x={size.width / 2}
+              y={0}
+              width={0.5}
+              height={size.height}
+              fill="#aaa"
+            />
+            {notes.map((_note, i) => {
+              return <rect className="note" key={i} />;
+            })}
+          </svg>
+          <div className="controls">
+            {startTime == null ? (
+              <button onClick={handlePlay}>play</button>
+            ) : (
+              <button onClick={handleStop}>stop</button>
+            )}
+          </div>
+        </div>
       </div>
-      <div>
-        {enabledTracks.map((enabled, i) => (
-          <label key={i}>
+    </>
+  );
+}
+type Track = {
+  // name: string;
+};
+const Tracks = ({
+  tracks,
+  enabledTracks,
+  onChange,
+}: {
+  tracks: Track[];
+  enabledTracks: boolean[];
+  onChange: (enabledTracks: boolean[]) => void;
+}) => {
+  return (
+    <ul>
+      {tracks.map((_tracks, i) => (
+        <li key={i}>
+          <label>
             <input
               type="checkbox"
-              checked={enabled}
+              checked={enabledTracks[i]}
               onChange={(e) => {
                 const newEnabledTracks = [...enabledTracks];
                 newEnabledTracks[i] = e.target.checked;
-                setEnabledTracks(newEnabledTracks);
+                onChange(newEnabledTracks);
               }}
             />
             {i}
           </label>
-        ))}
-      </div>
-      <div>
-        {startTime == null ? (
-          <button onClick={handlePlay}>play</button>
-        ) : (
-          <button onClick={handleStop}>stop</button>
-        )}
-      </div>
-      <svg
-        ref={svgRef}
-        width={size.width}
-        height={size.height}
-        style={{
-          backgroundImage: imageUrl
-            ? `linear-gradient(
-          rgba(0, 0, 0, 0.6), 
-          rgba(0, 0, 0, 0.6)
-        ),url(${imageUrl})`
-            : undefined,
-        }}
-      >
-        <rect
-          x={size.width / 2}
-          y={0}
-          width={0.5}
-          height={size.height}
-          fill="#aaa"
-        />
-        {notes.map((_note, i) => {
-          return <rect className="note" key={i} />;
-        })}
-      </svg>
-    </>
+        </li>
+      ))}
+    </ul>
   );
-}
+};
 
-// function createPatch(
-//   note: Note,
-//   elapsedSec: number,
-//   minNote: number,
-//   maxNote: number,
-//   timeRangeSec: number
-// ): Record<string, string | number> {
-//   const widthPerNote = width / (maxNote - minNote);
-//   const heightPerSec = height / timeRangeSec;
-//   const playing = elapsedSec >= note.fromSec && elapsedSec <= note.toSec;
-//   return {
-//     x: (note.noteNumber - minNote) * widthPerNote,
-//     y: height - (note.toSec - elapsedSec - timeRangeSec / 2) * heightPerSec,
-//     width: widthPerNote,
-//     height: (note.toSec - note.fromSec) * heightPerSec,
-//     fill: playing ? "#fff" : "#aaa",
-//   };
-// }
 function createPatch(
   size: Size,
   note: Note,
