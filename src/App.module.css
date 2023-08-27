@@ -27,15 +27,6 @@
 .controls {
   margin-top: 5px;
 }
-.tracks {
-  padding-left: 0;
-}
-.track {
-  list-style-type: none;
-}
-.display {
-  background-color: #000;
-}
 .fields {
   display: flex;
   flex-direction: column;

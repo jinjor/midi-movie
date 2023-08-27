@@ -48,8 +48,12 @@ export function createPatch(
 }
 export function applyPatch(
   el: SVGElement,
+  styles: Record<string, string | number>,
   patch: Record<string, string | number>
 ) {
+  for (const [key, value] of Object.entries(styles)) {
+    el.style.setProperty(key, String(value));
+  }
   for (const [key, value] of Object.entries(patch)) {
     el.setAttributeNS(null, key, String(value));
   }

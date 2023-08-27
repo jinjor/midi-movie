@@ -1,8 +1,10 @@
 :root {
   --color-bg-background: #000;
   --color-bg-foreground: #222229;
+  --color-bg-input: #1c1c1f;
   --color-bg-button: #29292f;
   --color-border-default: #444;
+  --color-accent: #0a9;
 }
 html,
 body {
@@ -11,7 +13,7 @@ body {
   font-family: "Roboto", sans-serif;
   font-size: 16px;
   background-color: var(--color-bg-background);
-  color: #fff;
+  color: #ddd;
 }
 * {
   box-sizing: border-box;
@@ -19,13 +21,33 @@ body {
 ul {
   margin: 0;
 }
-input[type=""] {
+input[type="checkbox"] {
+  accent-color: var(--color-accent);
+}
+input[type="number"] {
   color: inherit;
-  background-color: var(--color-bg-foreground);
+  background-color: var(--color-bg-input);
   border: solid 1px var(--color-border-default);
   outline: none;
   padding: 5px 10px;
   appearance: none;
+}
+input[type="file"] {
+  border: solid 1px var(--color-border-default);
+  cursor: pointer;
+  padding: 0;
+  &::file-selector-button {
+    font: inherit;
+    color: inherit;
+    background-color: var(--color-bg-button);
+    border: none;
+    border-right: solid 1px var(--color-border-default);
+    cursor: pointer;
+    outline: none;
+    padding: 5px 10px;
+    pointer-events: none;
+    margin-inline-end: 10px;
+  }
 }
 button,
 .button {
@@ -36,13 +58,6 @@ button,
   padding: 5px 10px;
   appearance: none;
   cursor: pointer;
-}
-::file-selector-button {
-  font: inherit;
-}
-::-webkit-file-upload-button {
-  font: inherit;
-  -webkit-appearance: button;
 }
 #root {
   width: 100%;
