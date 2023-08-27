@@ -1,4 +1,4 @@
-import { FileInput } from "./FileInput";
+import { FileInput } from "./ui/FileInput";
 import { parseMidiData } from "./midi";
 import { MidiData } from "./model";
 

@@ -1,4 +1,4 @@
-import { FileInput } from "./FileInput";
+import { FileInput } from "./ui/FileInput";
 import { Size } from "./model";
 
 export type Image = {
@@ -20,10 +20,7 @@ export const AudioLoader = ({ onLoad }: Props) => {
   return (
     <label>
       <span>Audio:</span>
-      <FileInput
-        onLoad={handleLoadAudio}
-        extensions={[".wav"]} // ["audio/*"] でもいける？
-      />
+      <FileInput onLoad={handleLoadAudio} extensions={[".wav"]} />
     </label>
   );
 };

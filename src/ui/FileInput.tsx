@@ -1,6 +1,6 @@
 import { ChangeEvent } from "react";
 import styles from "./FileInput.module.css";
-import { cx } from "./util";
+import { cx } from "../util";
 
 type Props = {
   onLoad: (file: File) => void;
