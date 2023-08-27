@@ -1,4 +1,4 @@
-import { Track } from "./midi";
+import { Track } from "./model";
 
 export const Tracks = ({
   tracks,

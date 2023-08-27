@@ -1,5 +1,5 @@
 import { ChangeEvent } from "react";
-import styles from "./FIleUpload.module.css";
+import styles from "./FileInput.module.css";
 import { cx } from "./util";
 
 type Props = {

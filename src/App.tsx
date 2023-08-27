@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import { FileInput } from "./FileUpload";
 
 import { Tracks } from "./Tracks";
-import { Note, Track, parseMidiData } from "./midi";
+import { Image, ImageLoader } from "./ImageLoader";
+import { MidiData, Note, Size, Track } from "./model";
+import { AudioLoader } from "./AudioLoader";
+import { MidiLoader } from "./MidiLoader";
 
-function App() {
+export const App = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [size, setSize] = useState<Size>({
@@ -73,32 +75,17 @@ function App() {
     }
     setStartTime(null);
   };
-  const handleLoadMidi = (file: File) => {
-    void (async () => {
-      const buffer = await file.arrayBuffer();
-      const { tracks, notes } = parseMidiData(buffer);
-      setNotes(notes);
-      setTracks(tracks);
-      setEnabledTracks(new Array(tracks.length).fill(true));
-    })();
+  const handleLoadMidi = ({ tracks, notes }: MidiData) => {
+    setNotes(notes);
+    setTracks(tracks);
+    setEnabledTracks(new Array(tracks.length).fill(true));
   };
-  const handleLoadImage = (file: File) => {
-    void (async () => {
-      const buffer = await file.arrayBuffer();
-      const size = await getImageSize(file);
-      const blob = new Blob([buffer], { type: file.type });
-      const url = URL.createObjectURL(blob);
-      setImageUrl(url);
-      setSize(size);
-    })();
+  const handleLoadImage = ({ imageUrl, size }: Image) => {
+    setImageUrl(imageUrl);
+    setSize(size);
   };
-  const handleLoadAudio = (file: File) => {
-    void (async () => {
-      const arrayBuffer = await file.arrayBuffer();
-      const ctx = new AudioContext();
-      const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-      setAudioBuffer(audioBuffer);
-    })();
+  const handleLoadAudio = (audioBuffer: AudioBuffer) => {
+    setAudioBuffer(audioBuffer);
   };
   const handleSelectTracks = (enabledTracks: boolean[]) => {
     setEnabledTracks(enabledTracks);
@@ -134,21 +121,9 @@ function App() {
   return (
     <div className="panes">
       <div className="pane resourcePane fields">
-        <label>
-          <span>MIDI:</span>
-          <FileInput onLoad={handleLoadMidi} extensions={[".mid", ".midi"]} />
-        </label>
-        <label>
-          <span>Image:</span>
-          <FileInput
-            onLoad={handleLoadImage}
-            extensions={[".png", "jpg", "jpeg"]}
-          />
-        </label>
-        <label>
-          <span>Audio:</span>
-          <FileInput onLoad={handleLoadAudio} extensions={[".wav"]} />
-        </label>
+        <MidiLoader onLoad={handleLoadMidi} />
+        <ImageLoader onLoad={handleLoadImage} />
+        <AudioLoader onLoad={handleLoadAudio} />
       </div>
       <div className="pane trackPane">
         <Tracks
@@ -215,7 +190,7 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
 function createPatch(
   size: Size,
@@ -267,29 +242,4 @@ function applyPatch(el: SVGElement, patch: Record<string, string | number>) {
   for (const [key, value] of Object.entries(patch)) {
     el.setAttributeNS(null, key, String(value));
   }
-}
-
-export default App;
-
-type Size = { width: number; height: number };
-async function getImageSize(file: File): Promise<Size> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-
-    img.onload = () => {
-      const size = {
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-      };
-
-      URL.revokeObjectURL(img.src);
-      resolve(size);
-    };
-
-    img.onerror = (error) => {
-      reject(error);
-    };
-
-    img.src = URL.createObjectURL(file);
-  });
 }
