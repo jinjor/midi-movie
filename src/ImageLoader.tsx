@@ -1,4 +1,4 @@
-import { FileInput } from "./FileInput";
+import { FileInput } from "./ui/FileInput";
 import { Size } from "./model";
 
 export type Image = {
@@ -23,7 +23,7 @@ export const ImageLoader = ({ onLoad }: Props) => {
       <span>Image:</span>
       <FileInput
         onLoad={handleLoadImage}
-        extensions={[".png", "jpg", "jpeg"]} // ["image/*"] でもいける？
+        extensions={[".png", "jpg", "jpeg"]}
       />
     </label>
   );

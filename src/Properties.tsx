@@ -1,27 +1,32 @@
-import { NumberInput } from "./NumberInput";
+import { NumberInput } from "./ui/NumberInput";
+import { Mutables } from "./model";
 
 type Props = {
-  minNote: number;
-  maxNote: number;
-  onMinNoteChange: (minNote: number) => void;
-  onMaxNoteChange: (maxNote: number) => void;
+  mutablesRef: React.MutableRefObject<Mutables>;
 };
 
-export const Properties = ({
-  minNote,
-  maxNote,
-  onMinNoteChange,
-  onMaxNoteChange,
-}: Props) => {
+export const Properties = ({ mutablesRef }: Props) => {
+  const onMinNoteChange = (minNote: number) => {
+    mutablesRef.current.minNote = minNote;
+  };
+  const onMaxNoteChange = (maxNote: number) => {
+    mutablesRef.current.maxNote = maxNote;
+  };
   return (
     <>
       <label>
         Min note:
-        <NumberInput defaultValue={minNote} onChange={onMinNoteChange} />
+        <NumberInput
+          defaultValue={mutablesRef.current.minNote}
+          onChange={onMinNoteChange}
+        />
       </label>
       <label>
         Max note:
-        <NumberInput defaultValue={maxNote} onChange={onMaxNoteChange} />
+        <NumberInput
+          defaultValue={mutablesRef.current.maxNote}
+          onChange={onMaxNoteChange}
+        />
       </label>
     </>
   );
