@@ -7,7 +7,6 @@ type Props = {
   notes: Note[];
   imageUrl: string | null;
   audioBuffer: AudioBuffer | null;
-  enabledTracks: boolean[];
   mutablesRef: React.MutableRefObject<Mutables>;
 };
 
@@ -15,7 +14,6 @@ export const Player = ({
   notes,
   imageUrl,
   audioBuffer,
-  enabledTracks,
   mutablesRef,
 }: Props) => {
   const timeRangeSec = 10;
@@ -39,10 +37,14 @@ export const Player = ({
       setInterval(() => {
         const display = displayRef.current!;
         const rects = display.getNoteRects();
-        const { minNote, maxNote, size } = mutablesRef.current;
+        const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
+        const elapsedSec = (performance.now() - startTime) / 1000;
         for (const [index, note] of notes.entries()) {
           const rect = rects[index];
-          const elapsedSec = (performance.now() - startTime) / 1000;
+          const hidden =
+            !enabledTracks.has(note.trackIndex) ||
+            note.noteNumber < minNote ||
+            note.noteNumber > maxNote;
           const patch = createPatch(
             size,
             note,
@@ -52,9 +54,8 @@ export const Player = ({
             timeRangeSec,
             false
           );
-          if (patch != null) {
-            applyPatch(rect, patch);
-          }
+          const stylePatch = { display: hidden ? "none" : "block" };
+          applyPatch(rect, stylePatch, patch ?? {});
         }
       }, 1000 / 60)
     );
@@ -72,16 +73,16 @@ export const Player = ({
   };
   useEffect(() => {
     const display = displayRef.current!;
-    const { minNote, maxNote, size } = mutablesRef.current;
+    const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
     const rects = display.getNoteRects();
+    const elapsedSec =
+      startTime != null ? (performance.now() - startTime) / 1000 : 0;
     for (const [index, note] of notes.entries()) {
       const hidden =
-        !enabledTracks[note.trackIndex] ||
+        !enabledTracks.has(note.trackIndex) ||
         note.noteNumber < minNote ||
         note.noteNumber > maxNote;
       const rect = rects[index];
-      const elapsedSec =
-        startTime != null ? (performance.now() - startTime) / 1000 : 0;
       const patch = createPatch(
         size,
         note,
@@ -91,10 +92,10 @@ export const Player = ({
         timeRangeSec,
         true
       );
-      applyPatch(rect, patch!);
-      rect.style.display = hidden ? "none" : "block";
+      const stylePatch = { display: hidden ? "none" : "block" };
+      applyPatch(rect, stylePatch, patch!);
     }
-  }, [notes, startTime, enabledTracks, mutablesRef]);
+  }, [notes, startTime, mutablesRef]);
   return (
     <>
       <Display

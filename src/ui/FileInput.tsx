@@ -1,6 +1,4 @@
 import { ChangeEvent } from "react";
-import styles from "./FileInput.module.css";
-import { cx } from "../util";
 
 type Props = {
   onLoad: (file: File) => void;
@@ -13,7 +11,6 @@ export const FileInput = ({ onLoad, extensions }: Props) => {
   };
   return (
     <input
-      className={cx(styles.input)}
       type="file"
       onChange={handleFileChange}
       accept={extensions.join(",")}

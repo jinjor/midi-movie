@@ -1,26 +1,26 @@
-import { Track } from "./model";
+import { Mutables, Track } from "./model";
+import styles from "./Tracks.module.css";
 
 export const Tracks = ({
   tracks,
-  enabledTracks,
-  onChange,
+  mutablesRef,
 }: {
   tracks: Track[];
-  enabledTracks: boolean[];
-  onChange: (enabledTracks: boolean[]) => void;
+  mutablesRef: React.MutableRefObject<Mutables>;
 }) => {
   return (
-    <ul className="tracks">
+    <ul className={styles.tracks}>
       {tracks.map((track, i) => (
-        <li className="track" key={i}>
+        <li key={i}>
           <label>
             <input
               type="checkbox"
-              checked={enabledTracks[i]}
+              defaultChecked={mutablesRef.current.enabledTracks.has(i)}
               onChange={(e) => {
-                const newEnabledTracks = [...enabledTracks];
-                newEnabledTracks[i] = e.target.checked;
-                onChange(newEnabledTracks);
+                const enabledTracks = mutablesRef.current.enabledTracks;
+                e.target.checked
+                  ? enabledTracks.add(i)
+                  : enabledTracks.delete(i);
               }}
             />
             {track.number}. {track.name}

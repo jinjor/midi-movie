@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Note, Size } from "./model";
+import styles from "./Display.module.css";
 
 export type DisplayApi = {
   getNoteRects: () => NodeListOf<SVGRectElement>;
@@ -25,7 +26,7 @@ export const Display = ({ apiRef, size, imageUrl, notes }: Props) => {
   }, [apiRef]);
   return (
     <svg
-      className="display"
+      className={styles.display}
       ref={svgRef}
       width={size.width}
       height={size.height}

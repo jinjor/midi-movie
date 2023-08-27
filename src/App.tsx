@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import "./App.css";
+import styles from "./App.module.css";
 
 import { Tracks } from "./Tracks";
 import { Image, ImageLoader } from "./ImageLoader";
@@ -8,6 +8,7 @@ import { AudioLoader } from "./AudioLoader";
 import { MidiLoader } from "./MidiLoader";
 import { Properties } from "./Properties";
 import { Player } from "./Player";
+import { cx } from "./util";
 
 export const App = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -20,14 +21,16 @@ export const App = () => {
       width: 512,
       height: 512 * (9 / 16),
     },
+    enabledTracks: new Set(),
   });
   const [tracks, setTracks] = useState<Track[]>([]);
-  const [enabledTracks, setEnabledTracks] = useState<boolean[]>([]);
 
   const handleLoadMidi = ({ tracks, notes }: MidiData) => {
     setNotes(notes);
     setTracks(tracks);
-    setEnabledTracks(new Array(tracks.length).fill(true));
+    mutablesRef.current.enabledTracks = new Set([
+      ...Array(tracks.length).keys(),
+    ]);
   };
   const handleLoadImage = ({ imageUrl, size }: Image) => {
     setImageUrl(imageUrl);
@@ -36,34 +39,26 @@ export const App = () => {
   const handleLoadAudio = (audioBuffer: AudioBuffer) => {
     setAudioBuffer(audioBuffer);
   };
-  const handleSelectTracks = (enabledTracks: boolean[]) => {
-    setEnabledTracks(enabledTracks);
-  };
 
   return (
-    <div className="panes">
-      <div className="pane resourcePane fields">
+    <div className={styles.panes}>
+      <div className={cx(styles.pane, styles.resourcePane, styles.fields)}>
         <MidiLoader onLoad={handleLoadMidi} />
         <ImageLoader onLoad={handleLoadImage} />
         <AudioLoader onLoad={handleLoadAudio} />
       </div>
-      <div className="pane trackPane">
-        <Tracks
-          tracks={tracks}
-          enabledTracks={enabledTracks}
-          onChange={handleSelectTracks}
-        />
+      <div className={cx(styles.pane, styles.trackPane)}>
+        <Tracks tracks={tracks} mutablesRef={mutablesRef} />
       </div>
-      <div className="pane playerPane">
+      <div className={cx(styles.pane, styles.playerPane)}>
         <Player
           notes={notes}
           imageUrl={imageUrl}
           audioBuffer={audioBuffer}
-          enabledTracks={enabledTracks}
           mutablesRef={mutablesRef}
         />
       </div>
-      <div className="pane propertyPane fields">
+      <div className={cx(styles.pane, styles.propertyPane, styles.fields)}>
         <Properties mutablesRef={mutablesRef} />
       </div>
     </div>

@@ -1,0 +1,9 @@
+.tracks {
+  padding-left: 0;
+  & > li {
+    list-style-type: none;
+  }
+  & label {
+    user-select: none;
+  }
+}
