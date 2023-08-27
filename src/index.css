@@ -1,7 +1,7 @@
 :root {
   --color-bg-background: #000;
   --color-bg-foreground: #222229;
-  --color-bg-button: var(--color-bg-foreground);
+  --color-bg-button: #29292f;
   --color-border-default: #444;
 }
 html,
@@ -16,15 +16,33 @@ body {
 * {
   box-sizing: border-box;
 }
-button {
+ul {
+  margin: 0;
+}
+input[type=""] {
   color: inherit;
-  background-color: var(--color-bg-button);
-  border: solid 1px var(--color-border-default) !important;
-  border: none;
-  cursor: pointer;
+  background-color: var(--color-bg-foreground);
+  border: solid 1px var(--color-border-default);
   outline: none;
   padding: 5px 10px;
   appearance: none;
+}
+button,
+.button {
+  color: inherit;
+  background-color: var(--color-bg-button);
+  border: solid 1px var(--color-border-default);
+  outline: none;
+  padding: 5px 10px;
+  appearance: none;
+  cursor: pointer;
+}
+::file-selector-button {
+  font: inherit;
+}
+::-webkit-file-upload-button {
+  font: inherit;
+  -webkit-appearance: button;
 }
 #root {
   width: 100%;
