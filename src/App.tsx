@@ -12,6 +12,9 @@ function App() {
     width: 512,
     height: 512 * (9 / 16),
   });
+  const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
+  const [audioBufferSource, setAudioBufferSource] =
+    useState<AudioBufferSourceNode | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const minNoteRef = useRef<number>(0);
   const maxNoteRef = useRef<number>(127);
@@ -22,6 +25,14 @@ function App() {
   const timeRangeSec = 10;
 
   const handlePlay = () => {
+    if (audioBuffer) {
+      const ctx = new AudioContext();
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(ctx.destination);
+      source.start();
+      setAudioBufferSource(source);
+    }
     const svg = svgRef.current!;
     const startTime = performance.now();
     setStartTime(startTime);
@@ -52,6 +63,10 @@ function App() {
     );
   };
   const handleStop = () => {
+    if (audioBufferSource) {
+      audioBufferSource.stop();
+      setAudioBufferSource(null);
+    }
     if (timer) {
       clearInterval(timer);
       setTimer(null);
@@ -75,6 +90,14 @@ function App() {
       const url = URL.createObjectURL(blob);
       setImageUrl(url);
       setSize(size);
+    })();
+  };
+  const handleLoadAudio = (file: File) => {
+    void (async () => {
+      const arrayBuffer = await file.arrayBuffer();
+      const ctx = new AudioContext();
+      const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+      setAudioBuffer(audioBuffer);
     })();
   };
   const handleSelectTracks = (enabledTracks: boolean[]) => {
@@ -121,6 +144,10 @@ function App() {
             onLoad={handleLoadImage}
             extensions={[".png", "jpg", "jpeg"]}
           />
+        </label>
+        <label>
+          <span>Audio:</span>
+          <FileInput onLoad={handleLoadAudio} extensions={[".wav"]} />
         </label>
       </div>
       <div className="pane trackPane">
