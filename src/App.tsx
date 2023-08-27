@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import FileUploadComponent from "./FileUploadComponent";
+import { FileInput } from "./FileUpload";
 
 import { Tracks } from "./Tracks";
 import { Note, Track, parseMidiData } from "./midi";
@@ -110,21 +110,19 @@ function App() {
   }, [size, notes, startTime, enabledTracks]);
   return (
     <div className="panes">
-      <div className="pane resourcePane">
-        <div>
-          <label>
-            midi:
-            <FileUploadComponent onLoad={handleLoadMidi} />
-          </label>
-        </div>
-        <div>
-          <label>
-            image:
-            <FileUploadComponent onLoad={handleLoadImage} />
-          </label>
-        </div>
+      <div className="pane resourcePane fields">
+        <label>
+          <span>MIDI:</span>
+          <FileInput onLoad={handleLoadMidi} extensions={[".mid", ".midi"]} />
+        </label>
+        <label>
+          <span>Image:</span>
+          <FileInput
+            onLoad={handleLoadImage}
+            extensions={[".png", "jpg", "jpeg"]}
+          />
+        </label>
       </div>
-
       <div className="pane trackPane">
         <Tracks
           tracks={tracks}
@@ -166,9 +164,9 @@ function App() {
           )}
         </div>
       </div>
-      <div className="pane propertyPane">
-        <label className="property">
-          minNote:
+      <div className="pane propertyPane fields">
+        <label>
+          Min note:
           <input
             type="number"
             defaultValue={minNoteRef.current}
@@ -177,8 +175,8 @@ function App() {
             }}
           />
         </label>
-        <label className="property">
-          maxNote:
+        <label>
+          Max note:
           <input
             type="number"
             defaultValue={maxNoteRef.current}
