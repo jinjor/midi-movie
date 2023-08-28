@@ -1,4 +1,8 @@
 export type Size = { width: number; height: number };
+export type Image = {
+  url: string | null;
+  size: Size;
+};
 export type Track = {
   number: number;
   name: string;

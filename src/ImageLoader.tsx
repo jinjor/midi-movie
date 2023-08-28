@@ -1,10 +1,6 @@
 import { FileInput } from "./ui/FileInput";
-import { Size } from "./model";
+import { Image, Size } from "./model";
 
-export type Image = {
-  imageUrl: string;
-  size: Size;
-};
 type Props = {
   onLoad: (image: Image) => void;
 };
@@ -14,8 +10,8 @@ export const ImageLoader = ({ onLoad }: Props) => {
       const buffer = await file.arrayBuffer();
       const size = await getImageSize(file);
       const blob = new Blob([buffer], { type: file.type });
-      const imageUrl = URL.createObjectURL(blob);
-      onLoad({ imageUrl, size });
+      const url = URL.createObjectURL(blob);
+      onLoad({ url, size });
     })();
   };
   return (
@@ -30,7 +26,7 @@ export const ImageLoader = ({ onLoad }: Props) => {
 };
 async function getImageSize(file: File): Promise<Size> {
   return new Promise((resolve, reject) => {
-    const img = new Image();
+    const img = new window.Image();
 
     img.onload = () => {
       const size = {

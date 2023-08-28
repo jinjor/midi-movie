@@ -2,8 +2,8 @@ import { useRef, useState } from "react";
 import styles from "./App.module.css";
 
 import { Tracks } from "./Tracks";
-import { Image, ImageLoader } from "./ImageLoader";
-import { MidiData, Mutables, Note, Track } from "./model";
+import { ImageLoader } from "./ImageLoader";
+import { Image, MidiData, Mutables, Note, Track } from "./model";
 import { AudioLoader } from "./AudioLoader";
 import { MidiLoader } from "./MidiLoader";
 import { Properties } from "./Properties";
@@ -11,20 +11,22 @@ import { Player } from "./Player";
 import { cx } from "./util";
 
 export const App = () => {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [image, setImage] = useState<Image>({
+    url: null,
+    size: {
+      width: 512,
+      height: 512 * (9 / 16),
+    },
+  });
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const mutablesRef = useRef<Mutables>({
     minNote: 0,
     maxNote: 127,
-    size: {
-      width: 512,
-      height: 512 * (9 / 16),
-    },
+    size: image.size,
     enabledTracks: new Set(),
   });
   const [tracks, setTracks] = useState<Track[]>([]);
-
   const handleLoadMidi = ({ tracks, notes }: MidiData) => {
     setNotes(notes);
     setTracks(tracks);
@@ -32,14 +34,13 @@ export const App = () => {
       ...Array(tracks.length).keys(),
     ]);
   };
-  const handleLoadImage = ({ imageUrl, size }: Image) => {
-    setImageUrl(imageUrl);
-    mutablesRef.current.size = size;
+  const handleLoadImage = (image: Image) => {
+    setImage(image);
+    mutablesRef.current.size = image.size;
   };
   const handleLoadAudio = (audioBuffer: AudioBuffer) => {
     setAudioBuffer(audioBuffer);
   };
-
   return (
     <div className={styles.panes}>
       <div className={cx(styles.pane, styles.resourcePane, styles.fields)}>
@@ -53,7 +54,7 @@ export const App = () => {
       <div className={cx(styles.pane, styles.playerPane)}>
         <Player
           notes={notes}
-          imageUrl={imageUrl}
+          image={image}
           audioBuffer={audioBuffer}
           mutablesRef={mutablesRef}
         />

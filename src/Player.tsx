@@ -1,21 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { Mutables, Note } from "./model";
+import { Image, Mutables, Note } from "./model";
 import { applyPatch, createPatch } from "./render";
 import { Display, DisplayApi } from "./Display";
+import { PlayerControl } from "./PlayerControl";
 
 type Props = {
   notes: Note[];
-  imageUrl: string | null;
+  image: Image;
   audioBuffer: AudioBuffer | null;
   mutablesRef: React.MutableRefObject<Mutables>;
 };
 
-export const Player = ({
-  notes,
-  imageUrl,
-  audioBuffer,
-  mutablesRef,
-}: Props) => {
+export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
   const timeRangeSec = 10;
   const displayRef = useRef<DisplayApi>(null);
   const [audioBufferSource, setAudioBufferSource] =
@@ -97,20 +93,19 @@ export const Player = ({
     }
   }, [notes, startTime, mutablesRef]);
   return (
-    <>
+    <div style={{ width: image.size.width }}>
       <Display
         apiRef={displayRef}
-        size={mutablesRef.current.size}
-        imageUrl={imageUrl}
+        size={image.size}
+        imageUrl={image.url}
         notes={notes}
       />
-      <div className="controls">
-        {startTime == null ? (
-          <button onClick={handlePlay}>play</button>
-        ) : (
-          <button onClick={handleStop}>stop</button>
-        )}
-      </div>
-    </>
+      <PlayerControl
+        isPlaying={timer != null}
+        onPlay={handlePlay}
+        onStop={handleStop}
+        startTime={startTime}
+      />
+    </div>
   );
 };
