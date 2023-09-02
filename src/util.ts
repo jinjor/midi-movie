@@ -16,3 +16,8 @@ export const cx = (
   }
   return [...set].join(" ");
 };
+export const formatTime = (timeInSec: number) => {
+  const minutes = Math.floor(timeInSec / 60);
+  const seconds = Math.floor(timeInSec % 60);
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};

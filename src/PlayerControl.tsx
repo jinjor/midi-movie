@@ -1,20 +1,12 @@
 import { useEffect, useState } from "react";
 import styles from "./PlayerControl.module.css";
+import { formatTime } from "./util";
 
 type Props = {
   onPlay: () => void;
   onStop: () => void;
   isPlaying: boolean;
   startTime: number | null;
-};
-
-const formatTime = (timeInSec: number | null) => {
-  if (timeInSec === null) {
-    return "--:--";
-  }
-  const minutes = Math.floor(timeInSec / 60);
-  const seconds = Math.floor(timeInSec % 60);
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
 
 export const PlayerControl = ({
@@ -43,7 +35,9 @@ export const PlayerControl = ({
           <button onClick={onPlay}>Play</button>
         )}
       </div>
-      <div>{formatTime(currentTimeInSec)}</div>
+      <div>
+        {currentTimeInSec == null ? "--:--" : formatTime(currentTimeInSec)}
+      </div>
     </div>
   );
 };
