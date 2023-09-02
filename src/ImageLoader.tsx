@@ -1,16 +1,19 @@
 import { FileInput } from "./ui/FileInput";
 import { Image, Size } from "./model";
+import { useState } from "react";
 
 type Props = {
   onLoad: (image: Image) => void;
 };
 export const ImageLoader = ({ onLoad }: Props) => {
+  const [size, setSize] = useState<Size | null>(null);
   const handleLoadImage = (file: File) => {
     void (async () => {
       const buffer = await file.arrayBuffer();
       const size = await getImageSize(file);
       const blob = new Blob([buffer], { type: file.type });
       const url = URL.createObjectURL(blob);
+      setSize(size);
       onLoad({ url, size });
     })();
   };
@@ -21,6 +24,11 @@ export const ImageLoader = ({ onLoad }: Props) => {
         onLoad={handleLoadImage}
         extensions={[".png", "jpg", "jpeg"]}
       />
+      {size && (
+        <span>
+          {size.width} x {size.height}
+        </span>
+      )}
     </label>
   );
 };
