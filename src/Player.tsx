@@ -11,68 +11,77 @@ type Props = {
   mutablesRef: React.MutableRefObject<Mutables>;
 };
 
+type PlayingState = {
+  startTime: number;
+  timer: number;
+};
+
 export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
   const timeRangeSec = 10;
   const displayRef = useRef<DisplayApi>(null);
   const [audioBufferSource, setAudioBufferSource] =
     useState<AudioBufferSourceNode | null>(null);
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [timer, setTimer] = useState<number | null>(null);
+  const [playingState, setPlayingState] = useState<PlayingState | null>(null);
+  const [offsetInSec, setOffsetInSec] = useState(0);
   const handlePlay = () => {
     if (audioBuffer) {
       const ctx = new AudioContext();
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(ctx.destination);
-      source.start();
+      source.start(0, offsetInSec);
       setAudioBufferSource(source);
     }
-    const startTime = performance.now();
-    setStartTime(startTime);
-    setTimer(
-      setInterval(() => {
-        const display = displayRef.current!;
-        const rects = display.getNoteRects();
-        const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
-        const elapsedSec = (performance.now() - startTime) / 1000;
-        for (const [index, note] of notes.entries()) {
-          const rect = rects[index];
-          const hidden =
-            !enabledTracks.has(note.trackIndex) ||
-            note.noteNumber < minNote ||
-            note.noteNumber > maxNote;
-          const patch = createPatch(
-            size,
-            note,
-            elapsedSec,
-            minNote,
-            maxNote,
-            timeRangeSec,
-            false
-          );
-          const stylePatch = { display: hidden ? "none" : "block" };
-          applyPatch(rect, stylePatch, patch ?? {});
-        }
-      }, 1000 / 60)
-    );
+    const startTime = performance.now() - offsetInSec * 1000;
+    const timer = setInterval(() => {
+      const display = displayRef.current!;
+      const rects = display.getNoteRects();
+      const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
+      const elapsedSec = (performance.now() - startTime) / 1000;
+      for (const [index, note] of notes.entries()) {
+        const rect = rects[index];
+        const hidden =
+          !enabledTracks.has(note.trackIndex) ||
+          note.noteNumber < minNote ||
+          note.noteNumber > maxNote;
+        const patch = createPatch(
+          size,
+          note,
+          elapsedSec,
+          minNote,
+          maxNote,
+          timeRangeSec,
+          false
+        );
+        const stylePatch = { display: hidden ? "none" : "block" };
+        applyPatch(rect, stylePatch, patch ?? {});
+      }
+    }, 1000 / 60);
+    setPlayingState({
+      startTime,
+      timer,
+    });
   };
-  const handleStop = () => {
+  const handleReturn = () => {
+    handlePause();
+    setOffsetInSec(0);
+  };
+  const handlePause = () => {
     if (audioBufferSource) {
       audioBufferSource.stop();
       setAudioBufferSource(null);
     }
-    if (timer) {
-      clearInterval(timer);
-      setTimer(null);
+    if (playingState) {
+      clearInterval(playingState.timer);
+      setOffsetInSec((performance.now() - playingState.startTime) / 1000);
+      setPlayingState(null);
     }
-    setStartTime(null);
   };
   useEffect(() => {
     const display = displayRef.current!;
     const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
     const rects = display.getNoteRects();
-    const elapsedSec =
-      startTime != null ? (performance.now() - startTime) / 1000 : 0;
+    const elapsedSec = offsetInSec;
     for (const [index, note] of notes.entries()) {
       const hidden =
         !enabledTracks.has(note.trackIndex) ||
@@ -91,7 +100,7 @@ export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
       const stylePatch = { display: hidden ? "none" : "block" };
       applyPatch(rect, stylePatch, patch!);
     }
-  }, [notes, startTime, mutablesRef]);
+  }, [notes, mutablesRef, playingState, offsetInSec]);
   return (
     <div style={{ width: image.size.width }}>
       <Display
@@ -101,10 +110,11 @@ export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
         notes={notes}
       />
       <PlayerControl
-        isPlaying={timer != null}
+        isPlaying={playingState != null}
         onPlay={handlePlay}
-        onStop={handleStop}
-        startTime={startTime}
+        onPause={handlePause}
+        onReturn={handleReturn}
+        startTime={playingState?.startTime ?? null}
       />
     </div>
   );
