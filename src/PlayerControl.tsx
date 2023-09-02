@@ -4,7 +4,8 @@ import { formatTime } from "./util";
 
 type Props = {
   onPlay: () => void;
-  onStop: () => void;
+  onPause: () => void;
+  onReturn: () => void;
   isPlaying: boolean;
   startTime: number | null;
 };
@@ -12,7 +13,8 @@ type Props = {
 export const PlayerControl = ({
   isPlaying,
   onPlay,
-  onStop,
+  onPause,
+  onReturn,
   startTime,
 }: Props) => {
   const [currentTimeInSec, setCurrentTimeInSec] = useState<number | null>(null);
@@ -29,8 +31,9 @@ export const PlayerControl = ({
   return (
     <div className={styles.controls}>
       <div>
+        <button onClick={onReturn}>Return</button>
         {isPlaying ? (
-          <button onClick={onStop}>Stop</button>
+          <button onClick={onPause}>Pause</button>
         ) : (
           <button onClick={onPlay}>Play</button>
         )}
