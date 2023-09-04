@@ -9,14 +9,22 @@ type Props = {
   image: Image;
   audioBuffer: AudioBuffer | null;
   mutablesRef: React.MutableRefObject<Mutables>;
+  midiOffsetInSec: number;
 };
 
 type PlayingState = {
   startTime: number;
   timer: number;
+  midiOffsetInSec: number;
 };
 
-export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
+export const Player = ({
+  notes,
+  image,
+  audioBuffer,
+  mutablesRef,
+  midiOffsetInSec,
+}: Props) => {
   const timeRangeSec = 10;
   const displayRef = useRef<DisplayApi>(null);
   const [audioBufferSource, setAudioBufferSource] =
@@ -32,12 +40,13 @@ export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
       source.start(0, offsetInSec);
       setAudioBufferSource(source);
     }
-    const startTime = performance.now() - offsetInSec * 1000;
+    const startTime = performance.now();
     const timer = setInterval(() => {
       const display = displayRef.current!;
       const rects = display.getNoteRects();
       const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
-      const elapsedSec = (performance.now() - startTime) / 1000;
+      const elapsedSec =
+        offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
       for (const [index, note] of notes.entries()) {
         const rect = rects[index];
         const hidden =
@@ -60,6 +69,7 @@ export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
     setPlayingState({
       startTime,
       timer,
+      midiOffsetInSec,
     });
   };
   const handleReturn = () => {
@@ -73,15 +83,20 @@ export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
     }
     if (playingState) {
       clearInterval(playingState.timer);
-      setOffsetInSec((performance.now() - playingState.startTime) / 1000);
+      setOffsetInSec(
+        offsetInSec + (performance.now() - playingState.startTime) / 1000
+      );
       setPlayingState(null);
     }
   };
   useEffect(() => {
+    if (playingState != null) {
+      return;
+    }
     const display = displayRef.current!;
     const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
     const rects = display.getNoteRects();
-    const elapsedSec = offsetInSec;
+    const elapsedSec = offsetInSec + midiOffsetInSec;
     for (const [index, note] of notes.entries()) {
       const hidden =
         !enabledTracks.has(note.trackIndex) ||
@@ -100,7 +115,7 @@ export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
       const stylePatch = { display: hidden ? "none" : "block" };
       applyPatch(rect, stylePatch, patch!);
     }
-  }, [notes, mutablesRef, playingState, offsetInSec]);
+  }, [notes, mutablesRef, playingState, offsetInSec, midiOffsetInSec]);
   return (
     <div style={{ width: image.size.width }}>
       <Display
