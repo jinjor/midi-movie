@@ -32,12 +32,12 @@ export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
       source.start(0, offsetInSec);
       setAudioBufferSource(source);
     }
-    const startTime = performance.now() - offsetInSec * 1000;
+    const startTime = performance.now();
     const timer = setInterval(() => {
       const display = displayRef.current!;
       const rects = display.getNoteRects();
       const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
-      const elapsedSec = (performance.now() - startTime) / 1000;
+      const elapsedSec = offsetInSec + (performance.now() - startTime) / 1000;
       for (const [index, note] of notes.entries()) {
         const rect = rects[index];
         const hidden =
@@ -73,7 +73,9 @@ export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
     }
     if (playingState) {
       clearInterval(playingState.timer);
-      setOffsetInSec((performance.now() - playingState.startTime) / 1000);
+      setOffsetInSec(
+        offsetInSec + (performance.now() - playingState.startTime) / 1000
+      );
       setPlayingState(null);
     }
   };
