@@ -10,12 +10,12 @@ type Props = {
   audioBuffer: AudioBuffer | null;
   mutablesRef: React.MutableRefObject<Mutables>;
   midiOffsetInSec: number;
+  audioOffsetInSec: number;
 };
 
 type PlayingState = {
   startTime: number;
   timer: number;
-  midiOffsetInSec: number;
 };
 
 export const Player = ({
@@ -24,6 +24,7 @@ export const Player = ({
   audioBuffer,
   mutablesRef,
   midiOffsetInSec,
+  audioOffsetInSec,
 }: Props) => {
   const timeRangeSec = 10;
   const displayRef = useRef<DisplayApi>(null);
@@ -37,7 +38,12 @@ export const Player = ({
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(ctx.destination);
-      source.start(0, offsetInSec);
+      const offset = offsetInSec + audioOffsetInSec;
+      if (offset > 0) {
+        source.start(0, offset);
+      } else {
+        source.start(-offset);
+      }
       setAudioBufferSource(source);
     }
     const startTime = performance.now();
@@ -69,7 +75,6 @@ export const Player = ({
     setPlayingState({
       startTime,
       timer,
-      midiOffsetInSec,
     });
   };
   const handleReturn = () => {
