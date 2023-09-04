@@ -47,7 +47,7 @@ export const Player = ({
       setAudioBufferSource(source);
     }
     const startTime = performance.now();
-    const timer = setInterval(() => {
+    const timer = window.setInterval(() => {
       const display = displayRef.current!;
       const rects = display.getNoteRects();
       const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
