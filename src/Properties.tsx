@@ -5,12 +5,16 @@ type Props = {
   mutablesRef: React.MutableRefObject<Mutables>;
   midiOffsetInSec: number;
   onMidiOffsetChange: (midiOffsetInSec: number) => void;
+  audioOffsetInSec: number;
+  onAudioOffsetChange: (audioOffsetInSec: number) => void;
 };
 
 export const Properties = ({
   mutablesRef,
   midiOffsetInSec,
   onMidiOffsetChange,
+  audioOffsetInSec,
+  onAudioOffsetChange,
 }: Props) => {
   const handleMinNoteChange = (minNote: number) => {
     mutablesRef.current.minNote = minNote;
@@ -20,6 +24,9 @@ export const Properties = ({
   };
   const handleMidiOffsetChange = (midiOffsetInMilliSec: number) => {
     onMidiOffsetChange(midiOffsetInMilliSec / 1000);
+  };
+  const handleAudioOffsetChange = (audioOffsetInMilliSec: number) => {
+    onAudioOffsetChange(audioOffsetInMilliSec / 1000);
   };
   return (
     <>
@@ -44,8 +51,19 @@ export const Properties = ({
       <label>
         Midi Offset(ms):
         <NumberInput
+          min={-60000}
+          max={60000}
           defaultValue={midiOffsetInSec * 1000}
           onChange={handleMidiOffsetChange}
+        />
+      </label>
+      <label>
+        Audio Offset(ms):
+        <NumberInput
+          min={-60000}
+          max={60000}
+          defaultValue={audioOffsetInSec * 1000}
+          onChange={handleAudioOffsetChange}
         />
       </label>
     </>
