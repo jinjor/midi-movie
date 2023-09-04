@@ -3,6 +3,7 @@ import { Image, Mutables, Note } from "./model";
 import { applyPatch, createPatch } from "./render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
+import { useCounter } from "./counter";
 
 type Props = {
   notes: Note[];
@@ -26,6 +27,7 @@ export const Player = ({
   midiOffsetInSec,
   audioOffsetInSec,
 }: Props) => {
+  const { countEffect } = useCounter("Player");
   const timeRangeSec = 10;
   const displayRef = useRef<DisplayApi>(null);
   const [audioBufferSource, setAudioBufferSource] =
@@ -95,6 +97,7 @@ export const Player = ({
     }
   };
   useEffect(() => {
+    countEffect("effect");
     if (playingState != null) {
       return;
     }
@@ -120,7 +123,14 @@ export const Player = ({
       const stylePatch = { display: hidden ? "none" : "block" };
       applyPatch(rect, stylePatch, patch!);
     }
-  }, [notes, mutablesRef, playingState, offsetInSec, midiOffsetInSec]);
+  }, [
+    notes,
+    mutablesRef,
+    playingState,
+    offsetInSec,
+    midiOffsetInSec,
+    countEffect,
+  ]);
   return (
     <div style={{ width: image.size.width }}>
       <Display
