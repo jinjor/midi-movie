@@ -4,16 +4,9 @@ type Count = Map<string, Map<string, LifecycleCount>>;
 type LifecycleCount = {
   mount: number;
   render: number;
-  effect: Map<string, number>;
   callback: Map<string, number>;
 };
 const randomId = () => Math.random().toString(36).slice(2);
-const isDevMode = () => {
-  return import.meta.env.DEV;
-};
-const isStrictMode = () => {
-  return isDevMode();
-};
 export const count: Count = new Map();
 export const resetCount = () => {
   count.clear();
@@ -22,17 +15,7 @@ export const getTotalRenderCount = (key: string) => {
   const lifecycleMap = count.get(key);
   const lifecycles = lifecycleMap ? [...lifecycleMap.values()] : [];
   const value = lifecycles.reduce((acc, { render }) => acc + render, 0);
-  return isStrictMode() ? value / 2 : value;
-};
-export const getTotalEffectCount = (key: string, effectKey: string) => {
-  const lifecycleMap = count.get(key);
-  const lifecycles = lifecycleMap ? [...lifecycleMap.values()] : [];
-  return lifecycles.reduce((acc, { effect }) => {
-    const count = effect.has(effectKey)
-      ? effect.get(effectKey)! - (isStrictMode() ? 1 : 0)
-      : 0;
-    return acc + count;
-  }, 0);
+  return value;
 };
 export const getTotalCallbackCount = (key: string, callbackKey: string) => {
   const lifecycleMap = count.get(key);
@@ -46,7 +29,7 @@ export const getMountCount = (key: string) => {
   const lifecycleMap = count.get(key);
   const lifecycles = lifecycleMap ? [...lifecycleMap.values()] : [];
   const value = lifecycles.reduce((acc, { mount }) => acc + mount, 0);
-  return isStrictMode() ? value / 2 : value;
+  return value;
 };
 const ensureLifecycle = (
   key: string,
@@ -61,20 +44,18 @@ const ensureLifecycle = (
     lifecycles.set(mountKey, {
       mount: shouldCountMount ? 1 : 0,
       render: 0,
-      effect: new Map(),
       callback: new Map(),
     });
   }
   return lifecycles.get(mountKey)!;
 };
 const updateCallbackCount = (
-  kind: "effect" | "callback",
   key: string,
   mountKey: string,
   callbackKey: string
 ) => {
   const lifecycle = ensureLifecycle(key, mountKey, false);
-  const map = lifecycle[kind];
+  const map = lifecycle.callback;
   if (!map.has(callbackKey)) {
     map.set(callbackKey, 0);
   }
@@ -90,17 +71,10 @@ export const useCounter = (key: string) => {
   const lifecycle = ensureLifecycle(key, mountKey, shouldCountMount);
   lifecycle.render++;
   const countCallback = useCallback(
-    (callbackKey: string) =>
-      updateCallbackCount("callback", key, mountKey, callbackKey),
-    [key, mountKey]
-  );
-  const countEffect = useCallback(
-    (callbackKey: string) =>
-      updateCallbackCount("effect", key, mountKey, callbackKey),
+    (callbackKey: string) => updateCallbackCount(key, mountKey, callbackKey),
     [key, mountKey]
   );
   return {
     countCallback,
-    countEffect,
   };
 };

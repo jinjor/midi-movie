@@ -27,7 +27,7 @@ export const Player = ({
   midiOffsetInSec,
   audioOffsetInSec,
 }: Props) => {
-  const { countEffect } = useCounter("Player");
+  const { countCallback } = useCounter("Player");
   const timeRangeSec = 10;
   const displayRef = useRef<DisplayApi>(null);
   const [audioBufferSource, setAudioBufferSource] =
@@ -35,6 +35,7 @@ export const Player = ({
   const [playingState, setPlayingState] = useState<PlayingState | null>(null);
   const [offsetInSec, setOffsetInSec] = useState(0);
   const handlePlay = () => {
+    countCallback("handlePlay");
     if (audioBuffer) {
       const ctx = new AudioContext();
       const source = ctx.createBufferSource();
@@ -97,7 +98,7 @@ export const Player = ({
     }
   };
   useEffect(() => {
-    countEffect("effect");
+    countCallback("effect");
     if (playingState != null) {
       return;
     }
@@ -129,7 +130,7 @@ export const Player = ({
     playingState,
     offsetInSec,
     midiOffsetInSec,
-    countEffect,
+    countCallback,
   ]);
   return (
     <div style={{ width: image.size.width }}>

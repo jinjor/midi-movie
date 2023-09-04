@@ -3,7 +3,6 @@ import { Mutables } from "./model";
 import {
   getMountCount,
   getTotalCallbackCount,
-  getTotalEffectCount,
   getTotalRenderCount,
   resetCount,
 } from "./counter";
@@ -50,7 +49,7 @@ export const Properties = ({
       "Player:getTotalCallbackCount",
       getTotalCallbackCount("Player", "handlePlay")
     );
-    console.log("Player:effect", getTotalEffectCount("Player", "effect"));
+    console.log("Player:effect", getTotalCallbackCount("Player", "effect"));
     console.log("Player:getMountCount", getMountCount("Player"));
   };
   const handleReset = () => {
