@@ -3,7 +3,6 @@ import { Image, Mutables, Note } from "./model";
 import { applyPatch, createPatch } from "./render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
-import { useCounter } from "./counter";
 
 type Props = {
   notes: Note[];
@@ -27,7 +26,6 @@ export const Player = ({
   midiOffsetInSec,
   audioOffsetInSec,
 }: Props) => {
-  const { countCallback } = useCounter("Player");
   const timeRangeSec = 10;
   const displayRef = useRef<DisplayApi>(null);
   const [audioBufferSource, setAudioBufferSource] =
@@ -35,7 +33,6 @@ export const Player = ({
   const [playingState, setPlayingState] = useState<PlayingState | null>(null);
   const [offsetInSec, setOffsetInSec] = useState(0);
   const handlePlay = () => {
-    countCallback("handlePlay");
     if (audioBuffer) {
       const ctx = new AudioContext();
       const source = ctx.createBufferSource();
@@ -50,7 +47,7 @@ export const Player = ({
       setAudioBufferSource(source);
     }
     const startTime = performance.now();
-    const timer = setInterval(() => {
+    const timer = window.setInterval(() => {
       const display = displayRef.current!;
       const rects = display.getNoteRects();
       const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
@@ -98,7 +95,6 @@ export const Player = ({
     }
   };
   useEffect(() => {
-    countCallback("effect");
     if (playingState != null) {
       return;
     }
@@ -124,14 +120,7 @@ export const Player = ({
       const stylePatch = { display: hidden ? "none" : "block" };
       applyPatch(rect, stylePatch, patch!);
     }
-  }, [
-    notes,
-    mutablesRef,
-    playingState,
-    offsetInSec,
-    midiOffsetInSec,
-    countCallback,
-  ]);
+  }, [notes, mutablesRef, playingState, offsetInSec, midiOffsetInSec]);
   return (
     <div style={{ width: image.size.width }}>
       <Display

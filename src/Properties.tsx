@@ -1,11 +1,5 @@
 import { NumberInput } from "./ui/NumberInput";
 import { Mutables } from "./model";
-import {
-  getMountCount,
-  getTotalCallbackCount,
-  getTotalRenderCount,
-  resetCount,
-} from "./counter";
 
 type Props = {
   mutablesRef: React.MutableRefObject<Mutables>;
@@ -33,27 +27,6 @@ export const Properties = ({
   };
   const handleAudioOffsetChange = (audioOffsetInMilliSec: number) => {
     onAudioOffsetChange(audioOffsetInMilliSec / 1000);
-  };
-  const handleDebug = () => {
-    console.log(
-      "FileInput:getTotalRenderCount",
-      getTotalRenderCount("FileInput")
-    );
-    console.log(
-      "FileInput:getTotalCallbackCount",
-      getTotalCallbackCount("FileInput", "handleFileChange")
-    );
-    console.log("FileInput:getMountCount", getMountCount("FileInput"));
-    console.log("Player:getTotalRenderCount", getTotalRenderCount("Player"));
-    console.log(
-      "Player:getTotalCallbackCount",
-      getTotalCallbackCount("Player", "handlePlay")
-    );
-    console.log("Player:effect", getTotalCallbackCount("Player", "effect"));
-    console.log("Player:getMountCount", getMountCount("Player"));
-  };
-  const handleReset = () => {
-    resetCount();
   };
   return (
     <>
@@ -93,8 +66,6 @@ export const Properties = ({
           onChange={handleAudioOffsetChange}
         />
       </label>
-      <button onClick={handleDebug}>Debug</button>
-      <button onClick={handleReset}>Reset</button>
     </>
   );
 };
