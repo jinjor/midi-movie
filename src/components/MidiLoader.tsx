@@ -1,6 +1,6 @@
-import { FileInput } from "../ui/FileInput";
-import { parseMidiData } from "../model/midi";
-import { MidiData } from "../model/types";
+import { FileInput } from "@/ui/FileInput";
+import { parseMidiData } from "@/model/midi";
+import { MidiData } from "@/model/types";
 
 type Props = {
   onLoad: (midiData: MidiData) => void;

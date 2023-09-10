@@ -1,14 +1,14 @@
 import { useRef, useState } from "react";
 import styles from "./App.module.css";
 
-import { Tracks } from "./Tracks";
-import { ImageLoader } from "./ImageLoader";
-import { Image, MidiData, Mutables, Note, Track } from "../model/types";
-import { AudioLoader } from "./AudioLoader";
-import { MidiLoader } from "./MidiLoader";
-import { Properties } from "./Properties";
-import { Player } from "./Player";
-import { cx } from "../util";
+import { Tracks } from "../Tracks";
+import { ImageLoader } from "../ImageLoader";
+import { Image, MidiData, Mutables, Note, Track } from "@/model/types";
+import { AudioLoader } from "../AudioLoader";
+import { MidiLoader } from "../MidiLoader";
+import { Properties } from "../Properties";
+import { Player } from "../Player";
+import { cx } from "../../util";
 
 export const App = () => {
   const [image, setImage] = useState<Image>({

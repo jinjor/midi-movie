@@ -1,4 +1,4 @@
-import { Mutables, Track } from "../model/types";
+import { Mutables, Track } from "@/model/types";
 import styles from "./Tracks.module.css";
 
 export const Tracks = ({

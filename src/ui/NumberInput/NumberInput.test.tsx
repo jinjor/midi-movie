@@ -3,7 +3,7 @@
 import { vi, expect, test, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { NumberInput } from "./NumberInput";
-import { getMountCount, getTotalRenderCount, resetCount } from "../counter";
+import { getMountCount, getTotalRenderCount, resetCount } from "../../counter";
 import userEvent from "@testing-library/user-event";
 
 afterEach(() => {

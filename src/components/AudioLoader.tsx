@@ -1,5 +1,5 @@
-import { FileInput } from "../ui/FileInput";
-import { Size } from "../model/types";
+import { FileInput } from "@/ui/FileInput";
+import { Size } from "@/model/types";
 import { useState } from "react";
 import { formatTime } from "../util";
 

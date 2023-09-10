@@ -1,4 +1,4 @@
-import { useCounter } from "../counter";
+import { useCounter } from "../../counter";
 
 export const NumberInput = ({
   defaultValue,
