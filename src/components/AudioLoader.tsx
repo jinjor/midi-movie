@@ -1,7 +1,7 @@
-import { FileInput } from "./ui/FileInput";
-import { Size } from "./model";
+import { FileInput } from "../ui/FileInput";
+import { Size } from "../model/types";
 import { useState } from "react";
-import { formatTime } from "./util";
+import { formatTime } from "../util";
 
 export type Image = {
   imageUrl: string;
