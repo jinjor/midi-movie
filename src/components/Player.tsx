@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Image, Mutables, Note } from "./model";
-import { applyPatch, createPatch } from "./render";
+import { Image, Mutables, Note } from "../model/types";
+import { applyPatch, createPatch } from "../model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 

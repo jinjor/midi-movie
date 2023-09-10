@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import styles from "./PlayerControl.module.css";
-import { formatTime } from "./util";
+import { formatTime } from "../util";
 
 type Props = {
   onPlay: () => void;
