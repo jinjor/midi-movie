@@ -1,5 +1,5 @@
 import { FileInput } from "../ui/FileInput";
-import { Image, Size } from "../model/types";
+import { Image, Size } from "@/model/types";
 import { useState } from "react";
 
 type Props = {

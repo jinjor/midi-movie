@@ -1,5 +1,5 @@
 import { NumberInput } from "../ui/NumberInput";
-import { Mutables } from "../model/types";
+import { Mutables } from "@/model/types";
 
 type Props = {
   mutablesRef: React.MutableRefObject<Mutables>;
