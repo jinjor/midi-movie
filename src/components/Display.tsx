@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Note, Size } from "./model";
+import { Note, Size } from "../model/types";
 import styles from "./Display.module.css";
 
 export type DisplayApi = {

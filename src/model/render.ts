@@ -1,4 +1,4 @@
-import { Note, Size } from "./model";
+import { Note, Size } from "./types";
 
 export function createPatch(
   size: Size,
