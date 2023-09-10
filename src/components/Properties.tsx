@@ -1,4 +1,4 @@
-import { NumberInput } from "../ui/NumberInput";
+import { NumberInput } from "@/ui/NumberInput";
 import { Mutables } from "@/model/types";
 
 type Props = {

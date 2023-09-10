@@ -1,4 +1,4 @@
-import { FileInput } from "../ui/FileInput";
+import { FileInput } from "@/ui/FileInput";
 import { Image, Size } from "@/model/types";
 import { useState } from "react";
 
