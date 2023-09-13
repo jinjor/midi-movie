@@ -9,8 +9,10 @@ import { MidiLoader } from "../MidiLoader";
 import { Properties } from "../Properties";
 import { Player } from "../Player";
 import { cx } from "../../util";
+import { useCounter } from "@/counter";
 
 export const App = () => {
+  useCounter("App");
   const [image, setImage] = useState<Image>({
     url: null,
     size: {

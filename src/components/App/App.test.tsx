@@ -1,0 +1,92 @@
+import { expect, test, afterEach } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { App } from "./App";
+import { getMountCount, getTotalRenderCount, resetCount } from "../../counter";
+import userEvent from "@testing-library/user-event";
+
+afterEach(() => {
+  resetCount();
+});
+test("should show App", () => {
+  render(<App />);
+  expect(getMountCount("App")).toBe(1);
+  expect(getTotalRenderCount("App")).toBe(1);
+  expect(getMountCount("Properties")).toBe(1);
+  expect(getTotalRenderCount("Properties")).toBe(1);
+  expect(getMountCount("Player")).toBe(1);
+  expect(getTotalRenderCount("Player")).toBe(1);
+});
+test("should play", async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  const playButton = screen.getByText(/Min Note/i);
+  await user.click(playButton);
+  expect(getMountCount("App")).toBe(1);
+  expect(getTotalRenderCount("App")).toBe(1);
+  expect(getMountCount("Properties")).toBe(1);
+  expect(getMountCount("Properties")).toBe(1);
+  expect(getTotalRenderCount("Player")).toBe(1);
+  expect(getTotalRenderCount("Player")).toBe(1);
+});
+test("should update Min Note", async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  const input = screen.getByLabelText(/Min Note/i);
+  input.focus();
+  await user.dblClick(input);
+  await user.keyboard("{backspace}");
+  await user.type(input, "42");
+  expect(input).toHaveValue(42);
+  expect(getMountCount("App")).toBe(1);
+  expect(getTotalRenderCount("App")).toBe(1);
+  expect(getMountCount("Properties")).toBe(1);
+  expect(getTotalRenderCount("Properties")).toBe(1);
+});
+test("should update Max Note", async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  const input = screen.getByLabelText(/Max Note/i);
+  input.focus();
+  await user.dblClick(input);
+  await user.keyboard("{backspace}");
+  await user.type(input, "42");
+  expect(input).toHaveValue(42);
+  expect(getMountCount("App")).toBe(1);
+  expect(getTotalRenderCount("App")).toBe(1);
+  expect(getMountCount("Properties")).toBe(1);
+  expect(getTotalRenderCount("Properties")).toBe(1);
+});
+test("should update Midi Offset", async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  const input = screen.getByLabelText(/Midi Offset/i);
+  input.focus();
+  await user.dblClick(input);
+  await user.keyboard("{backspace}");
+  await user.type(input, "42");
+  expect(input).toHaveValue(42);
+  expect(getMountCount("App")).toBe(1);
+  expect(getTotalRenderCount("App")).toBe(3);
+  expect(getMountCount("Player")).toBe(1);
+  expect(getTotalRenderCount("Player")).toBe(3);
+  expect(getMountCount("Properties")).toBe(1);
+  expect(getTotalRenderCount("Properties")).toBe(3);
+});
+test("should update Audio Offset", async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  const input = screen.getByLabelText(/Audio Offset/i);
+  input.focus();
+  await user.dblClick(input);
+  await user.keyboard("{backspace}");
+  await user.type(input, "42");
+  expect(input).toHaveValue(42);
+  expect(getMountCount("App")).toBe(1);
+  expect(getTotalRenderCount("App")).toBe(3);
+  expect(getMountCount("Player")).toBe(1);
+  expect(getTotalRenderCount("Player")).toBe(3);
+  expect(getMountCount("Properties")).toBe(1);
+  expect(getTotalRenderCount("Properties")).toBe(3);
+  expect(getMountCount("NumberInput")).toBe(4);
+  expect(getTotalRenderCount("NumberInput")).toBe(12);
+});

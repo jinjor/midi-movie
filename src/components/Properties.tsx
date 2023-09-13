@@ -1,5 +1,6 @@
 import { NumberInput } from "@/ui/NumberInput";
 import { Mutables } from "@/model/types";
+import { useCounter } from "@/counter";
 
 type Props = {
   mutablesRef: React.MutableRefObject<Mutables>;
@@ -16,6 +17,7 @@ export const Properties = ({
   audioOffsetInSec,
   onAudioOffsetChange,
 }: Props) => {
+  useCounter("Properties");
   const handleMinNoteChange = (minNote: number) => {
     mutablesRef.current.minNote = minNote;
   };
