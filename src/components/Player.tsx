@@ -4,14 +4,14 @@ import { applyPatch, createPatch } from "@/model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
+import { useAtomValue } from "jotai";
+import { audioOffsetAtom, midiOffsetAtom } from "@/atoms";
 
 type Props = {
   notes: Note[];
   image: Image;
   audioBuffer: AudioBuffer | null;
   mutablesRef: React.MutableRefObject<Mutables>;
-  midiOffsetInSec: number;
-  audioOffsetInSec: number;
 };
 
 type PlayingState = {
@@ -19,15 +19,10 @@ type PlayingState = {
   timer: number;
 };
 
-export const Player = ({
-  notes,
-  image,
-  audioBuffer,
-  mutablesRef,
-  midiOffsetInSec,
-  audioOffsetInSec,
-}: Props) => {
+export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
   useCounter("Player");
+  const midiOffsetInSec = useAtomValue(midiOffsetAtom);
+  const audioOffsetInSec = useAtomValue(audioOffsetAtom);
   const timeRangeSec = 10;
   const displayRef = useRef<DisplayApi>(null);
   const [audioBufferSource, setAudioBufferSource] =

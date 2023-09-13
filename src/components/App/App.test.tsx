@@ -14,9 +14,9 @@ test("should show App", () => {
   expect(getMountCount("Tracks")).toBe(1);
   expect(getTotalRenderCount("Tracks")).toBe(1);
   expect(getMountCount("Properties")).toBe(1);
-  expect(getTotalRenderCount("Properties")).toBe(1);
+  expect(getTotalRenderCount("Properties")).toBe(2);
   expect(getMountCount("Player")).toBe(1);
-  expect(getTotalRenderCount("Player")).toBe(1);
+  expect(getTotalRenderCount("Player")).toBe(2);
 });
 test("should play", async () => {
   const user = userEvent.setup();
@@ -28,9 +28,9 @@ test("should play", async () => {
   expect(getMountCount("Tracks")).toBe(1);
   expect(getTotalRenderCount("Tracks")).toBe(1);
   expect(getMountCount("Properties")).toBe(1);
-  expect(getTotalRenderCount("Properties")).toBe(1);
+  expect(getTotalRenderCount("Properties")).toBe(2);
   expect(getMountCount("Player")).toBe(1);
-  expect(getTotalRenderCount("Player")).toBe(1);
+  expect(getTotalRenderCount("Player")).toBe(2);
 });
 test("should update Min Note", async () => {
   const user = userEvent.setup();
@@ -44,7 +44,7 @@ test("should update Min Note", async () => {
   expect(getMountCount("App")).toBe(1);
   expect(getTotalRenderCount("App")).toBe(1);
   expect(getMountCount("Properties")).toBe(1);
-  expect(getTotalRenderCount("Properties")).toBe(1);
+  expect(getTotalRenderCount("Properties")).toBe(2);
 });
 test("should update Max Note", async () => {
   const user = userEvent.setup();
@@ -66,7 +66,7 @@ test("should update Max Note", async () => {
   expect(getMountCount("Tracks")).toBe(1);
   expect(getTotalRenderCount("Tracks")).toBe(1);
   expect(getMountCount("Properties")).toBe(1);
-  expect(getTotalRenderCount("Properties")).toBe(1);
+  expect(getTotalRenderCount("Properties")).toBe(2);
   expect(getMountCount("NumberInput")).toBe(4);
   expect(getTotalRenderCount("NumberInput")).toBe(4);
 });
@@ -80,11 +80,11 @@ test("should update Midi Offset", async () => {
   await user.type(input, "42");
   expect(input).toHaveValue(42);
   expect(getMountCount("App")).toBe(1);
-  expect(getTotalRenderCount("App")).toBe(3);
+  expect(getTotalRenderCount("App")).toBe(1);
   expect(getMountCount("Player")).toBe(1);
-  expect(getTotalRenderCount("Player")).toBe(3);
+  expect(getTotalRenderCount("Player")).toBe(4);
   expect(getMountCount("Properties")).toBe(1);
-  expect(getTotalRenderCount("Properties")).toBe(3);
+  expect(getTotalRenderCount("Properties")).toBe(4);
 });
 test("should update Audio Offset", async () => {
   const user = userEvent.setup();
@@ -96,19 +96,19 @@ test("should update Audio Offset", async () => {
   await user.type(input, "42");
   expect(input).toHaveValue(42);
   expect(getMountCount("App")).toBe(1);
-  expect(getTotalRenderCount("App")).toBe(3);
+  expect(getTotalRenderCount("App")).toBe(1);
   expect(getMountCount("MidiLoader")).toBe(1);
-  expect(getTotalRenderCount("MidiLoader")).toBe(3);
+  expect(getTotalRenderCount("MidiLoader")).toBe(1);
   expect(getMountCount("AudioLoader")).toBe(1);
-  expect(getTotalRenderCount("AudioLoader")).toBe(3);
+  expect(getTotalRenderCount("AudioLoader")).toBe(1);
   expect(getMountCount("ImageLoader")).toBe(1);
-  expect(getTotalRenderCount("ImageLoader")).toBe(3);
+  expect(getTotalRenderCount("ImageLoader")).toBe(1);
   expect(getMountCount("Tracks")).toBe(1);
-  expect(getTotalRenderCount("Tracks")).toBe(3);
+  expect(getTotalRenderCount("Tracks")).toBe(1);
   expect(getMountCount("Player")).toBe(1);
-  expect(getTotalRenderCount("Player")).toBe(3);
+  expect(getTotalRenderCount("Player")).toBe(4);
   expect(getMountCount("Properties")).toBe(1);
-  expect(getTotalRenderCount("Properties")).toBe(3);
+  expect(getTotalRenderCount("Properties")).toBe(4);
   expect(getMountCount("NumberInput")).toBe(4);
   expect(getTotalRenderCount("NumberInput")).toBe(12);
 });
