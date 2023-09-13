@@ -1,5 +1,6 @@
 import { Mutables, Track } from "@/model/types";
 import styles from "./Tracks.module.css";
+import { useCounter } from "@/counter";
 
 export const Tracks = ({
   tracks,
@@ -8,6 +9,7 @@ export const Tracks = ({
   tracks: Track[];
   mutablesRef: React.MutableRefObject<Mutables>;
 }) => {
+  useCounter("Tracks");
   return (
     <ul className={styles.tracks}>
       {tracks.map((track, i) => (

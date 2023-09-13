@@ -11,6 +11,8 @@ test("should show App", () => {
   render(<App />);
   expect(getMountCount("App")).toBe(1);
   expect(getTotalRenderCount("App")).toBe(1);
+  expect(getMountCount("Tracks")).toBe(1);
+  expect(getTotalRenderCount("Tracks")).toBe(1);
   expect(getMountCount("Properties")).toBe(1);
   expect(getTotalRenderCount("Properties")).toBe(1);
   expect(getMountCount("Player")).toBe(1);
@@ -23,9 +25,11 @@ test("should play", async () => {
   await user.click(playButton);
   expect(getMountCount("App")).toBe(1);
   expect(getTotalRenderCount("App")).toBe(1);
+  expect(getMountCount("Tracks")).toBe(1);
+  expect(getTotalRenderCount("Tracks")).toBe(1);
   expect(getMountCount("Properties")).toBe(1);
-  expect(getMountCount("Properties")).toBe(1);
-  expect(getTotalRenderCount("Player")).toBe(1);
+  expect(getTotalRenderCount("Properties")).toBe(1);
+  expect(getMountCount("Player")).toBe(1);
   expect(getTotalRenderCount("Player")).toBe(1);
 });
 test("should update Min Note", async () => {
@@ -53,8 +57,18 @@ test("should update Max Note", async () => {
   expect(input).toHaveValue(42);
   expect(getMountCount("App")).toBe(1);
   expect(getTotalRenderCount("App")).toBe(1);
+  expect(getMountCount("MidiLoader")).toBe(1);
+  expect(getTotalRenderCount("MidiLoader")).toBe(1);
+  expect(getMountCount("AudioLoader")).toBe(1);
+  expect(getTotalRenderCount("AudioLoader")).toBe(1);
+  expect(getMountCount("ImageLoader")).toBe(1);
+  expect(getTotalRenderCount("ImageLoader")).toBe(1);
+  expect(getMountCount("Tracks")).toBe(1);
+  expect(getTotalRenderCount("Tracks")).toBe(1);
   expect(getMountCount("Properties")).toBe(1);
   expect(getTotalRenderCount("Properties")).toBe(1);
+  expect(getMountCount("NumberInput")).toBe(4);
+  expect(getTotalRenderCount("NumberInput")).toBe(4);
 });
 test("should update Midi Offset", async () => {
   const user = userEvent.setup();
@@ -83,6 +97,14 @@ test("should update Audio Offset", async () => {
   expect(input).toHaveValue(42);
   expect(getMountCount("App")).toBe(1);
   expect(getTotalRenderCount("App")).toBe(3);
+  expect(getMountCount("MidiLoader")).toBe(1);
+  expect(getTotalRenderCount("MidiLoader")).toBe(3);
+  expect(getMountCount("AudioLoader")).toBe(1);
+  expect(getTotalRenderCount("AudioLoader")).toBe(3);
+  expect(getMountCount("ImageLoader")).toBe(1);
+  expect(getTotalRenderCount("ImageLoader")).toBe(3);
+  expect(getMountCount("Tracks")).toBe(1);
+  expect(getTotalRenderCount("Tracks")).toBe(3);
   expect(getMountCount("Player")).toBe(1);
   expect(getTotalRenderCount("Player")).toBe(3);
   expect(getMountCount("Properties")).toBe(1);

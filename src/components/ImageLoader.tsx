@@ -1,11 +1,13 @@
 import { FileInput } from "@/ui/FileInput";
 import { Image, Size } from "@/model/types";
 import { useState } from "react";
+import { useCounter } from "@/counter";
 
 type Props = {
   onLoad: (image: Image) => void;
 };
 export const ImageLoader = ({ onLoad }: Props) => {
+  useCounter("ImageLoader");
   const [size, setSize] = useState<Size | null>(null);
   const handleLoadImage = (file: File) => {
     void (async () => {
