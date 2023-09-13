@@ -3,6 +3,7 @@ import { Image, Mutables, Note } from "@/model/types";
 import { applyPatch, createPatch } from "@/model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
+import { useCounter } from "@/counter";
 
 type Props = {
   notes: Note[];
@@ -26,6 +27,7 @@ export const Player = ({
   midiOffsetInSec,
   audioOffsetInSec,
 }: Props) => {
+  useCounter("Player");
   const timeRangeSec = 10;
   const displayRef = useRef<DisplayApi>(null);
   const [audioBufferSource, setAudioBufferSource] =
