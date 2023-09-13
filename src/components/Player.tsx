@@ -4,6 +4,8 @@ import { applyPatch, createPatch } from "@/model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
+import { useAtomValue } from "jotai";
+import { audioOffsetAtom } from "@/atoms";
 
 type Props = {
   notes: Note[];
@@ -11,7 +13,6 @@ type Props = {
   audioBuffer: AudioBuffer | null;
   mutablesRef: React.MutableRefObject<Mutables>;
   midiOffsetInSec: number;
-  audioOffsetInSec: number;
 };
 
 type PlayingState = {
@@ -25,9 +26,9 @@ export const Player = ({
   audioBuffer,
   mutablesRef,
   midiOffsetInSec,
-  audioOffsetInSec,
 }: Props) => {
   useCounter("Player");
+  const audioOffsetInSec = useAtomValue(audioOffsetAtom);
   const timeRangeSec = 10;
   const displayRef = useRef<DisplayApi>(null);
   const [audioBufferSource, setAudioBufferSource] =
