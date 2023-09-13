@@ -80,7 +80,7 @@ test("should update Midi Offset", async () => {
   await user.type(input, "42");
   expect(input).toHaveValue(42);
   expect(getMountCount("App")).toBe(1);
-  expect(getTotalRenderCount("App")).toBe(3);
+  expect(getTotalRenderCount("App")).toBe(1);
   expect(getMountCount("Player")).toBe(1);
   expect(getTotalRenderCount("Player")).toBe(4);
   expect(getMountCount("Properties")).toBe(1);

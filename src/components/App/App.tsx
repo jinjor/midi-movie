@@ -29,7 +29,6 @@ export const App = () => {
     enabledTracks: new Set(),
   });
   const [tracks, setTracks] = useState<Track[]>([]);
-  const [midiOffsetInSec, setMidiOffsetInSec] = useState(0);
   const handleLoadMidi = ({ tracks, notes }: MidiData) => {
     setNotes(notes);
     setTracks(tracks);
@@ -60,15 +59,10 @@ export const App = () => {
           image={image}
           audioBuffer={audioBuffer}
           mutablesRef={mutablesRef}
-          midiOffsetInSec={midiOffsetInSec}
         />
       </div>
       <div className={cx(styles.pane, styles.propertyPane, styles.fields)}>
-        <Properties
-          midiOffsetInSec={midiOffsetInSec}
-          onMidiOffsetChange={setMidiOffsetInSec}
-          mutablesRef={mutablesRef}
-        />
+        <Properties mutablesRef={mutablesRef} />
       </div>
     </div>
   );

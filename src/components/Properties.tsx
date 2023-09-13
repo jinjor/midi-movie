@@ -2,20 +2,15 @@ import { NumberInput } from "@/ui/NumberInput";
 import { Mutables } from "@/model/types";
 import { useCounter } from "@/counter";
 import { useAtom } from "jotai";
-import { audioOffsetAtom } from "@/atoms";
+import { audioOffsetAtom, midiOffsetAtom } from "@/atoms";
 
 type Props = {
   mutablesRef: React.MutableRefObject<Mutables>;
-  midiOffsetInSec: number;
-  onMidiOffsetChange: (midiOffsetInSec: number) => void;
 };
 
-export const Properties = ({
-  mutablesRef,
-  midiOffsetInSec,
-  onMidiOffsetChange,
-}: Props) => {
+export const Properties = ({ mutablesRef }: Props) => {
   useCounter("Properties");
+  const [midiOffsetInSec, setMidiOffsetInSec] = useAtom(midiOffsetAtom);
   const [audioOffsetInSec, setAudioOffsetInSec] = useAtom(audioOffsetAtom);
   const handleMinNoteChange = (minNote: number) => {
     mutablesRef.current.minNote = minNote;
@@ -24,7 +19,7 @@ export const Properties = ({
     mutablesRef.current.maxNote = maxNote;
   };
   const handleMidiOffsetChange = (midiOffsetInMilliSec: number) => {
-    onMidiOffsetChange(midiOffsetInMilliSec / 1000);
+    setMidiOffsetInSec(midiOffsetInMilliSec / 1000);
   };
   const handleAudioOffsetChange = (audioOffsetInMilliSec: number) => {
     setAudioOffsetInSec(audioOffsetInMilliSec / 1000);
