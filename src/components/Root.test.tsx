@@ -4,7 +4,8 @@ import { getMountCount, getTotalRenderCount, resetCount } from "../counter";
 import userEvent from "@testing-library/user-event";
 import { renderInNewContainer } from "@/test/util";
 import { Root } from "./Root";
-import * as midi from "@/model/midi";
+import midiFile from "@/assets/1.midi?buffer";
+import pngFile from "@/assets/1.png?buffer";
 
 afterEach(() => {
   resetCount();
@@ -122,7 +123,7 @@ test("should load MIDI file", async () => {
   const container = renderInNewContainer(<Root />);
   resetCount();
   const input = container.getByLabelText(/MIDI:/i);
-  const file = new File([""], "1.midi", {
+  const file = new File([midiFile], "1.midi", {
     type: "audio/midi",
   });
   fireEvent.change(input, {
@@ -130,12 +131,6 @@ test("should load MIDI file", async () => {
       files: [file],
     },
   });
-  const dummyMidiData = {
-    tracks: [],
-    notes: [],
-    events: [],
-  };
-  vi.spyOn(midi, "parseMidiData").mockImplementationOnce(() => dummyMidiData);
   await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   expect(getMountCount("App")).toBe(0);
   expect(getTotalRenderCount("App")).toBe(1);
@@ -156,20 +151,9 @@ test("should load MIDI file", async () => {
 });
 
 test("should load Image file", async () => {
-  const file = new File([""], "test.png", {
+  const file = new File([pngFile], "test.png", {
     type: "image/png",
   });
-  vi.stubGlobal(
-    "Image",
-    vi.fn(() => ({
-      onload: vi.fn(),
-      set src(_: string) {
-        this.onload();
-      },
-      naturalWidth: 640,
-      naturalHeight: 384,
-    }))
-  );
   const container = renderInNewContainer(<Root />);
   resetCount();
   const input = container.getByLabelText(/Image:/i);
