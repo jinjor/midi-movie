@@ -1,7 +1,7 @@
 import { vi, expect, test, afterEach } from "vitest";
-import { render, screen } from "@testing-library/react";
 import { NumberInput } from "./NumberInput";
 import { getMountCount, getTotalRenderCount, resetCount } from "../../counter";
+import { renderInNewContainer } from "@/test/util";
 import userEvent from "@testing-library/user-event";
 
 afterEach(() => {
@@ -9,8 +9,10 @@ afterEach(() => {
 });
 test("should show NumberInput", () => {
   const onChange = vi.fn();
-  render(<NumberInput defaultValue={42} onChange={onChange} />);
-  const input = screen.getByRole("spinbutton");
+  const container = renderInNewContainer(
+    <NumberInput defaultValue={42} onChange={onChange} />
+  );
+  const input = container.getByRole("spinbutton");
   expect(input).toHaveValue(42);
   expect(getMountCount("NumberInput")).toBe(1);
   expect(getTotalRenderCount("NumberInput")).toBe(1);
@@ -18,8 +20,10 @@ test("should show NumberInput", () => {
 test("should call onChange", async () => {
   const user = userEvent.setup();
   const onChange = vi.fn();
-  render(<NumberInput onChange={onChange} />);
-  const input = screen.getByRole("spinbutton");
+  const container = renderInNewContainer(
+    <NumberInput defaultValue={42} onChange={onChange} />
+  );
+  const input = container.getByRole("spinbutton");
   await user.dblClick(input);
   await user.keyboard("{backspace}");
   await user.type(input, "42");
