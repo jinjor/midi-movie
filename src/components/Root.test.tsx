@@ -1,16 +1,17 @@
 import { vi, expect, test, afterEach } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { App } from "./App";
-import { getMountCount, getTotalRenderCount, resetCount } from "../../counter";
+import { fireEvent, waitFor } from "@testing-library/react";
+import { getMountCount, getTotalRenderCount, resetCount } from "../counter";
 import userEvent from "@testing-library/user-event";
-import fs from "node:fs/promises";
-import { setTimeout } from "timers/promises";
+import { renderInNewContainer } from "@/test/util";
+import { Root } from "./Root";
+import midiFile from "@/assets/1.midi?buffer";
+import pngFile from "@/assets/1.png?buffer";
 
 afterEach(() => {
   resetCount();
 });
 test("should show App", () => {
-  render(<App />);
+  renderInNewContainer(<Root />);
   expect(getMountCount("App")).toBe(1);
   expect(getTotalRenderCount("App")).toBe(1);
   expect(getMountCount("Tracks")).toBe(1);
@@ -22,8 +23,8 @@ test("should show App", () => {
 });
 test("should play", async () => {
   const user = userEvent.setup();
-  render(<App />);
-  const playButton = screen.getByText(/Min Note/i);
+  const container = renderInNewContainer(<Root />);
+  const playButton = container.getByText(/Min Note/i);
   await user.click(playButton);
   expect(getMountCount("App")).toBe(1);
   expect(getTotalRenderCount("App")).toBe(1);
@@ -36,8 +37,8 @@ test("should play", async () => {
 });
 test("should update Min Note", async () => {
   const user = userEvent.setup();
-  render(<App />);
-  const input = screen.getByLabelText(/Min Note/i);
+  const container = renderInNewContainer(<Root />);
+  const input = container.getByLabelText(/Min Note/i);
   input.focus();
   await user.dblClick(input);
   await user.keyboard("{backspace}");
@@ -50,8 +51,8 @@ test("should update Min Note", async () => {
 });
 test("should update Max Note", async () => {
   const user = userEvent.setup();
-  render(<App />);
-  const input = screen.getByLabelText(/Max Note/i);
+  const container = renderInNewContainer(<Root />);
+  const input = container.getByLabelText(/Max Note/i);
   input.focus();
   await user.dblClick(input);
   await user.keyboard("{backspace}");
@@ -74,9 +75,9 @@ test("should update Max Note", async () => {
 });
 test("should update Midi Offset", async () => {
   const user = userEvent.setup();
-  render(<App />);
+  const container = renderInNewContainer(<Root />);
   resetCount();
-  const input = screen.getByLabelText(/Midi Offset/i);
+  const input = container.getByLabelText(/Midi Offset/i);
   input.focus();
   await user.dblClick(input);
   await user.keyboard("{backspace}");
@@ -92,9 +93,9 @@ test("should update Midi Offset", async () => {
 
 test("should update Audio Offset", async () => {
   const user = userEvent.setup();
-  render(<App />);
+  const container = renderInNewContainer(<Root />);
   resetCount();
-  const input = screen.getByLabelText(/Audio Offset/i);
+  const input = container.getByLabelText(/Audio Offset/i);
   input.focus();
   await user.dblClick(input);
   await user.keyboard("{backspace}");
@@ -119,11 +120,10 @@ test("should update Audio Offset", async () => {
 });
 
 test("should load MIDI file", async () => {
-  render(<App />);
+  const container = renderInNewContainer(<Root />);
   resetCount();
-  const input = screen.getByLabelText(/MIDI:/i);
-  const buffer = await fs.readFile("./src/assets/1.midi");
-  const file = new File([buffer], "1.midi", {
+  const input = container.getByLabelText(/MIDI:/i);
+  const file = new File([midiFile], "1.midi", {
     type: "audio/midi",
   });
   fireEvent.change(input, {
@@ -131,7 +131,7 @@ test("should load MIDI file", async () => {
       files: [file],
     },
   });
-  await waitFor(() => setTimeout(100));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   expect(getMountCount("App")).toBe(0);
   expect(getTotalRenderCount("App")).toBe(1);
   expect(getMountCount("MidiLoader")).toBe(0);
@@ -151,33 +151,18 @@ test("should load MIDI file", async () => {
 });
 
 test("should load Image file", async () => {
-  const file = new File([""], "test.png", {
+  const file = new File([pngFile], "test.png", {
     type: "image/png",
   });
-  vi.stubGlobal("URL", {
-    createObjectURL: () => "",
-    revokeObjectURL: vi.fn(),
-  });
-  vi.stubGlobal(
-    "Image",
-    vi.fn(() => ({
-      onload: vi.fn(),
-      set src(_: string) {
-        this.onload();
-      },
-      naturalWidth: 640,
-      naturalHeight: 384,
-    }))
-  );
-  render(<App />);
+  const container = renderInNewContainer(<Root />);
   resetCount();
-  const input = screen.getByLabelText(/Image:/i);
+  const input = container.getByLabelText(/Image:/i);
   fireEvent.change(input, {
     target: {
       files: [file],
     },
   });
-  await waitFor(() => setTimeout(100));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   expect(getMountCount("App")).toBe(0);
   expect(getTotalRenderCount("App")).toBe(1);
   expect(getMountCount("MidiLoader")).toBe(0);
@@ -202,9 +187,9 @@ test("should load Wave file", async () => {
   }));
   vi.stubGlobal("AudioContext", AudioContextMock);
 
-  render(<App />);
+  const container = renderInNewContainer(<Root />);
   resetCount();
-  const input = screen.getByLabelText(/Audio:/i);
+  const input = container.getByLabelText(/Audio:/i);
   const file = new File([""], "test.wav", {
     type: "audio/wav",
   });
@@ -213,7 +198,7 @@ test("should load Wave file", async () => {
       files: [file],
     },
   });
-  await waitFor(() => setTimeout(100));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   expect(getMountCount("App")).toBe(0);
   expect(getTotalRenderCount("App")).toBe(1);
   expect(getMountCount("MidiLoader")).toBe(0);
