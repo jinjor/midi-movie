@@ -159,10 +159,6 @@ test("should load Image file", async () => {
   const file = new File([""], "test.png", {
     type: "image/png",
   });
-  vi.stubGlobal("URL", {
-    createObjectURL: () => "",
-    revokeObjectURL: vi.fn(),
-  });
   vi.stubGlobal(
     "Image",
     vi.fn(() => ({
