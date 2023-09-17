@@ -23,7 +23,6 @@ export default defineConfig({
   plugins: [arrayBufferLoader(), tsconfigPaths(), react()],
   test: {
     globals: true,
-    environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
     browser: {
       enabled: true,
