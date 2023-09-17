@@ -25,6 +25,11 @@
       "@/*": ["*"]
     }
   },
-  "include": ["src", "vite.config.ts"],
+  "include": [
+    "src",
+    "vite.config.ts",
+    "playwright-ct.config.ts",
+    "playwright/index.tsx"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
