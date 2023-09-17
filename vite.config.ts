@@ -5,7 +5,7 @@ import * as fs from "node:fs";
 
 const arrayBufferLoader = () => ({
   name: "arraybuffer-loader",
-  transform(_code, id: string) {
+  transform(_code: any, id: string) {
     const [path, query] = id.split("?");
     if (query != "buffer") {
       return null;
