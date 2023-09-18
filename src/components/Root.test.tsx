@@ -1,4 +1,4 @@
-import { vi, expect, test, afterEach } from "vitest";
+import { expect, test, afterEach } from "vitest";
 import { fireEvent, waitFor } from "@testing-library/react";
 import { getMountCount, getTotalRenderCount, resetCount } from "../counter";
 import userEvent from "@testing-library/user-event";
@@ -6,6 +6,7 @@ import { renderInNewContainer } from "@/test/util";
 import { Root } from "./Root";
 import midiFile from "@/assets/1.midi?buffer";
 import pngFile from "@/assets/1.png?buffer";
+import wavFile from "@/assets/1.wav?buffer";
 
 afterEach(() => {
   resetCount();
@@ -182,15 +183,10 @@ test("should load Image file", async () => {
 });
 
 test("should load Wave file", async () => {
-  const AudioContextMock = vi.fn(() => ({
-    decodeAudioData: () => ({}),
-  }));
-  vi.stubGlobal("AudioContext", AudioContextMock);
-
   const container = renderInNewContainer(<Root />);
   resetCount();
   const input = container.getByLabelText(/Audio:/i);
-  const file = new File([""], "test.wav", {
+  const file = new File([wavFile], "test.wav", {
     type: "audio/wav",
   });
   fireEvent.change(input, {
