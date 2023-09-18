@@ -1,11 +1,16 @@
-import { vi, expect, test, afterEach } from "vitest";
 import { fireEvent, waitFor } from "@testing-library/react";
-import { getMountCount, getTotalRenderCount, resetCount } from "../counter";
+import {
+  getMountCount,
+  getRenderedKeys,
+  getTotalRenderCount,
+  resetCount,
+} from "../counter";
 import userEvent from "@testing-library/user-event";
 import { renderInNewContainer } from "@/test/util";
 import { Root } from "./Root";
 import midiFile from "@/assets/1.midi?buffer";
 import pngFile from "@/assets/1.png?buffer";
+import wavFile from "@/assets/1.wav?buffer";
 
 afterEach(() => {
   resetCount();
@@ -38,40 +43,44 @@ test("should play", async () => {
 test("should update Min Note", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
+  resetCount();
   const input = container.getByLabelText(/Min Note/i);
   input.focus();
   await user.dblClick(input);
   await user.keyboard("{backspace}");
   await user.type(input, "42");
   expect(input).toHaveValue(42);
-  expect(getMountCount("App")).toBe(1);
-  expect(getTotalRenderCount("App")).toBe(1);
-  expect(getMountCount("Properties")).toBe(1);
-  expect(getTotalRenderCount("Properties")).toBe(2);
+  expect(getRenderedKeys()).not.toContainAnyOf([
+    "App",
+    "MidiLoader",
+    "AudioLoader",
+    "ImageLoader",
+    "Tracks",
+    "Properties",
+    "Player",
+    "NumberInput",
+  ]);
 });
 test("should update Max Note", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
+  resetCount();
   const input = container.getByLabelText(/Max Note/i);
   input.focus();
   await user.dblClick(input);
   await user.keyboard("{backspace}");
   await user.type(input, "42");
   expect(input).toHaveValue(42);
-  expect(getMountCount("App")).toBe(1);
-  expect(getTotalRenderCount("App")).toBe(1);
-  expect(getMountCount("MidiLoader")).toBe(1);
-  expect(getTotalRenderCount("MidiLoader")).toBe(1);
-  expect(getMountCount("AudioLoader")).toBe(1);
-  expect(getTotalRenderCount("AudioLoader")).toBe(1);
-  expect(getMountCount("ImageLoader")).toBe(1);
-  expect(getTotalRenderCount("ImageLoader")).toBe(1);
-  expect(getMountCount("Tracks")).toBe(1);
-  expect(getTotalRenderCount("Tracks")).toBe(1);
-  expect(getMountCount("Properties")).toBe(1);
-  expect(getTotalRenderCount("Properties")).toBe(2);
-  expect(getMountCount("NumberInput")).toBe(4);
-  expect(getTotalRenderCount("NumberInput")).toBe(4);
+  expect(getRenderedKeys()).not.toContainAnyOf([
+    "App",
+    "MidiLoader",
+    "AudioLoader",
+    "ImageLoader",
+    "Tracks",
+    "Properties",
+    "Player",
+    "NumberInput",
+  ]);
 });
 test("should update Midi Offset", async () => {
   const user = userEvent.setup();
@@ -83,8 +92,13 @@ test("should update Midi Offset", async () => {
   await user.keyboard("{backspace}");
   await user.type(input, "42");
   expect(input).toHaveValue(42);
-  expect(getMountCount("App")).toBe(0);
-  expect(getTotalRenderCount("App")).toBe(0);
+  expect(getRenderedKeys()).not.toContainAnyOf([
+    "App",
+    "MidiLoader",
+    "AudioLoader",
+    "ImageLoader",
+    "Tracks",
+  ]);
   expect(getMountCount("Player")).toBe(0);
   expect(getTotalRenderCount("Player")).toBe(2);
   expect(getMountCount("Properties")).toBe(0);
@@ -101,16 +115,13 @@ test("should update Audio Offset", async () => {
   await user.keyboard("{backspace}");
   await user.type(input, "42");
   expect(input).toHaveValue(42);
-  expect(getMountCount("App")).toBe(0);
-  expect(getTotalRenderCount("App")).toBe(0);
-  expect(getMountCount("MidiLoader")).toBe(0);
-  expect(getTotalRenderCount("MidiLoader")).toBe(0);
-  expect(getMountCount("AudioLoader")).toBe(0);
-  expect(getTotalRenderCount("AudioLoader")).toBe(0);
-  expect(getMountCount("ImageLoader")).toBe(0);
-  expect(getTotalRenderCount("ImageLoader")).toBe(0);
-  expect(getMountCount("Tracks")).toBe(0);
-  expect(getTotalRenderCount("Tracks")).toBe(0);
+  expect(getRenderedKeys()).not.toContainAnyOf([
+    "App",
+    "MidiLoader",
+    "AudioLoader",
+    "ImageLoader",
+    "Tracks",
+  ]);
   expect(getMountCount("Player")).toBe(0);
   expect(getTotalRenderCount("Player")).toBe(2);
   expect(getMountCount("Properties")).toBe(0);
@@ -123,7 +134,7 @@ test("should load MIDI file", async () => {
   const container = renderInNewContainer(<Root />);
   resetCount();
   const input = container.getByLabelText(/MIDI:/i);
-  const file = new File([midiFile], "1.midi", {
+  const file = new File([midiFile], "test.midi", {
     type: "audio/midi",
   });
   fireEvent.change(input, {
@@ -182,15 +193,10 @@ test("should load Image file", async () => {
 });
 
 test("should load Wave file", async () => {
-  const AudioContextMock = vi.fn(() => ({
-    decodeAudioData: () => ({}),
-  }));
-  vi.stubGlobal("AudioContext", AudioContextMock);
-
   const container = renderInNewContainer(<Root />);
   resetCount();
   const input = container.getByLabelText(/Audio:/i);
-  const file = new File([""], "test.wav", {
+  const file = new File([wavFile], "test.wav", {
     type: "audio/wav",
   });
   fireEvent.change(input, {

@@ -11,6 +11,12 @@ export const count: Count = new Map();
 export const resetCount = () => {
   count.clear();
 };
+export const getMountCount = (key: string) => {
+  const lifecycleMap = count.get(key);
+  const lifecycles = lifecycleMap ? [...lifecycleMap.values()] : [];
+  const value = lifecycles.reduce((acc, { mount }) => acc + mount, 0);
+  return value;
+};
 export const getTotalRenderCount = (key: string) => {
   const lifecycleMap = count.get(key);
   const lifecycles = lifecycleMap ? [...lifecycleMap.values()] : [];
@@ -25,11 +31,11 @@ export const getTotalCallbackCount = (key: string, callbackKey: string) => {
     0
   );
 };
-export const getMountCount = (key: string) => {
-  const lifecycleMap = count.get(key);
-  const lifecycles = lifecycleMap ? [...lifecycleMap.values()] : [];
-  const value = lifecycles.reduce((acc, { mount }) => acc + mount, 0);
-  return value;
+export const getMountedKeys = () => {
+  return [...count.keys()].filter((key) => getMountCount(key) > 0);
+};
+export const getRenderedKeys = () => {
+  return [...count.keys()].filter((key) => getTotalRenderCount(key) > 0);
 };
 const ensureLifecycle = (
   key: string,
