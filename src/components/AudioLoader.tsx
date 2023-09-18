@@ -1,33 +1,30 @@
 import { FileInput } from "@/ui/FileInput";
 import { Size } from "@/model/types";
-import { useState } from "react";
 import { formatTime } from "../util";
 import { useCounter } from "@/counter";
+import { audioBufferAtom } from "@/atoms";
+import { useAtom } from "jotai";
 
 export type Image = {
   imageUrl: string;
   size: Size;
 };
-type Props = {
-  onLoad: (audioBuffer: AudioBuffer) => void;
-};
-export const AudioLoader = ({ onLoad }: Props) => {
+export const AudioLoader = () => {
   useCounter("AudioLoader");
-  const [duration, setDuration] = useState<number | null>(null);
+  const [audioBuffer, setAudioBuffer] = useAtom(audioBufferAtom);
   const handleLoadAudio = (file: File) => {
     void (async () => {
       const arrayBuffer = await file.arrayBuffer();
       const ctx = new AudioContext();
       const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-      setDuration(audioBuffer.duration);
-      onLoad(audioBuffer);
+      setAudioBuffer(audioBuffer);
     })();
   };
   return (
     <label>
       <span>Audio:</span>
       <FileInput onLoad={handleLoadAudio} extensions={[".wav"]} />
-      {duration && <span>{formatTime(duration)}</span>}
+      {audioBuffer && <span>{formatTime(audioBuffer.duration)}</span>}
     </label>
   );
 };

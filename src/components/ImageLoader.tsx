@@ -1,19 +1,18 @@
 import { FileInput } from "@/ui/FileInput";
-import { Image, Size } from "@/model/types";
-import { useState } from "react";
+import { Image } from "@/model/types";
 import { useCounter } from "@/counter";
+import { useAtom } from "jotai";
+import { imageUrlAtom, imageSizeAtom } from "@/atoms";
 
-type Props = {
-  onLoad: (image: Image) => void;
-};
-export const ImageLoader = ({ onLoad }: Props) => {
+export const ImageLoader = () => {
   useCounter("ImageLoader");
-  const [size, setSize] = useState<Size | null>(null);
+  const [size, setSize] = useAtom(imageSizeAtom);
+  const [imageUrl, setImageUrl] = useAtom(imageUrlAtom);
   const handleLoadImage = (file: File) => {
     void (async () => {
       const image = await getImageInfo(file);
+      setImageUrl(image.url);
       setSize(image.size);
-      onLoad(image);
     })();
   };
   return (
@@ -23,7 +22,7 @@ export const ImageLoader = ({ onLoad }: Props) => {
         onLoad={handleLoadImage}
         extensions={[".png", "jpg", "jpeg"]}
       />
-      {size && (
+      {imageUrl && (
         <span>
           {size.width} x {size.height}
         </span>

@@ -36,9 +36,3 @@ export type MidiData = {
   notes: Note[];
   events: Event[];
 };
-export type Mutables = {
-  minNote: number;
-  maxNote: number;
-  size: Size;
-  enabledTracks: Set<number>;
-};
