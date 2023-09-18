@@ -20,7 +20,7 @@ test("should show App", () => {
   expect(getMountCount("App")).toBe(1);
   expect(getTotalRenderCount("App")).toBe(1);
   expect(getMountCount("Tracks")).toBe(1);
-  expect(getTotalRenderCount("Tracks")).toBe(1);
+  expect(getTotalRenderCount("Tracks")).toBe(2);
   expect(getMountCount("Properties")).toBe(1);
   expect(getTotalRenderCount("Properties")).toBe(2);
   expect(getMountCount("Player")).toBe(1);
@@ -29,16 +29,19 @@ test("should show App", () => {
 test("should play", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
-  const playButton = container.getByText(/Min Note/i);
+  resetCount();
+  const playButton = container.getByText(/Play/i);
   await user.click(playButton);
-  expect(getMountCount("App")).toBe(1);
-  expect(getTotalRenderCount("App")).toBe(1);
-  expect(getMountCount("Tracks")).toBe(1);
-  expect(getTotalRenderCount("Tracks")).toBe(1);
-  expect(getMountCount("Properties")).toBe(1);
-  expect(getTotalRenderCount("Properties")).toBe(2);
-  expect(getMountCount("Player")).toBe(1);
-  expect(getTotalRenderCount("Player")).toBe(2);
+  expect(getRenderedKeys()).not.toContainAnyOf([
+    "App",
+    "MidiLoader",
+    "AudioLoader",
+    "ImageLoader",
+    "Tracks",
+    "Properties",
+  ]);
+  expect(getMountCount("Player")).toBe(0);
+  expect(getTotalRenderCount("Player")).toBe(1);
 });
 test("should update Min Note", async () => {
   const user = userEvent.setup();
@@ -56,9 +59,6 @@ test("should update Min Note", async () => {
     "AudioLoader",
     "ImageLoader",
     "Tracks",
-    "Properties",
-    "Player",
-    "NumberInput",
   ]);
 });
 test("should update Max Note", async () => {
@@ -77,9 +77,6 @@ test("should update Max Note", async () => {
     "AudioLoader",
     "ImageLoader",
     "Tracks",
-    "Properties",
-    "Player",
-    "NumberInput",
   ]);
 });
 test("should update Midi Offset", async () => {
@@ -104,7 +101,6 @@ test("should update Midi Offset", async () => {
   expect(getMountCount("Properties")).toBe(0);
   expect(getTotalRenderCount("Properties")).toBe(2);
 });
-
 test("should update Audio Offset", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
@@ -129,7 +125,6 @@ test("should update Audio Offset", async () => {
   expect(getMountCount("NumberInput")).toBe(0);
   expect(getTotalRenderCount("NumberInput")).toBe(8);
 });
-
 test("should load MIDI file", async () => {
   const container = renderInNewContainer(<Root />);
   resetCount();
@@ -143,24 +138,19 @@ test("should load MIDI file", async () => {
     },
   });
   await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
-  expect(getMountCount("App")).toBe(0);
-  expect(getTotalRenderCount("App")).toBe(1);
-  expect(getMountCount("MidiLoader")).toBe(0);
-  expect(getTotalRenderCount("MidiLoader")).toBe(1);
-  expect(getMountCount("AudioLoader")).toBe(0);
-  expect(getTotalRenderCount("AudioLoader")).toBe(1);
-  expect(getMountCount("ImageLoader")).toBe(0);
-  expect(getTotalRenderCount("ImageLoader")).toBe(1);
+  expect(getRenderedKeys()).not.toContainAnyOf([
+    "App",
+    "MidiLoader",
+    "AudioLoader",
+    "ImageLoader",
+    "Properties",
+    "NumberInput",
+  ]);
   expect(getMountCount("Tracks")).toBe(0);
   expect(getTotalRenderCount("Tracks")).toBe(1);
   expect(getMountCount("Player")).toBe(0);
   expect(getTotalRenderCount("Player")).toBe(1);
-  expect(getMountCount("Properties")).toBe(0);
-  expect(getTotalRenderCount("Properties")).toBe(1);
-  expect(getMountCount("NumberInput")).toBe(0);
-  expect(getTotalRenderCount("NumberInput")).toBe(4);
 });
-
 test("should load Image file", async () => {
   const file = new File([pngFile], "test.png", {
     type: "image/png",
@@ -174,24 +164,18 @@ test("should load Image file", async () => {
     },
   });
   await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
-  expect(getMountCount("App")).toBe(0);
-  expect(getTotalRenderCount("App")).toBe(1);
-  expect(getMountCount("MidiLoader")).toBe(0);
-  expect(getTotalRenderCount("MidiLoader")).toBe(1);
-  expect(getMountCount("AudioLoader")).toBe(0);
-  expect(getTotalRenderCount("AudioLoader")).toBe(1);
+  expect(getRenderedKeys()).not.toContainAnyOf([
+    "App",
+    "MidiLoader",
+    "AudioLoader",
+    "Properties",
+    "NumberInput",
+  ]);
   expect(getMountCount("ImageLoader")).toBe(0);
   expect(getTotalRenderCount("ImageLoader")).toBe(1);
-  expect(getMountCount("Tracks")).toBe(0);
-  expect(getTotalRenderCount("Tracks")).toBe(1);
   expect(getMountCount("Player")).toBe(0);
   expect(getTotalRenderCount("Player")).toBe(1);
-  expect(getMountCount("Properties")).toBe(0);
-  expect(getTotalRenderCount("Properties")).toBe(1);
-  expect(getMountCount("NumberInput")).toBe(0);
-  expect(getTotalRenderCount("NumberInput")).toBe(4);
 });
-
 test("should load Wave file", async () => {
   const container = renderInNewContainer(<Root />);
   resetCount();
@@ -205,20 +189,15 @@ test("should load Wave file", async () => {
     },
   });
   await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
-  expect(getMountCount("App")).toBe(0);
-  expect(getTotalRenderCount("App")).toBe(1);
-  expect(getMountCount("MidiLoader")).toBe(0);
-  expect(getTotalRenderCount("MidiLoader")).toBe(1);
+  expect(getRenderedKeys()).not.toContainAnyOf([
+    "App",
+    "MidiLoader",
+    "ImageLoader",
+    "Properties",
+    "NumberInput",
+  ]);
   expect(getMountCount("AudioLoader")).toBe(0);
   expect(getTotalRenderCount("AudioLoader")).toBe(1);
-  expect(getMountCount("ImageLoader")).toBe(0);
-  expect(getTotalRenderCount("ImageLoader")).toBe(1);
-  expect(getMountCount("Tracks")).toBe(0);
-  expect(getTotalRenderCount("Tracks")).toBe(1);
   expect(getMountCount("Player")).toBe(0);
   expect(getTotalRenderCount("Player")).toBe(1);
-  expect(getMountCount("Properties")).toBe(0);
-  expect(getTotalRenderCount("Properties")).toBe(1);
-  expect(getMountCount("NumberInput")).toBe(0);
-  expect(getTotalRenderCount("NumberInput")).toBe(4);
 });

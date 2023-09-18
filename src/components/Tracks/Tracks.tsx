@@ -1,15 +1,12 @@
-import { Mutables, Track } from "@/model/types";
 import styles from "./Tracks.module.css";
 import { useCounter } from "@/counter";
+import { useAtomValue } from "jotai";
+import { enabledTracksAtom, tracksAtom } from "@/atoms";
 
-export const Tracks = ({
-  tracks,
-  mutablesRef,
-}: {
-  tracks: Track[];
-  mutablesRef: React.MutableRefObject<Mutables>;
-}) => {
+export const Tracks = () => {
   useCounter("Tracks");
+  const tracks = useAtomValue(tracksAtom);
+  const enabledTracks = useAtomValue(enabledTracksAtom);
   return (
     <ul className={styles.tracks}>
       {tracks.map((track, i) => (
@@ -17,9 +14,8 @@ export const Tracks = ({
           <label>
             <input
               type="checkbox"
-              defaultChecked={mutablesRef.current.enabledTracks.has(i)}
+              defaultChecked={enabledTracks.has(i)}
               onChange={(e) => {
-                const enabledTracks = mutablesRef.current.enabledTracks;
                 e.target.checked
                   ? enabledTracks.add(i)
                   : enabledTracks.delete(i);

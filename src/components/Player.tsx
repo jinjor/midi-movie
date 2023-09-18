@@ -1,28 +1,52 @@
 import { useEffect, useRef, useState } from "react";
-import { Image, Mutables, Note } from "@/model/types";
 import { applyPatch, createPatch } from "@/model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
 import { useAtomValue } from "jotai";
-import { audioOffsetAtom, midiOffsetAtom } from "@/atoms";
-
-type Props = {
-  notes: Note[];
-  image: Image;
-  audioBuffer: AudioBuffer | null;
-  mutablesRef: React.MutableRefObject<Mutables>;
-};
+import {
+  audioBufferAtom,
+  audioOffsetAtom,
+  enabledTracksAtom,
+  imageSizeAtom,
+  imageUrlAtom,
+  maxNoteAtom,
+  midiOffsetAtom,
+  minNoteAtom,
+  notesAtom,
+} from "@/atoms";
 
 type PlayingState = {
   startTime: number;
   timer: number;
 };
 
-export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
+export const Player = () => {
   useCounter("Player");
   const midiOffsetInSec = useAtomValue(midiOffsetAtom);
   const audioOffsetInSec = useAtomValue(audioOffsetAtom);
+  const minNote = useAtomValue(minNoteAtom);
+  const maxNote = useAtomValue(maxNoteAtom);
+  const imageUrl = useAtomValue(imageUrlAtom);
+  const size = useAtomValue(imageSizeAtom);
+  const notes = useAtomValue(notesAtom);
+  const enabledTracks = useAtomValue(enabledTracksAtom);
+  const audioBuffer = useAtomValue(audioBufferAtom);
+  const mutablesRef = useRef({
+    minNote,
+    maxNote,
+    size,
+    enabledTracks,
+  });
+  useEffect(() => {
+    mutablesRef.current = {
+      minNote,
+      maxNote,
+      size,
+      enabledTracks,
+    };
+  }, [minNote, maxNote, size, enabledTracks]);
+
   const timeRangeSec = 10;
   const displayRef = useRef<DisplayApi>(null);
   const [audioBufferSource, setAudioBufferSource] =
@@ -96,7 +120,6 @@ export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
       return;
     }
     const display = displayRef.current!;
-    const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
     const rects = display.getNoteRects();
     const elapsedSec = offsetInSec + midiOffsetInSec;
     for (const [index, note] of notes.entries()) {
@@ -117,13 +140,22 @@ export const Player = ({ notes, image, audioBuffer, mutablesRef }: Props) => {
       const stylePatch = { display: hidden ? "none" : "block" };
       applyPatch(rect, stylePatch, patch!);
     }
-  }, [notes, mutablesRef, playingState, offsetInSec, midiOffsetInSec]);
+  }, [
+    notes,
+    playingState,
+    offsetInSec,
+    midiOffsetInSec,
+    enabledTracks,
+    minNote,
+    maxNote,
+    size,
+  ]);
   return (
-    <div style={{ width: image.size.width }}>
+    <div style={{ width: size.width }}>
       <Display
         apiRef={displayRef}
-        size={image.size}
-        imageUrl={image.url}
+        size={size}
+        imageUrl={imageUrl}
         notes={notes}
       />
       <PlayerControl
