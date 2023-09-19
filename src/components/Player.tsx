@@ -3,10 +3,11 @@ import { applyPatch, createPatch } from "@/model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import {
   audioBufferAtom,
   audioOffsetAtom,
+  currentTimeInSecAtom,
   enabledTracksAtom,
   imageSizeAtom,
   imageUrlAtom,
@@ -15,6 +16,7 @@ import {
   minNoteAtom,
   notesAtom,
 } from "@/atoms";
+import { SeekBar } from "@/ui/SeekBar";
 
 type PlayingState = {
   startTime: number;
@@ -150,6 +152,21 @@ export const Player = () => {
     maxNote,
     size,
   ]);
+
+  const [currentTimeInSec, setCurrentTimeInSec] = useAtom(currentTimeInSecAtom);
+  useEffect(() => {
+    if (playingState === null) {
+      setCurrentTimeInSec(null);
+      return;
+    }
+    const timer = setInterval(() => {
+      setCurrentTimeInSec(
+        Math.floor((performance.now() - playingState.startTime) / 1000)
+      );
+    }, 1000 / 10);
+    return () => clearInterval(timer);
+  }, [playingState, setCurrentTimeInSec]);
+
   return (
     <div style={{ width: size.width }}>
       <Display
@@ -164,6 +181,26 @@ export const Player = () => {
         onPause={handlePause}
         onReturn={handleReturn}
         startTime={playingState?.startTime ?? null}
+        seekBar={
+          <SeekBar
+            disabled={audioBuffer == null}
+            value={
+              currentTimeInSec && audioBuffer
+                ? currentTimeInSec / audioBuffer.duration
+                : offsetInSec / audioBuffer!.duration
+            }
+            onStartDragging={(ratio) => {
+              handlePause();
+              audioBuffer && setOffsetInSec(audioBuffer.duration * ratio);
+            }}
+            onStopDragging={() => {
+              // TODO
+            }}
+            onDrag={(ratio) => {
+              audioBuffer && setOffsetInSec(audioBuffer.duration * ratio);
+            }}
+          />
+        }
       />
     </div>
   );

@@ -14,3 +14,4 @@ export const notesAtom = atom<Note[]>([]);
 export const tracksAtom = atom<Track[]>([]);
 export const enabledTracksAtom = atom(new Set<number>());
 export const audioBufferAtom = atom<AudioBuffer | null>(null);
+export const currentTimeInSecAtom = atom<number | null>(null);
