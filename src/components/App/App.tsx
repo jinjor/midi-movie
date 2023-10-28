@@ -1,4 +1,4 @@
-import styles from "./App.module.css";
+import * as styles from "./App.css.ts";
 
 import { Tracks } from "../Tracks";
 import { ImageLoader } from "../ImageLoader";

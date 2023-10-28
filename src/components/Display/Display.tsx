@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Note, Size } from "@/model/types";
-import styles from "./Display.module.css";
+import * as styles from "./Display.css.ts";
 
 export type DisplayApi = {
   getNoteRects: () => NodeListOf<SVGRectElement>;

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import styles from "./PlayerControl.module.css";
+import * as styles from "./PlayerControl.css.ts";
 import { formatTime } from "../../util";
 import { useAtomValue } from "jotai";
 import { currentTimeInSecAtom } from "@/atoms";

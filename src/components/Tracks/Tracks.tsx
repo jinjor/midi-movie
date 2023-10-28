@@ -1,4 +1,4 @@
-import styles from "./Tracks.module.css";
+import * as styles from "./Tracks.css.ts";
 import { useCounter } from "@/counter";
 import { useAtomValue } from "jotai";
 import { enabledTracksAtom, tracksAtom } from "@/atoms";
@@ -10,8 +10,8 @@ export const Tracks = () => {
   return (
     <ul className={styles.tracks}>
       {tracks.map((track, i) => (
-        <li key={i}>
-          <label>
+        <li key={i} className={styles.track}>
+          <label className={styles.label}>
             <input
               type="checkbox"
               defaultChecked={enabledTracks.has(i)}
