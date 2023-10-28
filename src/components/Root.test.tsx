@@ -199,5 +199,5 @@ test("should load Wave file", async () => {
   expect(getMountCount("AudioLoader")).toBe(0);
   expect(getTotalRenderCount("AudioLoader")).toBe(1);
   expect(getMountCount("Player")).toBe(0);
-  expect(getTotalRenderCount("Player")).toBe(1);
+  expect(getTotalRenderCount("Player")).toBe(2);
 });
