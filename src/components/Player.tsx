@@ -187,7 +187,7 @@ export const Player = () => {
             value={
               currentTimeInSec && audioBuffer
                 ? currentTimeInSec / audioBuffer.duration
-                : offsetInSec / audioBuffer!.duration
+                : 0
             }
             onStartDragging={(ratio) => {
               handlePause();
