@@ -1,6 +1,7 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
 import * as fs from "node:fs";
 
 const arrayBufferLoader = () => ({
@@ -20,7 +21,12 @@ const arrayBufferLoader = () => ({
 });
 
 export default defineConfig({
-  plugins: [arrayBufferLoader(), tsconfigPaths(), react()],
+  plugins: [
+    arrayBufferLoader(),
+    tsconfigPaths(),
+    react(),
+    vanillaExtractPlugin(),
+  ],
   test: {
     globals: true,
     setupFiles: "./src/test/setup.ts",

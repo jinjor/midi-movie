@@ -1,5 +1,5 @@
 import { cx } from "@/util";
-import styles from "./SeekBar.module.css";
+import * as styles from "./SeekBar.css.ts";
 import { useEffect, useRef, useState } from "react";
 
 type Props = {
