@@ -40,3 +40,5 @@ export const knob = style({
     },
   },
 });
+
+export const disabled = style({});
