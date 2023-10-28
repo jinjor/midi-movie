@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { ReactNode } from "react";
 import styles from "./PlayerControl.module.css";
 import { formatTime } from "../../util";
+import { useAtomValue } from "jotai";
+import { currentTimeInSecAtom } from "@/atoms";
 
 type Props = {
   onPlay: () => void;
@@ -8,6 +10,7 @@ type Props = {
   onReturn: () => void;
   isPlaying: boolean;
   startTime: number | null;
+  seekBar: ReactNode;
 };
 
 export const PlayerControl = ({
@@ -15,31 +18,24 @@ export const PlayerControl = ({
   onPlay,
   onPause,
   onReturn,
-  startTime,
+  seekBar,
 }: Props) => {
-  const [currentTimeInSec, setCurrentTimeInSec] = useState<number | null>(null);
-  useEffect(() => {
-    if (startTime === null) {
-      setCurrentTimeInSec(null);
-      return;
-    }
-    const timer = setInterval(() => {
-      setCurrentTimeInSec(Math.floor((performance.now() - startTime) / 1000));
-    }, 1000 / 10);
-    return () => clearInterval(timer);
-  }, [startTime]);
+  const currentTimeInSec = useAtomValue(currentTimeInSecAtom);
   return (
-    <div className={styles.controls}>
-      <div>
-        <button onClick={onReturn}>Return</button>
-        {isPlaying ? (
-          <button onClick={onPause}>Pause</button>
-        ) : (
-          <button onClick={onPlay}>Play</button>
-        )}
-      </div>
-      <div>
-        {currentTimeInSec == null ? "--:--" : formatTime(currentTimeInSec)}
+    <div>
+      {seekBar}
+      <div className={styles.controls}>
+        <div>
+          <button onClick={onReturn}>Return</button>
+          {isPlaying ? (
+            <button onClick={onPause}>Pause</button>
+          ) : (
+            <button onClick={onPlay}>Play</button>
+          )}
+        </div>
+        <div>
+          {currentTimeInSec == null ? "--:--" : formatTime(currentTimeInSec)}
+        </div>
       </div>
     </div>
   );
