@@ -92,7 +92,7 @@ export const Player = () => {
           minNote,
           maxNote,
           timeRangeSec,
-          false
+          false,
         );
         const stylePatch = { display: hidden ? "none" : "block" };
         applyPatch(rect, stylePatch, patch ?? {});
@@ -115,7 +115,7 @@ export const Player = () => {
     if (playingState) {
       clearInterval(playingState.timer);
       setOffsetInSec(
-        offsetInSec + (performance.now() - playingState.startTime) / 1000
+        offsetInSec + (performance.now() - playingState.startTime) / 1000,
       );
       setPlayingState(null);
     }
@@ -141,7 +141,7 @@ export const Player = () => {
         minNote,
         maxNote,
         timeRangeSec,
-        true
+        true,
       );
       const stylePatch = { display: hidden ? "none" : "block" };
       applyPatch(rect, stylePatch, patch!);
@@ -165,7 +165,7 @@ export const Player = () => {
     }
     const timer = setInterval(() => {
       setCurrentTimeInSec(
-        Math.floor((performance.now() - playingState.startTime) / 1000)
+        Math.floor((performance.now() - playingState.startTime) / 1000),
       );
     }, 1000 / 10);
     return () => clearInterval(timer);
@@ -173,7 +173,7 @@ export const Player = () => {
 
   const durationForSeekBar = Math.max(
     audioBuffer?.duration ?? 0,
-    midiData?.endSec ?? 0
+    midiData?.endSec ?? 0,
   );
   return (
     <div style={{ width: size.width }}>
