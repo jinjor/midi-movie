@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "check": "tcm src && tsc && find src -type f -name '*.ext' -exec rm {} \\;",
+    "build": "pnpm run check && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest run"
@@ -13,7 +14,8 @@
   "dependencies": {
     "jotai": "^2.4.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "typed-css-modules": "^0.8.0"
   },
   "devDependencies": {
     "@testing-library/dom": "^9.3.1",
