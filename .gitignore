@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 playwright-report
+*.css.d.ts
 
 # Editor directories and files
 .vscode/*

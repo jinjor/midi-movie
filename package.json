@@ -5,15 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build": "vite build",
+    "format": "prettier -w src",
+    "check": "pnpm check:type && pnpm check:lint && pnpm check:format",
+    "check:type": "tcm src && tsc && find src -type f -name '*.ext' -exec rm {} \\;",
+    "check:lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "check:format": "prettier -c src",
     "preview": "vite preview",
     "test": "vitest run"
   },
   "dependencies": {
     "jotai": "^2.4.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "typed-css-modules": "^0.8.0"
   },
   "devDependencies": {
     "@testing-library/dom": "^9.3.1",
@@ -33,6 +38,7 @@
     "jsdom": "^22.1.0",
     "midi-file": "^1.2.4",
     "playwright": "^1.38.0",
+    "prettier": "^3.0.3",
     "typescript": "^5.0.2",
     "vite": "^4.4.0",
     "vite-tsconfig-paths": "^4.2.1",

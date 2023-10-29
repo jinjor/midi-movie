@@ -7,7 +7,7 @@ export function createPatch(
   minNote: number,
   maxNote: number,
   timeRangeSec: number,
-  force: boolean
+  force: boolean,
 ): Record<string, string | number> | null {
   const heightPerNote = size.height / (maxNote - minNote);
   const widthPerSec = size.width / timeRangeSec;
@@ -49,7 +49,7 @@ export function createPatch(
 export function applyPatch(
   el: SVGElement,
   styles: Record<string, string | number>,
-  patch: Record<string, string | number>
+  patch: Record<string, string | number>,
 ) {
   for (const [key, value] of Object.entries(styles)) {
     el.style.setProperty(key, String(value));

@@ -28,3 +28,6 @@
   background-color: #1db954;
   cursor: pointer;
 }
+.bar.disabled {
+  --: TODO;
+}
