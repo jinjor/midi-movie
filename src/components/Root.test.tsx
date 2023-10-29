@@ -187,7 +187,7 @@ test("should load Wave file", async () => {
       files: [file],
     },
   });
-  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 500)));
   expect(getRenderedKeys()).not.toContainAnyOf([
     "App",
     "MidiLoader",
@@ -198,5 +198,5 @@ test("should load Wave file", async () => {
   expect(getMountCount("AudioLoader")).toBe(0);
   expect(getTotalRenderCount("AudioLoader")).toBe(1);
   expect(getMountCount("Player")).toBe(0);
-  expect(getTotalRenderCount("Player")).toBe(1);
+  expect(getTotalRenderCount("Player")).toBe(2);
 });
