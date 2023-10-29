@@ -171,6 +171,10 @@ export const Player = () => {
     return () => clearInterval(timer);
   }, [playingState, setCurrentTimeInSec]);
 
+  const durationForSeekBar = Math.max(
+    audioBuffer?.duration ?? 0,
+    midiData?.endSec ?? 0
+  );
   return (
     <div style={{ width: size.width }}>
       <Display
@@ -184,24 +188,20 @@ export const Player = () => {
         onPlay={handlePlay}
         onPause={handlePause}
         onReturn={handleReturn}
-        startTime={playingState?.startTime ?? null}
+        offsetInSec={offsetInSec}
         seekBar={
           <SeekBar
             disabled={audioBuffer == null}
-            value={
-              currentTimeInSec && audioBuffer
-                ? currentTimeInSec / audioBuffer.duration
-                : 0
-            }
+            value={(offsetInSec + (currentTimeInSec ?? 0)) / durationForSeekBar}
             onStartDragging={(ratio) => {
               handlePause();
-              audioBuffer && setOffsetInSec(audioBuffer.duration * ratio);
+              audioBuffer && setOffsetInSec(durationForSeekBar * ratio);
             }}
             onStopDragging={() => {
               // TODO
             }}
             onDrag={(ratio) => {
-              audioBuffer && setOffsetInSec(audioBuffer.duration * ratio);
+              audioBuffer && setOffsetInSec(durationForSeekBar * ratio);
             }}
           />
         }
