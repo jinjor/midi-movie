@@ -35,4 +35,5 @@ export type MidiData = {
   tracks: Track[];
   notes: Note[];
   events: Event[];
+  endSec: number;
 };

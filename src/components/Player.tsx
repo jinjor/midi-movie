@@ -14,7 +14,7 @@ import {
   maxNoteAtom,
   midiOffsetAtom,
   minNoteAtom,
-  notesAtom,
+  midiDataAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 
@@ -31,9 +31,11 @@ export const Player = () => {
   const maxNote = useAtomValue(maxNoteAtom);
   const imageUrl = useAtomValue(imageUrlAtom);
   const size = useAtomValue(imageSizeAtom);
-  const notes = useAtomValue(notesAtom);
+  const midiData = useAtomValue(midiDataAtom);
   const enabledTracks = useAtomValue(enabledTracksAtom);
   const audioBuffer = useAtomValue(audioBufferAtom);
+  // const notes = midiData?.notes ?? [];
+
   const mutablesRef = useRef({
     minNote,
     maxNote,
@@ -69,6 +71,7 @@ export const Player = () => {
       }
       setAudioBufferSource(source);
     }
+    const notes = midiData?.notes ?? [];
     const startTime = performance.now();
     const timer = window.setInterval(() => {
       const display = displayRef.current!;
@@ -89,7 +92,7 @@ export const Player = () => {
           minNote,
           maxNote,
           timeRangeSec,
-          false,
+          false
         );
         const stylePatch = { display: hidden ? "none" : "block" };
         applyPatch(rect, stylePatch, patch ?? {});
@@ -112,7 +115,7 @@ export const Player = () => {
     if (playingState) {
       clearInterval(playingState.timer);
       setOffsetInSec(
-        offsetInSec + (performance.now() - playingState.startTime) / 1000,
+        offsetInSec + (performance.now() - playingState.startTime) / 1000
       );
       setPlayingState(null);
     }
@@ -121,6 +124,7 @@ export const Player = () => {
     if (playingState != null) {
       return;
     }
+    const notes = midiData?.notes ?? [];
     const display = displayRef.current!;
     const rects = display.getNoteRects();
     const elapsedSec = offsetInSec + midiOffsetInSec;
@@ -137,13 +141,13 @@ export const Player = () => {
         minNote,
         maxNote,
         timeRangeSec,
-        true,
+        true
       );
       const stylePatch = { display: hidden ? "none" : "block" };
       applyPatch(rect, stylePatch, patch!);
     }
   }, [
-    notes,
+    midiData,
     playingState,
     offsetInSec,
     midiOffsetInSec,
@@ -161,7 +165,7 @@ export const Player = () => {
     }
     const timer = setInterval(() => {
       setCurrentTimeInSec(
-        Math.floor((performance.now() - playingState.startTime) / 1000),
+        Math.floor((performance.now() - playingState.startTime) / 1000)
       );
     }, 1000 / 10);
     return () => clearInterval(timer);
@@ -173,7 +177,7 @@ export const Player = () => {
         apiRef={displayRef}
         size={size}
         imageUrl={imageUrl}
-        notes={notes}
+        notes={midiData?.notes ?? []}
       />
       <PlayerControl
         isPlaying={playingState != null}

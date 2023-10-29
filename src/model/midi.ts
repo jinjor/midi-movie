@@ -6,7 +6,8 @@ export function parseMidiData(buffer: ArrayBuffer): MidiData {
   const tracks = collectTracks(parsed);
   const events = collectEvents(parsed);
   const notes = collectNotes(parsed.header.timeDivision ?? 480, events);
-  return { tracks, events, notes };
+  const endSec = notes.reduce((acc, note) => Math.max(acc, note.toSec), 0);
+  return { tracks, events, notes, endSec };
 }
 function collectTracks(parsed: midiManager.MidiData): Track[] {
   const tracks: Track[] = [];

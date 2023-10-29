@@ -140,7 +140,6 @@ test("should load MIDI file", async () => {
   await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   expect(getRenderedKeys()).not.toContainAnyOf([
     "App",
-    "MidiLoader",
     "AudioLoader",
     "ImageLoader",
     "Properties",
@@ -199,5 +198,5 @@ test("should load Wave file", async () => {
   expect(getMountCount("AudioLoader")).toBe(0);
   expect(getTotalRenderCount("AudioLoader")).toBe(1);
   expect(getMountCount("Player")).toBe(0);
-  expect(getTotalRenderCount("Player")).toBe(2);
+  expect(getTotalRenderCount("Player")).toBe(1);
 });

@@ -1,15 +1,15 @@
 import styles from "./Tracks.module.css";
 import { useCounter } from "@/counter";
 import { useAtomValue } from "jotai";
-import { enabledTracksAtom, tracksAtom } from "@/atoms";
+import { enabledTracksAtom, midiDataAtom } from "@/atoms";
 
 export const Tracks = () => {
   useCounter("Tracks");
-  const tracks = useAtomValue(tracksAtom);
+  const midiData = useAtomValue(midiDataAtom);
   const enabledTracks = useAtomValue(enabledTracksAtom);
   return (
     <ul className={styles.tracks}>
-      {tracks.map((track, i) => (
+      {(midiData?.tracks ?? []).map((track, i) => (
         <li key={i}>
           <label>
             <input
