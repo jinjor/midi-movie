@@ -10,7 +10,7 @@ afterEach(() => {
 test("should show NumberInput", () => {
   const onChange = vi.fn();
   const container = renderInNewContainer(
-    <NumberInput defaultValue={42} onChange={onChange} />
+    <NumberInput defaultValue={42} onChange={onChange} />,
   );
   const input = container.getByRole("spinbutton");
   expect(input).toHaveValue(42);
@@ -21,7 +21,7 @@ test("should call onChange", async () => {
   const user = userEvent.setup();
   const onChange = vi.fn();
   const container = renderInNewContainer(
-    <NumberInput defaultValue={42} onChange={onChange} />
+    <NumberInput defaultValue={42} onChange={onChange} />,
   );
   const input = container.getByRole("spinbutton");
   await user.dblClick(input);

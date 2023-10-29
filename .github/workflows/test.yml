@@ -15,5 +15,6 @@ jobs:
           version: 8
       - run: pnpm install
       - run: pnpm exec playwright install
+      - run: pnpm check
       - run: pnpm build
       - run: pnpm test

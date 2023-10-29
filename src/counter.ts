@@ -28,7 +28,7 @@ export const getTotalCallbackCount = (key: string, callbackKey: string) => {
   const lifecycles = lifecycleMap ? [...lifecycleMap.values()] : [];
   return lifecycles.reduce(
     (acc, { callback }) => acc + (callback.get(callbackKey) ?? 0),
-    0
+    0,
   );
 };
 export const getMountedKeys = () => {
@@ -40,7 +40,7 @@ export const getRenderedKeys = () => {
 const ensureLifecycle = (
   key: string,
   mountKey: string,
-  shouldCountMount: boolean
+  shouldCountMount: boolean,
 ) => {
   if (!count.has(key)) {
     count.set(key, new Map());
@@ -58,7 +58,7 @@ const ensureLifecycle = (
 const updateCallbackCount = (
   key: string,
   mountKey: string,
-  callbackKey: string
+  callbackKey: string,
 ) => {
   const lifecycle = ensureLifecycle(key, mountKey, false);
   const map = lifecycle.callback;
@@ -78,7 +78,7 @@ export const useCounter = (key: string) => {
   lifecycle.render++;
   const countCallback = useCallback(
     (callbackKey: string) => updateCallbackCount(key, mountKey, callbackKey),
-    [key, mountKey]
+    [key, mountKey],
   );
   return {
     countCallback,
