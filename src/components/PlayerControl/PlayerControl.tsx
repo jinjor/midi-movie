@@ -9,7 +9,7 @@ type Props = {
   onPause: () => void;
   onReturn: () => void;
   isPlaying: boolean;
-  startTime: number | null;
+  offsetInSec: number;
   seekBar: ReactNode;
 };
 
@@ -19,6 +19,7 @@ export const PlayerControl = ({
   onPause,
   onReturn,
   seekBar,
+  offsetInSec,
 }: Props) => {
   const currentTimeInSec = useAtomValue(currentTimeInSecAtom);
   return (
@@ -33,9 +34,7 @@ export const PlayerControl = ({
             <button onClick={onPlay}>Play</button>
           )}
         </div>
-        <div>
-          {currentTimeInSec == null ? "--:--" : formatTime(currentTimeInSec)}
-        </div>
+        <div>{formatTime(offsetInSec + (currentTimeInSec ?? 0))}</div>
       </div>
     </div>
   );

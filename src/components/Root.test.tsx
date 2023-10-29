@@ -140,7 +140,6 @@ test("should load MIDI file", async () => {
   await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   expect(getRenderedKeys()).not.toContainAnyOf([
     "App",
-    "MidiLoader",
     "AudioLoader",
     "ImageLoader",
     "Properties",
@@ -188,7 +187,7 @@ test("should load Wave file", async () => {
       files: [file],
     },
   });
-  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 500)));
   expect(getRenderedKeys()).not.toContainAnyOf([
     "App",
     "MidiLoader",

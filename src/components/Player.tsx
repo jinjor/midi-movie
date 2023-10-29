@@ -14,7 +14,7 @@ import {
   maxNoteAtom,
   midiOffsetAtom,
   minNoteAtom,
-  notesAtom,
+  midiDataAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 
@@ -31,9 +31,11 @@ export const Player = () => {
   const maxNote = useAtomValue(maxNoteAtom);
   const imageUrl = useAtomValue(imageUrlAtom);
   const size = useAtomValue(imageSizeAtom);
-  const notes = useAtomValue(notesAtom);
+  const midiData = useAtomValue(midiDataAtom);
   const enabledTracks = useAtomValue(enabledTracksAtom);
   const audioBuffer = useAtomValue(audioBufferAtom);
+  // const notes = midiData?.notes ?? [];
+
   const mutablesRef = useRef({
     minNote,
     maxNote,
@@ -69,6 +71,7 @@ export const Player = () => {
       }
       setAudioBufferSource(source);
     }
+    const notes = midiData?.notes ?? [];
     const startTime = performance.now();
     const timer = window.setInterval(() => {
       const display = displayRef.current!;
@@ -121,6 +124,7 @@ export const Player = () => {
     if (playingState != null) {
       return;
     }
+    const notes = midiData?.notes ?? [];
     const display = displayRef.current!;
     const rects = display.getNoteRects();
     const elapsedSec = offsetInSec + midiOffsetInSec;
@@ -143,7 +147,7 @@ export const Player = () => {
       applyPatch(rect, stylePatch, patch!);
     }
   }, [
-    notes,
+    midiData,
     playingState,
     offsetInSec,
     midiOffsetInSec,
@@ -167,37 +171,37 @@ export const Player = () => {
     return () => clearInterval(timer);
   }, [playingState, setCurrentTimeInSec]);
 
+  const durationForSeekBar = Math.max(
+    audioBuffer?.duration ?? 0,
+    midiData?.endSec ?? 0,
+  );
   return (
     <div style={{ width: size.width }}>
       <Display
         apiRef={displayRef}
         size={size}
         imageUrl={imageUrl}
-        notes={notes}
+        notes={midiData?.notes ?? []}
       />
       <PlayerControl
         isPlaying={playingState != null}
         onPlay={handlePlay}
         onPause={handlePause}
         onReturn={handleReturn}
-        startTime={playingState?.startTime ?? null}
+        offsetInSec={offsetInSec}
         seekBar={
           <SeekBar
             disabled={audioBuffer == null}
-            value={
-              currentTimeInSec && audioBuffer
-                ? currentTimeInSec / audioBuffer.duration
-                : 0
-            }
+            value={(offsetInSec + (currentTimeInSec ?? 0)) / durationForSeekBar}
             onStartDragging={(ratio) => {
               handlePause();
-              audioBuffer && setOffsetInSec(audioBuffer.duration * ratio);
+              audioBuffer && setOffsetInSec(durationForSeekBar * ratio);
             }}
             onStopDragging={() => {
               // TODO
             }}
             onDrag={(ratio) => {
-              audioBuffer && setOffsetInSec(audioBuffer.duration * ratio);
+              audioBuffer && setOffsetInSec(durationForSeekBar * ratio);
             }}
           />
         }
