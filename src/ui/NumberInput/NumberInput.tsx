@@ -5,11 +5,13 @@ export const NumberInput = ({
   onChange,
   max,
   min,
+  step,
 }: {
   defaultValue?: number;
   onChange: (value: number) => void;
   max?: number;
   min?: number;
+  step?: number;
 }) => {
   useCounter("NumberInput");
   return (
@@ -17,6 +19,7 @@ export const NumberInput = ({
       type="number"
       max={max}
       min={min}
+      step={step}
       defaultValue={defaultValue}
       onChange={(e) => {
         onChange(Number(e.target.value));
