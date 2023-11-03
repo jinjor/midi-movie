@@ -123,7 +123,26 @@ test("should update Audio Offset", async () => {
   expect(getMountCount("Properties")).toBe(0);
   expect(getTotalRenderCount("Properties")).toBe(2);
   expect(getMountCount("NumberInput")).toBe(0);
-  expect(getTotalRenderCount("NumberInput")).toBe(8);
+  expect(getTotalRenderCount("NumberInput")).toBe(10);
+});
+test("should update Overlay Opacity", async () => {
+  const user = userEvent.setup();
+  const container = renderInNewContainer(<Root />);
+  resetCount();
+  const input = container.getByLabelText(/Overlay Opacity/i);
+  input.focus();
+  await user.dblClick(input);
+  await user.keyboard("{backspace}{backspace}{backspace}");
+  await user.type(input, "1");
+  expect(input).toHaveValue(1);
+  expect(getRenderedKeys()).not.toContainAnyOf([
+    "App",
+    "MidiLoader",
+    "AudioLoader",
+    "ImageLoader",
+    "Tracks",
+    "Player",
+  ]);
 });
 test("should load MIDI file", async () => {
   const container = renderInNewContainer(<Root />);

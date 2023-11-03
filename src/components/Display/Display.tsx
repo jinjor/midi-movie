@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { Note, Size } from "@/model/types";
 import styles from "./Display.module.css";
+import { useAtomValue } from "jotai";
+import { opacityAtom } from "@/atoms";
 
 export type DisplayApi = {
   getNoteRects: () => NodeListOf<SVGRectElement>;
@@ -15,11 +17,12 @@ type Props = {
 
 export const Display = ({ apiRef, size, imageUrl, notes }: Props) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const opacity = useAtomValue(opacityAtom);
   useEffect(() => {
     apiRef.current = {
       getNoteRects: () => {
         return svgRef.current!.querySelectorAll(
-          ".note",
+          ".note"
         ) as unknown as NodeListOf<SVGRectElement>;
       },
     };
@@ -33,8 +36,8 @@ export const Display = ({ apiRef, size, imageUrl, notes }: Props) => {
       style={{
         backgroundImage: imageUrl
           ? `linear-gradient(
-          rgba(0, 0, 0, 0.6), 
-          rgba(0, 0, 0, 0.6)
+          rgba(0, 0, 0, ${opacity}), 
+          rgba(0, 0, 0, ${opacity})
         ),url(${imageUrl})`
           : undefined,
       }}

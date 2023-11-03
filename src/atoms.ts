@@ -14,3 +14,4 @@ export const midiDataAtom = atom<MidiData | null>(null);
 export const enabledTracksAtom = atom(new Set<number>());
 export const audioBufferAtom = atom<AudioBuffer | null>(null);
 export const currentTimeInSecAtom = atom<number | null>(null);
+export const opacityAtom = atom(0.6);

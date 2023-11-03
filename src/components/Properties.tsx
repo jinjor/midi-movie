@@ -6,6 +6,7 @@ import {
   maxNoteAtom,
   midiOffsetAtom,
   minNoteAtom,
+  opacityAtom,
 } from "@/atoms";
 
 export const Properties = () => {
@@ -14,6 +15,7 @@ export const Properties = () => {
   const [audioOffsetInSec, setAudioOffsetInSec] = useAtom(audioOffsetAtom);
   const [minNote, setMinNote] = useAtom(minNoteAtom);
   const [maxNote, setMaxNote] = useAtom(maxNoteAtom);
+  const [opacity, setOpacity] = useAtom(opacityAtom);
   const handleMinNoteChange = (minNote: number) => {
     setMinNote(minNote);
   };
@@ -25,6 +27,9 @@ export const Properties = () => {
   };
   const handleAudioOffsetChange = (audioOffsetInMilliSec: number) => {
     setAudioOffsetInSec(audioOffsetInMilliSec / 1000);
+  };
+  const handleOpacityChange = (opacity: number) => {
+    setOpacity(opacity);
   };
   return (
     <>
@@ -62,6 +67,16 @@ export const Properties = () => {
           max={60000}
           defaultValue={audioOffsetInSec * 1000}
           onChange={handleAudioOffsetChange}
+        />
+      </label>
+      <label>
+        Overlay Opacity:
+        <NumberInput
+          min={0}
+          max={1}
+          step={0.1}
+          defaultValue={opacity}
+          onChange={handleOpacityChange}
         />
       </label>
     </>
