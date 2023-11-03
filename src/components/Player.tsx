@@ -3,7 +3,7 @@ import { applyPatch, createPatch } from "@/model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   audioBufferAtom,
   audioOffsetAtom,
@@ -15,6 +15,8 @@ import {
   midiOffsetAtom,
   minNoteAtom,
   midiDataAtom,
+  gainNodeAtom,
+  volumeAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 
@@ -34,7 +36,8 @@ export const Player = () => {
   const midiData = useAtomValue(midiDataAtom);
   const enabledTracks = useAtomValue(enabledTracksAtom);
   const audioBuffer = useAtomValue(audioBufferAtom);
-  // const notes = midiData?.notes ?? [];
+  const setGainNode = useSetAtom(gainNodeAtom);
+  const volume = useAtomValue(volumeAtom);
 
   const mutablesRef = useRef({
     minNote,
@@ -64,7 +67,10 @@ export const Player = () => {
       const ctx = new AudioContext();
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
-      source.connect(ctx.destination);
+      const gain = ctx.createGain();
+      gain.gain.value = volume;
+      setGainNode(gain);
+      source.connect(gain).connect(ctx.destination);
       const offset = offsetInSec + audioOffsetInSec;
       if (offset > 0) {
         source.start(0, offset);
@@ -94,7 +100,7 @@ export const Player = () => {
           minNote,
           maxNote,
           timeRangeSec,
-          false,
+          false
         );
         const stylePatch = { display: hidden ? "none" : "block" };
         applyPatch(rect, stylePatch, patch ?? {});
@@ -117,7 +123,7 @@ export const Player = () => {
     if (playingState) {
       clearInterval(playingState.timer);
       setOffsetInSec(
-        offsetInSec + (performance.now() - playingState.startTime) / 1000,
+        offsetInSec + (performance.now() - playingState.startTime) / 1000
       );
       setPlayingState(null);
     }
@@ -143,7 +149,7 @@ export const Player = () => {
         minNote,
         maxNote,
         timeRangeSec,
-        true,
+        true
       );
       const stylePatch = { display: hidden ? "none" : "block" };
       applyPatch(rect, stylePatch, patch!);
@@ -167,7 +173,7 @@ export const Player = () => {
     }
     const timer = setInterval(() => {
       setCurrentTimeInSec(
-        Math.floor((performance.now() - playingState.startTime) / 1000),
+        Math.floor((performance.now() - playingState.startTime) / 1000)
       );
     }, 1000 / 10);
     return () => clearInterval(timer);
@@ -175,7 +181,7 @@ export const Player = () => {
 
   const durationForSeekBar = Math.max(
     audioBuffer?.duration ?? 0,
-    midiData?.endSec ?? 0,
+    midiData?.endSec ?? 0
   );
   return (
     <div style={{ width: size.width }}>

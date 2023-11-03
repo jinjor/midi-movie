@@ -1,12 +1,14 @@
 import { NumberInput } from "@/ui/NumberInput";
 import { useCounter } from "@/counter";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import {
   audioOffsetAtom,
+  gainNodeAtom,
   maxNoteAtom,
   midiOffsetAtom,
   minNoteAtom,
   opacityAtom,
+  volumeAtom,
 } from "@/atoms";
 
 export const Properties = () => {
@@ -15,7 +17,9 @@ export const Properties = () => {
   const [audioOffsetInSec, setAudioOffsetInSec] = useAtom(audioOffsetAtom);
   const [minNote, setMinNote] = useAtom(minNoteAtom);
   const [maxNote, setMaxNote] = useAtom(maxNoteAtom);
+  const [volume, setVolume] = useAtom(volumeAtom);
   const [opacity, setOpacity] = useAtom(opacityAtom);
+  const gainNode = useAtomValue(gainNodeAtom);
   const handleMinNoteChange = (minNote: number) => {
     setMinNote(minNote);
   };
@@ -30,6 +34,12 @@ export const Properties = () => {
   };
   const handleOpacityChange = (opacity: number) => {
     setOpacity(opacity);
+  };
+  const handleVolumeChange = (volume: number) => {
+    setVolume(volume);
+    if (gainNode) {
+      gainNode.gain.value = volume;
+    }
   };
   return (
     <>
@@ -77,6 +87,16 @@ export const Properties = () => {
           step={0.1}
           defaultValue={opacity}
           onChange={handleOpacityChange}
+        />
+      </label>
+      <label>
+        Volume:
+        <NumberInput
+          min={0}
+          max={1}
+          step={0.1}
+          defaultValue={volume}
+          onChange={handleVolumeChange}
         />
       </label>
     </>
