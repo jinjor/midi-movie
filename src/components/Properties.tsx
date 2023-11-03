@@ -3,13 +3,17 @@ import { useCounter } from "@/counter";
 import { useAtom, useAtomValue } from "jotai";
 import {
   audioOffsetAtom,
+  customPropsAtom,
   gainNodeAtom,
   maxNoteAtom,
   midiOffsetAtom,
   minNoteAtom,
   opacityAtom,
+  rendererAtom,
   volumeAtom,
 } from "@/atoms";
+import { useEffect, useState } from "react";
+import { RendererModule, importRendererModule } from "@/model/render";
 
 export const Properties = () => {
   useCounter("Properties");
@@ -20,6 +24,23 @@ export const Properties = () => {
   const [volume, setVolume] = useAtom(volumeAtom);
   const [opacity, setOpacity] = useAtom(opacityAtom);
   const gainNode = useAtomValue(gainNodeAtom);
+  const renderer = useAtomValue(rendererAtom);
+  const [customProps, setCustomProps] = useAtom(customPropsAtom);
+  const [rendererConfig, setRendererConfig] = useState<
+    RendererModule["config"] | null
+  >(null);
+  useEffect(() => {
+    void (async () => {
+      const module = await importRendererModule(renderer);
+      setRendererConfig(module.config);
+      const props = {} as Record<string, number>;
+      for (const prop of module.config.props) {
+        props[prop.id] = prop.defaultValue;
+      }
+      setCustomProps(props);
+    })();
+  }, [renderer, setCustomProps]);
+
   const handleMinNoteChange = (minNote: number) => {
     setMinNote(minNote);
   };
@@ -40,6 +61,9 @@ export const Properties = () => {
     if (gainNode) {
       gainNode.gain.value = volume;
     }
+  };
+  const handleCustomPropChange = (key: string, value: number) => {
+    setCustomProps((prev) => ({ ...prev, [key]: value }));
   };
   return (
     <>
@@ -99,6 +123,20 @@ export const Properties = () => {
           onChange={handleVolumeChange}
         />
       </label>
+      {(rendererConfig?.props ?? []).map((p) => {
+        return (
+          <label key={p.id}>
+            {p.name}:
+            <NumberInput
+              min={p.min}
+              max={p.max}
+              step={p.step}
+              defaultValue={customProps[p.id]}
+              onChange={(value) => handleCustomPropChange(p.id, value)}
+            />
+          </label>
+        );
+      })}
     </>
   );
 };

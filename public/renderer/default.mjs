@@ -42,6 +42,19 @@ function createPatch({
     fill: `hsl(${hue}, 20%, ${lightness}%)`,
   };
 }
+export const config = {
+  props: [
+    {
+      id: "timeRangeSec",
+      name: "Time Range (sec)",
+      type: "number",
+      min: 1,
+      max: 20,
+      step: 1,
+      defaultValue: 10,
+    },
+  ],
+};
 
 export function init(svg, { size, notes }) {
   const bar = createSvgElement("rect");
@@ -50,6 +63,7 @@ export function init(svg, { size, notes }) {
     y: 0,
     width: 0.5,
     height: size.height,
+    fill: "#aaa",
   });
   svg.appendChild(bar);
   for (const _note of notes) {
@@ -70,7 +84,7 @@ export function update(
     size,
     enabledTracks,
     elapsedSec,
-    timeRangeSec,
+    customProps,
     force,
   },
 ) {
@@ -87,7 +101,7 @@ export function update(
       elapsedSec,
       minNote,
       maxNote,
-      timeRangeSec,
+      timeRangeSec: customProps.timeRangeSec,
     });
     const stylePatch = { display: hidden ? "none" : "block" };
     setStyles(rect, stylePatch);

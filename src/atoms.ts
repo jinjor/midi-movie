@@ -20,3 +20,4 @@ export const gainNodeAtom = atom<GainNode | null>(null);
 export const rendererAtom = atom(
   `${window.location.origin}/renderer/default.mjs`,
 );
+export const customPropsAtom = atom<Record<string, number>>({});
