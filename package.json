@@ -8,7 +8,7 @@
     "build": "vite build",
     "format": "prettier -w src",
     "check": "pnpm check:type && pnpm check:lint && pnpm check:format",
-    "check:type": "tcm src && tsc && find src -type f -name '*.ext' -exec rm {} \\;",
+    "check:type": "tcm src && tsc && find src -type f -name '*.css.d.ts' -exec rm {} \\;",
     "check:lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "check:format": "prettier -c src",
     "preview": "vite preview",
