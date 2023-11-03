@@ -22,7 +22,7 @@ export const Display = ({ apiRef, size, imageUrl, notes }: Props) => {
     apiRef.current = {
       getNoteRects: () => {
         return svgRef.current!.querySelectorAll(
-          ".note"
+          ".note",
         ) as unknown as NodeListOf<SVGRectElement>;
       },
     };
