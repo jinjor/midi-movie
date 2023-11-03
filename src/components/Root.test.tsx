@@ -82,6 +82,7 @@ test("should update Max Note", async () => {
 test("should update Midi Offset", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   resetCount();
   const input = container.getByLabelText(/Midi Offset/i);
   input.focus();
@@ -104,6 +105,7 @@ test("should update Midi Offset", async () => {
 test("should update Audio Offset", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   resetCount();
   const input = container.getByLabelText(/Audio Offset/i);
   input.focus();
@@ -123,11 +125,12 @@ test("should update Audio Offset", async () => {
   expect(getMountCount("Properties")).toBe(0);
   expect(getTotalRenderCount("Properties")).toBe(2);
   expect(getMountCount("NumberInput")).toBe(0);
-  expect(getTotalRenderCount("NumberInput")).toBe(12);
+  expect(getTotalRenderCount("NumberInput")).toBe(14);
 });
 test("should update Overlay Opacity", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   resetCount();
   const input = container.getByLabelText(/Overlay Opacity/i);
   input.focus();
@@ -146,6 +149,7 @@ test("should update Overlay Opacity", async () => {
 });
 test("should load MIDI file", async () => {
   const container = renderInNewContainer(<Root />);
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   resetCount();
   const input = container.getByLabelText(/MIDI:/i);
   const file = new File([midiFile], "test.midi", {
@@ -174,6 +178,7 @@ test("should load Image file", async () => {
     type: "image/png",
   });
   const container = renderInNewContainer(<Root />);
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   resetCount();
   const input = container.getByLabelText(/Image:/i);
   fireEvent.change(input, {
@@ -196,6 +201,7 @@ test("should load Image file", async () => {
 });
 test("should load Wave file", async () => {
   const container = renderInNewContainer(<Root />);
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   resetCount();
   const input = container.getByLabelText(/Audio:/i);
   const file = new File([wavFile], "test.wav", {

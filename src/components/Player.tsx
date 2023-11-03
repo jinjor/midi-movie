@@ -18,6 +18,7 @@ import {
   gainNodeAtom,
   volumeAtom,
   rendererAtom,
+  customPropsAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 
@@ -40,6 +41,7 @@ export const Player = () => {
   const setGainNode = useSetAtom(gainNodeAtom);
   const volume = useAtomValue(volumeAtom);
   const renderer = useAtomValue(rendererAtom);
+  const customProps = useAtomValue(customPropsAtom);
 
   const [initialized, setInitialized] = useState(false);
   const mutablesRef = useRef({
@@ -47,6 +49,7 @@ export const Player = () => {
     maxNote,
     size,
     enabledTracks,
+    customProps,
   });
   useEffect(() => {
     mutablesRef.current = {
@@ -54,10 +57,10 @@ export const Player = () => {
       maxNote,
       size,
       enabledTracks,
+      customProps,
     };
-  }, [minNote, maxNote, size, enabledTracks]);
+  }, [minNote, maxNote, size, enabledTracks, customProps]);
 
-  const timeRangeSec = 10;
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
   const [audioBufferSource, setAudioBufferSource] =
     useState<AudioBufferSourceNode | null>(null);
@@ -92,7 +95,8 @@ export const Player = () => {
       const timer = window.setInterval(() => {
         const display = displayApi!;
         const svg = display.getContainer();
-        const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
+        const { minNote, maxNote, size, enabledTracks, customProps } =
+          mutablesRef.current;
         const elapsedSec =
           offsetInSec +
           midiOffsetInSec +
@@ -104,7 +108,7 @@ export const Player = () => {
           size,
           enabledTracks,
           elapsedSec,
-          timeRangeSec,
+          customProps,
           force: false,
         });
       }, 1000 / 60);
@@ -152,7 +156,7 @@ export const Player = () => {
         size,
         enabledTracks,
         elapsedSec,
-        timeRangeSec,
+        customProps,
         force: true,
       });
     })();
@@ -168,6 +172,7 @@ export const Player = () => {
     displayApi,
     initialized,
     renderer,
+    customProps,
   ]);
 
   const [currentTimeInSec, setCurrentTimeInSec] = useAtom(currentTimeInSecAtom);
