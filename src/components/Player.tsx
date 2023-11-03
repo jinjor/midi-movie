@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { RenderModule, init, update } from "@/model/render";
+import { importRendererModule } from "@/model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
@@ -70,8 +70,7 @@ export const Player = () => {
       if (midiData == null) {
         return;
       }
-      const renderer = "../renderer/default.mjs";
-      const mod: RenderModule = await import(renderer);
+      const mod = await importRendererModule(renderer);
       if (audioBuffer) {
         const ctx = new AudioContext();
         const source = ctx.createBufferSource();
@@ -98,7 +97,7 @@ export const Player = () => {
           offsetInSec +
           midiOffsetInSec +
           (performance.now() - startTime) / 1000;
-        update(svg, mod, {
+        mod.update(svg, {
           notes,
           minNote,
           maxNote,
@@ -141,12 +140,12 @@ export const Player = () => {
       return;
     }
     void (async () => {
-      const mod: RenderModule = await import(renderer);
+      const mod = await importRendererModule(renderer);
       const notes = midiData.notes;
       const display = displayApi;
       const svg = display.getContainer();
       const elapsedSec = offsetInSec + midiOffsetInSec;
-      update(svg, mod, {
+      mod.update(svg, {
         notes,
         minNote,
         maxNote,
@@ -189,10 +188,13 @@ export const Player = () => {
     if (displayApi == null || midiData == null) {
       return;
     }
-    const container = displayApi.getContainer();
-    container.innerHTML = "";
-    init(container, size, midiData.notes);
-    setInitialized(true);
+    void (async () => {
+      const mod = await importRendererModule(renderer);
+      const container = displayApi.getContainer();
+      container.innerHTML = "";
+      mod.init(container, { size, notes: midiData.notes });
+      setInitialized(true);
+    })();
   }, [displayApi, size, midiData, renderer]);
 
   const durationForSeekBar = Math.max(

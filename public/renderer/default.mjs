@@ -1,4 +1,6 @@
-export function createPatch({
+import { setAttributes, setStyles, createSvgElement } from "./util.mjs";
+
+function createPatch({
   size,
   note,
   elapsedSec,
@@ -39,4 +41,59 @@ export function createPatch({
     height,
     fill: `hsl(${hue}, 20%, ${lightness}%)`,
   };
+}
+
+export function init(svg, { size, notes }) {
+  const bar = createSvgElement("rect");
+  setAttributes(bar, {
+    x: size.width / 2,
+    y: 0,
+    width: 0.5,
+    height: size.height,
+  });
+  svg.appendChild(bar);
+  for (const _note of notes) {
+    const rect = createSvgElement("rect");
+    setAttributes(rect, {
+      class: "note",
+    });
+    svg.appendChild(rect);
+  }
+}
+
+export function update(
+  svg,
+  {
+    notes,
+    minNote,
+    maxNote,
+    size,
+    enabledTracks,
+    elapsedSec,
+    timeRangeSec,
+    force,
+  },
+) {
+  const rects = svg.querySelectorAll(".note");
+  for (const [index, note] of notes.entries()) {
+    const rect = rects[index];
+    const hidden =
+      !enabledTracks.has(note.trackIndex) ||
+      note.noteNumber < minNote ||
+      note.noteNumber > maxNote;
+    const patch = createPatch({
+      size,
+      note,
+      elapsedSec,
+      minNote,
+      maxNote,
+      timeRangeSec,
+    });
+    const stylePatch = { display: hidden ? "none" : "block" };
+    setStyles(rect, stylePatch);
+    if (!force && (patch.x + patch.width < 0 || patch.x > size.width)) {
+      continue;
+    }
+    setAttributes(rect, patch);
+  }
 }
