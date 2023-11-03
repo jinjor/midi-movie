@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { RenderModule, applyPatch, createPatch } from "@/model/render";
+import { RenderModule, init, update } from "@/model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
@@ -39,6 +39,7 @@ export const Player = () => {
   const setGainNode = useSetAtom(gainNodeAtom);
   const volume = useAtomValue(volumeAtom);
 
+  const [initialized, setInitialized] = useState(false);
   const mutablesRef = useRef({
     minNote,
     maxNote,
@@ -55,7 +56,7 @@ export const Player = () => {
   }, [minNote, maxNote, size, enabledTracks]);
 
   const timeRangeSec = 10;
-  const displayRef = useRef<DisplayApi>(null);
+  const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
   const [audioBufferSource, setAudioBufferSource] =
     useState<AudioBufferSourceNode | null>(null);
   const [playingState, setPlayingState] = useState<PlayingState | null>(null);
@@ -64,6 +65,9 @@ export const Player = () => {
 
   const handlePlay = () =>
     void (async () => {
+      if (midiData == null) {
+        return;
+      }
       const renderer = "../renderer/default.mjs";
       const mod: RenderModule = await import(renderer);
       if (audioBuffer) {
@@ -82,37 +86,26 @@ export const Player = () => {
         }
         setAudioBufferSource(source);
       }
-      const notes = midiData?.notes ?? [];
+      const notes = midiData.notes;
       const startTime = performance.now();
       const timer = window.setInterval(() => {
-        const display = displayRef.current!;
-        const rects = display.getNoteRects();
+        const display = displayApi!;
+        const svg = display.getContainer();
         const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
         const elapsedSec =
           offsetInSec +
           midiOffsetInSec +
           (performance.now() - startTime) / 1000;
-        for (const [index, note] of notes.entries()) {
-          const rect = rects[index];
-          const hidden =
-            !enabledTracks.has(note.trackIndex) ||
-            note.noteNumber < minNote ||
-            note.noteNumber > maxNote;
-          const patch = createPatch(
-            mod,
-            {
-              size,
-              note,
-              elapsedSec,
-              minNote,
-              maxNote,
-              timeRangeSec,
-            },
-            false,
-          );
-          const stylePatch = { display: hidden ? "none" : "block" };
-          applyPatch(rect, stylePatch, patch ?? {});
-        }
+        update(svg, mod, {
+          notes,
+          minNote,
+          maxNote,
+          size,
+          enabledTracks,
+          elapsedSec,
+          timeRangeSec,
+          force: false,
+        });
       }, 1000 / 60);
       setPlayingState({
         startTime,
@@ -137,37 +130,31 @@ export const Player = () => {
     }
   };
   useEffect(() => {
-    if (playingState != null) {
+    if (
+      playingState != null ||
+      displayApi == null ||
+      midiData == null ||
+      !initialized
+    ) {
       return;
     }
     void (async () => {
       const renderer = "../renderer/default.mjs";
       const mod: RenderModule = await import(renderer);
-      const notes = midiData?.notes ?? [];
-      const display = displayRef.current!;
-      const rects = display.getNoteRects();
+      const notes = midiData.notes;
+      const display = displayApi;
+      const svg = display.getContainer();
       const elapsedSec = offsetInSec + midiOffsetInSec;
-      for (const [index, note] of notes.entries()) {
-        const hidden =
-          !enabledTracks.has(note.trackIndex) ||
-          note.noteNumber < minNote ||
-          note.noteNumber > maxNote;
-        const rect = rects[index];
-        const patch = createPatch(
-          mod,
-          {
-            size,
-            note,
-            elapsedSec,
-            minNote,
-            maxNote,
-            timeRangeSec,
-          },
-          true,
-        );
-        const stylePatch = { display: hidden ? "none" : "block" };
-        applyPatch(rect, stylePatch, patch!);
-      }
+      update(svg, mod, {
+        notes,
+        minNote,
+        maxNote,
+        size,
+        enabledTracks,
+        elapsedSec,
+        timeRangeSec,
+        force: true,
+      });
     })();
   }, [
     midiData,
@@ -178,6 +165,8 @@ export const Player = () => {
     minNote,
     maxNote,
     size,
+    displayApi,
+    initialized,
   ]);
 
   const [currentTimeInSec, setCurrentTimeInSec] = useAtom(currentTimeInSecAtom);
@@ -194,18 +183,21 @@ export const Player = () => {
     return () => clearInterval(timer);
   }, [playingState, setCurrentTimeInSec]);
 
+  useEffect(() => {
+    if (displayApi == null || midiData == null) {
+      return;
+    }
+    init(displayApi.getContainer(), size, midiData.notes);
+    setInitialized(true);
+  }, [displayApi, size, midiData]);
+
   const durationForSeekBar = Math.max(
     audioBuffer?.duration ?? 0,
     midiData?.endSec ?? 0,
   );
   return (
     <div style={{ width: size.width }}>
-      <Display
-        apiRef={displayRef}
-        size={size}
-        imageUrl={imageUrl}
-        notes={midiData?.notes ?? []}
-      />
+      <Display onMount={setDisplayApi} size={size} imageUrl={imageUrl} />
       <PlayerControl
         isPlaying={playingState != null}
         onPlay={handlePlay}
