@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { applyPatch, createPatch } from "@/model/render";
+import { RenderModule, applyPatch, createPatch } from "@/model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
@@ -62,55 +62,63 @@ export const Player = () => {
   const [offsetInSec, setOffsetInSec] = useState(0);
   const [restart, setRestart] = useState(false);
 
-  const handlePlay = () => {
-    if (audioBuffer) {
-      const ctx = new AudioContext();
-      const source = ctx.createBufferSource();
-      source.buffer = audioBuffer;
-      const gain = ctx.createGain();
-      gain.gain.value = volume;
-      setGainNode(gain);
-      source.connect(gain).connect(ctx.destination);
-      const offset = offsetInSec + audioOffsetInSec;
-      if (offset > 0) {
-        source.start(0, offset);
-      } else {
-        source.start(-offset);
+  const handlePlay = () =>
+    void (async () => {
+      const renderer = "../renderer/default.mjs";
+      const mod: RenderModule = await import(renderer);
+      if (audioBuffer) {
+        const ctx = new AudioContext();
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuffer;
+        const gain = ctx.createGain();
+        gain.gain.value = volume;
+        setGainNode(gain);
+        source.connect(gain).connect(ctx.destination);
+        const offset = offsetInSec + audioOffsetInSec;
+        if (offset > 0) {
+          source.start(0, offset);
+        } else {
+          source.start(-offset);
+        }
+        setAudioBufferSource(source);
       }
-      setAudioBufferSource(source);
-    }
-    const notes = midiData?.notes ?? [];
-    const startTime = performance.now();
-    const timer = window.setInterval(() => {
-      const display = displayRef.current!;
-      const rects = display.getNoteRects();
-      const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
-      const elapsedSec =
-        offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
-      for (const [index, note] of notes.entries()) {
-        const rect = rects[index];
-        const hidden =
-          !enabledTracks.has(note.trackIndex) ||
-          note.noteNumber < minNote ||
-          note.noteNumber > maxNote;
-        const patch = createPatch(
-          size,
-          note,
-          elapsedSec,
-          minNote,
-          maxNote,
-          timeRangeSec,
-          false,
-        );
-        const stylePatch = { display: hidden ? "none" : "block" };
-        applyPatch(rect, stylePatch, patch ?? {});
-      }
-    }, 1000 / 60);
-    setPlayingState({
-      startTime,
-      timer,
-    });
-  };
+      const notes = midiData?.notes ?? [];
+      const startTime = performance.now();
+      const timer = window.setInterval(() => {
+        const display = displayRef.current!;
+        const rects = display.getNoteRects();
+        const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
+        const elapsedSec =
+          offsetInSec +
+          midiOffsetInSec +
+          (performance.now() - startTime) / 1000;
+        for (const [index, note] of notes.entries()) {
+          const rect = rects[index];
+          const hidden =
+            !enabledTracks.has(note.trackIndex) ||
+            note.noteNumber < minNote ||
+            note.noteNumber > maxNote;
+          const patch = createPatch(
+            mod,
+            {
+              size,
+              note,
+              elapsedSec,
+              minNote,
+              maxNote,
+              timeRangeSec,
+            },
+            false,
+          );
+          const stylePatch = { display: hidden ? "none" : "block" };
+          applyPatch(rect, stylePatch, patch ?? {});
+        }
+      }, 1000 / 60);
+      setPlayingState({
+        startTime,
+        timer,
+      });
+    })();
   const handleReturn = () => {
     handlePause();
     setOffsetInSec(0);
@@ -132,28 +140,35 @@ export const Player = () => {
     if (playingState != null) {
       return;
     }
-    const notes = midiData?.notes ?? [];
-    const display = displayRef.current!;
-    const rects = display.getNoteRects();
-    const elapsedSec = offsetInSec + midiOffsetInSec;
-    for (const [index, note] of notes.entries()) {
-      const hidden =
-        !enabledTracks.has(note.trackIndex) ||
-        note.noteNumber < minNote ||
-        note.noteNumber > maxNote;
-      const rect = rects[index];
-      const patch = createPatch(
-        size,
-        note,
-        elapsedSec,
-        minNote,
-        maxNote,
-        timeRangeSec,
-        true,
-      );
-      const stylePatch = { display: hidden ? "none" : "block" };
-      applyPatch(rect, stylePatch, patch!);
-    }
+    void (async () => {
+      const renderer = "../renderer/default.mjs";
+      const mod: RenderModule = await import(renderer);
+      const notes = midiData?.notes ?? [];
+      const display = displayRef.current!;
+      const rects = display.getNoteRects();
+      const elapsedSec = offsetInSec + midiOffsetInSec;
+      for (const [index, note] of notes.entries()) {
+        const hidden =
+          !enabledTracks.has(note.trackIndex) ||
+          note.noteNumber < minNote ||
+          note.noteNumber > maxNote;
+        const rect = rects[index];
+        const patch = createPatch(
+          mod,
+          {
+            size,
+            note,
+            elapsedSec,
+            minNote,
+            maxNote,
+            timeRangeSec,
+          },
+          true,
+        );
+        const stylePatch = { display: hidden ? "none" : "block" };
+        applyPatch(rect, stylePatch, patch!);
+      }
+    })();
   }, [
     midiData,
     playingState,
