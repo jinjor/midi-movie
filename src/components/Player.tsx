@@ -57,6 +57,8 @@ export const Player = () => {
     useState<AudioBufferSourceNode | null>(null);
   const [playingState, setPlayingState] = useState<PlayingState | null>(null);
   const [offsetInSec, setOffsetInSec] = useState(0);
+  const [restart, setRestart] = useState(false);
+
   const handlePlay = () => {
     if (audioBuffer) {
       const ctx = new AudioContext();
@@ -92,7 +94,7 @@ export const Player = () => {
           minNote,
           maxNote,
           timeRangeSec,
-          false,
+          false
         );
         const stylePatch = { display: hidden ? "none" : "block" };
         applyPatch(rect, stylePatch, patch ?? {});
@@ -115,7 +117,7 @@ export const Player = () => {
     if (playingState) {
       clearInterval(playingState.timer);
       setOffsetInSec(
-        offsetInSec + (performance.now() - playingState.startTime) / 1000,
+        offsetInSec + (performance.now() - playingState.startTime) / 1000
       );
       setPlayingState(null);
     }
@@ -141,7 +143,7 @@ export const Player = () => {
         minNote,
         maxNote,
         timeRangeSec,
-        true,
+        true
       );
       const stylePatch = { display: hidden ? "none" : "block" };
       applyPatch(rect, stylePatch, patch!);
@@ -165,7 +167,7 @@ export const Player = () => {
     }
     const timer = setInterval(() => {
       setCurrentTimeInSec(
-        Math.floor((performance.now() - playingState.startTime) / 1000),
+        Math.floor((performance.now() - playingState.startTime) / 1000)
       );
     }, 1000 / 10);
     return () => clearInterval(timer);
@@ -173,7 +175,7 @@ export const Player = () => {
 
   const durationForSeekBar = Math.max(
     audioBuffer?.duration ?? 0,
-    midiData?.endSec ?? 0,
+    midiData?.endSec ?? 0
   );
   return (
     <div style={{ width: size.width }}>
@@ -194,11 +196,15 @@ export const Player = () => {
             disabled={audioBuffer == null}
             value={(offsetInSec + (currentTimeInSec ?? 0)) / durationForSeekBar}
             onStartDragging={(ratio) => {
+              setRestart(currentTimeInSec != null);
               handlePause();
               audioBuffer && setOffsetInSec(durationForSeekBar * ratio);
             }}
             onStopDragging={() => {
-              // TODO
+              if (restart) {
+                handlePlay();
+              }
+              setRestart(false);
             }}
             onDrag={(ratio) => {
               audioBuffer && setOffsetInSec(durationForSeekBar * ratio);
