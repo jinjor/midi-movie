@@ -3,7 +3,7 @@ import { applyPatch, createPatch } from "@/model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   audioBufferAtom,
   audioOffsetAtom,
@@ -15,6 +15,8 @@ import {
   midiOffsetAtom,
   minNoteAtom,
   midiDataAtom,
+  gainNodeAtom,
+  volumeAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 
@@ -34,7 +36,8 @@ export const Player = () => {
   const midiData = useAtomValue(midiDataAtom);
   const enabledTracks = useAtomValue(enabledTracksAtom);
   const audioBuffer = useAtomValue(audioBufferAtom);
-  // const notes = midiData?.notes ?? [];
+  const setGainNode = useSetAtom(gainNodeAtom);
+  const volume = useAtomValue(volumeAtom);
 
   const mutablesRef = useRef({
     minNote,
@@ -64,7 +67,10 @@ export const Player = () => {
       const ctx = new AudioContext();
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
-      source.connect(ctx.destination);
+      const gain = ctx.createGain();
+      gain.gain.value = volume;
+      setGainNode(gain);
+      source.connect(gain).connect(ctx.destination);
       const offset = offsetInSec + audioOffsetInSec;
       if (offset > 0) {
         source.start(0, offset);

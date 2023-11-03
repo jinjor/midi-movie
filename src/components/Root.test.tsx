@@ -123,7 +123,7 @@ test("should update Audio Offset", async () => {
   expect(getMountCount("Properties")).toBe(0);
   expect(getTotalRenderCount("Properties")).toBe(2);
   expect(getMountCount("NumberInput")).toBe(0);
-  expect(getTotalRenderCount("NumberInput")).toBe(10);
+  expect(getTotalRenderCount("NumberInput")).toBe(12);
 });
 test("should update Overlay Opacity", async () => {
   const user = userEvent.setup();
