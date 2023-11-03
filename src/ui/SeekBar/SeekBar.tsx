@@ -31,22 +31,19 @@ export const SeekBar = ({
       minX: bounds.left,
       maxX: bounds.right,
     };
-    const value = (e.clientX - drag.minX) / (drag.maxX - drag.minX);
     setDrag(drag);
-    onStartDragging(value);
+    onStartDragging(calculateValue(e.clientX, drag));
   };
   useEffect(() => {
     if (drag === null) {
       return;
     }
     const handleMouseMove = (e: MouseEvent) => {
-      const value = (e.clientX - drag.minX) / (drag.maxX - drag.minX);
-      onDrag(value);
+      onDrag(calculateValue(e.clientX, drag));
     };
     const handleMouseUp = (e: MouseEvent) => {
-      const value = (e.clientX - drag.minX) / (drag.maxX - drag.minX);
       setDrag(null);
-      onStopDragging(value);
+      onStopDragging(calculateValue(e.clientX, drag));
     };
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
@@ -70,5 +67,12 @@ export const SeekBar = ({
         <div className={styles.knob} onMouseDown={handleMouseDown}></div>
       </div>
     </div>
+  );
+};
+
+const calculateValue = (clientX: number, drag: DraggingState) => {
+  return Math.min(
+    1,
+    Math.max(0, (clientX - drag.minX) / (drag.maxX - drag.minX))
   );
 };
