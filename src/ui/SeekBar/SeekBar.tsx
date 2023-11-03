@@ -73,6 +73,6 @@ export const SeekBar = ({
 const calculateValue = (clientX: number, drag: DraggingState) => {
   return Math.min(
     1,
-    Math.max(0, (clientX - drag.minX) / (drag.maxX - drag.minX))
+    Math.max(0, (clientX - drag.minX) / (drag.maxX - drag.minX)),
   );
 };
