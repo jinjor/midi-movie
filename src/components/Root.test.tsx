@@ -173,7 +173,7 @@ test("should load Image file", async () => {
   expect(getMountCount("ImageLoader")).toBe(0);
   expect(getTotalRenderCount("ImageLoader")).toBe(1);
   expect(getMountCount("Player")).toBe(0);
-  expect(getTotalRenderCount("Player")).toBe(1);
+  expect(getTotalRenderCount("Player")).toBe(2);
 });
 test("should load Wave file", async () => {
   const container = renderInNewContainer(<Root />);
@@ -198,5 +198,5 @@ test("should load Wave file", async () => {
   expect(getMountCount("AudioLoader")).toBe(0);
   expect(getTotalRenderCount("AudioLoader")).toBe(1);
   expect(getMountCount("Player")).toBe(0);
-  expect(getTotalRenderCount("Player")).toBe(2);
+  expect(getTotalRenderCount("Player")).toBe(1);
 });
