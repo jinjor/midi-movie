@@ -17,6 +17,7 @@ import {
   midiDataAtom,
   gainNodeAtom,
   volumeAtom,
+  rendererAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 
@@ -38,6 +39,7 @@ export const Player = () => {
   const audioBuffer = useAtomValue(audioBufferAtom);
   const setGainNode = useSetAtom(gainNodeAtom);
   const volume = useAtomValue(volumeAtom);
+  const renderer = useAtomValue(rendererAtom);
 
   const [initialized, setInitialized] = useState(false);
   const mutablesRef = useRef({
@@ -139,7 +141,6 @@ export const Player = () => {
       return;
     }
     void (async () => {
-      const renderer = "../renderer/default.mjs";
       const mod: RenderModule = await import(renderer);
       const notes = midiData.notes;
       const display = displayApi;
@@ -167,6 +168,7 @@ export const Player = () => {
     size,
     displayApi,
     initialized,
+    renderer,
   ]);
 
   const [currentTimeInSec, setCurrentTimeInSec] = useAtom(currentTimeInSecAtom);
@@ -191,7 +193,7 @@ export const Player = () => {
     container.innerHTML = "";
     init(container, size, midiData.notes);
     setInitialized(true);
-  }, [displayApi, size, midiData]);
+  }, [displayApi, size, midiData, renderer]);
 
   const durationForSeekBar = Math.max(
     audioBuffer?.duration ?? 0,
