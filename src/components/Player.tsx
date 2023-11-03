@@ -57,6 +57,8 @@ export const Player = () => {
     useState<AudioBufferSourceNode | null>(null);
   const [playingState, setPlayingState] = useState<PlayingState | null>(null);
   const [offsetInSec, setOffsetInSec] = useState(0);
+  const [restart, setRestart] = useState(false);
+
   const handlePlay = () => {
     if (audioBuffer) {
       const ctx = new AudioContext();
@@ -194,11 +196,15 @@ export const Player = () => {
             disabled={audioBuffer == null}
             value={(offsetInSec + (currentTimeInSec ?? 0)) / durationForSeekBar}
             onStartDragging={(ratio) => {
+              setRestart(currentTimeInSec != null);
               handlePause();
               audioBuffer && setOffsetInSec(durationForSeekBar * ratio);
             }}
             onStopDragging={() => {
-              // TODO
+              if (restart) {
+                handlePlay();
+              }
+              setRestart(false);
             }}
             onDrag={(ratio) => {
               audioBuffer && setOffsetInSec(durationForSeekBar * ratio);
