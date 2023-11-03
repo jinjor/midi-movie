@@ -187,7 +187,9 @@ export const Player = () => {
     if (displayApi == null || midiData == null) {
       return;
     }
-    init(displayApi.getContainer(), size, midiData.notes);
+    const container = displayApi.getContainer();
+    container.innerHTML = "";
+    init(container, size, midiData.notes);
     setInitialized(true);
   }, [displayApi, size, midiData]);
 
