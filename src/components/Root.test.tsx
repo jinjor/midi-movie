@@ -41,7 +41,7 @@ test("should play", async () => {
     "Properties",
   ]);
   expect(getMountCount("Player")).toBe(0);
-  expect(getTotalRenderCount("Player")).toBe(1);
+  expect(getTotalRenderCount("Player")).toBe(0);
 });
 test("should update Min Note", async () => {
   const user = userEvent.setup();

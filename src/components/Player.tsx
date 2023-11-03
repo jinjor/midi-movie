@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { applyPatch, createPatch } from "@/model/render";
+import { importRendererModule } from "@/model/render";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
@@ -17,6 +17,7 @@ import {
   midiDataAtom,
   gainNodeAtom,
   volumeAtom,
+  rendererAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 
@@ -38,7 +39,9 @@ export const Player = () => {
   const audioBuffer = useAtomValue(audioBufferAtom);
   const setGainNode = useSetAtom(gainNodeAtom);
   const volume = useAtomValue(volumeAtom);
+  const renderer = useAtomValue(rendererAtom);
 
+  const [initialized, setInitialized] = useState(false);
   const mutablesRef = useRef({
     minNote,
     maxNote,
@@ -55,62 +58,61 @@ export const Player = () => {
   }, [minNote, maxNote, size, enabledTracks]);
 
   const timeRangeSec = 10;
-  const displayRef = useRef<DisplayApi>(null);
+  const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
   const [audioBufferSource, setAudioBufferSource] =
     useState<AudioBufferSourceNode | null>(null);
   const [playingState, setPlayingState] = useState<PlayingState | null>(null);
   const [offsetInSec, setOffsetInSec] = useState(0);
   const [restart, setRestart] = useState(false);
 
-  const handlePlay = () => {
-    if (audioBuffer) {
-      const ctx = new AudioContext();
-      const source = ctx.createBufferSource();
-      source.buffer = audioBuffer;
-      const gain = ctx.createGain();
-      gain.gain.value = volume;
-      setGainNode(gain);
-      source.connect(gain).connect(ctx.destination);
-      const offset = offsetInSec + audioOffsetInSec;
-      if (offset > 0) {
-        source.start(0, offset);
-      } else {
-        source.start(-offset);
+  const handlePlay = () =>
+    void (async () => {
+      if (midiData == null) {
+        return;
       }
-      setAudioBufferSource(source);
-    }
-    const notes = midiData?.notes ?? [];
-    const startTime = performance.now();
-    const timer = window.setInterval(() => {
-      const display = displayRef.current!;
-      const rects = display.getNoteRects();
-      const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
-      const elapsedSec =
-        offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
-      for (const [index, note] of notes.entries()) {
-        const rect = rects[index];
-        const hidden =
-          !enabledTracks.has(note.trackIndex) ||
-          note.noteNumber < minNote ||
-          note.noteNumber > maxNote;
-        const patch = createPatch(
-          size,
-          note,
-          elapsedSec,
+      const mod = await importRendererModule(renderer);
+      if (audioBuffer) {
+        const ctx = new AudioContext();
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuffer;
+        const gain = ctx.createGain();
+        gain.gain.value = volume;
+        setGainNode(gain);
+        source.connect(gain).connect(ctx.destination);
+        const offset = offsetInSec + audioOffsetInSec;
+        if (offset > 0) {
+          source.start(0, offset);
+        } else {
+          source.start(-offset);
+        }
+        setAudioBufferSource(source);
+      }
+      const notes = midiData.notes;
+      const startTime = performance.now();
+      const timer = window.setInterval(() => {
+        const display = displayApi!;
+        const svg = display.getContainer();
+        const { minNote, maxNote, size, enabledTracks } = mutablesRef.current;
+        const elapsedSec =
+          offsetInSec +
+          midiOffsetInSec +
+          (performance.now() - startTime) / 1000;
+        mod.update(svg, {
+          notes,
           minNote,
           maxNote,
+          size,
+          enabledTracks,
+          elapsedSec,
           timeRangeSec,
-          false,
-        );
-        const stylePatch = { display: hidden ? "none" : "block" };
-        applyPatch(rect, stylePatch, patch ?? {});
-      }
-    }, 1000 / 60);
-    setPlayingState({
-      startTime,
-      timer,
-    });
-  };
+          force: false,
+        });
+      }, 1000 / 60);
+      setPlayingState({
+        startTime,
+        timer,
+      });
+    })();
   const handleReturn = () => {
     handlePause();
     setOffsetInSec(0);
@@ -129,31 +131,31 @@ export const Player = () => {
     }
   };
   useEffect(() => {
-    if (playingState != null) {
+    if (
+      playingState != null ||
+      displayApi == null ||
+      midiData == null ||
+      !initialized
+    ) {
       return;
     }
-    const notes = midiData?.notes ?? [];
-    const display = displayRef.current!;
-    const rects = display.getNoteRects();
-    const elapsedSec = offsetInSec + midiOffsetInSec;
-    for (const [index, note] of notes.entries()) {
-      const hidden =
-        !enabledTracks.has(note.trackIndex) ||
-        note.noteNumber < minNote ||
-        note.noteNumber > maxNote;
-      const rect = rects[index];
-      const patch = createPatch(
-        size,
-        note,
-        elapsedSec,
+    void (async () => {
+      const mod = await importRendererModule(renderer);
+      const notes = midiData.notes;
+      const display = displayApi;
+      const svg = display.getContainer();
+      const elapsedSec = offsetInSec + midiOffsetInSec;
+      mod.update(svg, {
+        notes,
         minNote,
         maxNote,
+        size,
+        enabledTracks,
+        elapsedSec,
         timeRangeSec,
-        true,
-      );
-      const stylePatch = { display: hidden ? "none" : "block" };
-      applyPatch(rect, stylePatch, patch!);
-    }
+        force: true,
+      });
+    })();
   }, [
     midiData,
     playingState,
@@ -163,6 +165,9 @@ export const Player = () => {
     minNote,
     maxNote,
     size,
+    displayApi,
+    initialized,
+    renderer,
   ]);
 
   const [currentTimeInSec, setCurrentTimeInSec] = useAtom(currentTimeInSecAtom);
@@ -179,18 +184,26 @@ export const Player = () => {
     return () => clearInterval(timer);
   }, [playingState, setCurrentTimeInSec]);
 
+  useEffect(() => {
+    if (displayApi == null || midiData == null) {
+      return;
+    }
+    void (async () => {
+      const mod = await importRendererModule(renderer);
+      const container = displayApi.getContainer();
+      container.innerHTML = "";
+      mod.init(container, { size, notes: midiData.notes });
+      setInitialized(true);
+    })();
+  }, [displayApi, size, midiData, renderer]);
+
   const durationForSeekBar = Math.max(
     audioBuffer?.duration ?? 0,
     midiData?.endSec ?? 0,
   );
   return (
     <div style={{ width: size.width }}>
-      <Display
-        apiRef={displayRef}
-        size={size}
-        imageUrl={imageUrl}
-        notes={midiData?.notes ?? []}
-      />
+      <Display onMount={setDisplayApi} size={size} imageUrl={imageUrl} />
       <PlayerControl
         isPlaying={playingState != null}
         onPlay={handlePlay}
