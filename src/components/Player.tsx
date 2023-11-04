@@ -168,20 +168,16 @@ export const Player = () => {
     return () => clearInterval(timer);
   }, [playingState, setCurrentTimeInSec]);
 
+  const module = renderer.type === "Ready" ? renderer.module : null;
   useEffect(() => {
-    if (
-      displayApi == null ||
-      midiData == null ||
-      renderer.type !== "Ready" ||
-      initialized
-    ) {
+    if (displayApi == null || midiData == null || module == null) {
       return;
     }
     const container = displayApi.getContainer();
     container.innerHTML = "";
-    renderer.module.init(container, { size, notes: midiData.notes });
+    module.init(container, { size, notes: midiData.notes });
     setInitialized(true);
-  }, [displayApi, size, midiData, renderer, initialized]);
+  }, [displayApi, size, midiData, module]);
 
   const durationForSeekBar = Math.max(
     audioBuffer?.duration ?? 0,
