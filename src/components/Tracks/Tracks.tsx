@@ -1,12 +1,12 @@
 import styles from "./Tracks.module.css";
 import { useCounter } from "@/counter";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { enabledTracksAtom, midiDataAtom } from "@/atoms";
 
 export const Tracks = () => {
   useCounter("Tracks");
   const midiData = useAtomValue(midiDataAtom);
-  const enabledTracks = useAtomValue(enabledTracksAtom);
+  const [enabledTracks, setEnabledTracks] = useAtom(enabledTracksAtom);
   return (
     <ul className={styles.tracks}>
       {(midiData?.tracks ?? []).map((track, i) => (
@@ -14,11 +14,13 @@ export const Tracks = () => {
           <label>
             <input
               type="checkbox"
-              defaultChecked={enabledTracks.has(i)}
+              defaultChecked={enabledTracks[i]}
               onChange={(e) => {
-                e.target.checked
-                  ? enabledTracks.add(i)
-                  : enabledTracks.delete(i);
+                setEnabledTracks(
+                  enabledTracks.map((enabled, index) =>
+                    index === i ? e.target.checked : enabled,
+                  ),
+                );
               }}
             />
             {track.number}. {track.name}

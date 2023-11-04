@@ -42,7 +42,7 @@ type InitProps = {
 type UpdateProps = {
   notes: Note[];
   size: Size;
-  enabledTracks: Set<number>;
+  enabledTracks: boolean[];
   elapsedSec: number;
   customProps: Record<string, number>;
   force: boolean;

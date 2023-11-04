@@ -14,7 +14,9 @@ export const MidiLoader = () => {
       const buffer = await file.arrayBuffer();
       const midiData = parseMidiData(buffer);
       setMidiData(midiData);
-      setEnabledTracks(new Set([...Array(midiData.tracks.length).keys()]));
+      setEnabledTracks(
+        [...Array(midiData.tracks.length).keys()].map(() => true),
+      );
     })();
   };
   return (
