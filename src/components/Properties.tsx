@@ -11,6 +11,7 @@ import {
 } from "@/atoms";
 import { useEffect } from "react";
 import { RendererState, importRendererModule, renderers } from "@/model/render";
+import { Select } from "@/ui/Select";
 
 export const Properties = () => {
   useCounter("Properties");
@@ -54,9 +55,8 @@ export const Properties = () => {
       gainNode.gain.value = volume;
     }
   };
-  const handleSelectRenderer = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const url = e.target.value;
-    const renderer = renderers.find((r) => r.url === url)!;
+  const handleSelectRenderer = (name: string) => {
+    const renderer = renderers.find((r) => r.name === name)!;
     setRenderer({ type: "Loading", info: renderer });
   };
   const handleCustomPropChange = (key: string, value: number) => {
@@ -107,15 +107,11 @@ export const Properties = () => {
       </label>
       <label>
         Renderer:
-        <select onChange={handleSelectRenderer} value={renderer.info.url}>
-          {renderers.map((r) => {
-            return (
-              <option key={r.name} value={r.url}>
-                {r.name}
-              </option>
-            );
-          })}
-        </select>
+        <Select
+          onChange={handleSelectRenderer}
+          value={renderer.info.name}
+          options={renderers.map((r) => r.name)}
+        ></Select>
       </label>
       <RendererConfig
         renderer={renderer}
