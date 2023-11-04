@@ -8,10 +8,14 @@ export type RendererState =
   | {
       type: "Loading";
       info: RendererInfo;
+      module?: never;
+      props?: never;
     }
   | {
       type: "Error";
       info: RendererInfo;
+      module?: never;
+      props?: never;
     }
   | {
       type: "Ready";

@@ -23,7 +23,6 @@ type PlayingState = {
   timer: number;
 };
 
-const emptyProps = {};
 export const Player = () => {
   useCounter("Player");
   const midiOffsetInSec = useAtomValue(midiOffsetAtom);
@@ -36,21 +35,24 @@ export const Player = () => {
   const setGainNode = useSetAtom(gainNodeAtom);
   const volume = useAtomValue(volumeAtom);
   const renderer = useAtomValue(rendererAtom);
-  const customProps = renderer.type === "Ready" ? renderer.props : emptyProps;
+  const customProps = renderer.props;
+  const rendererModule = renderer.module;
 
   const [initialized, setInitialized] = useState(false);
   const mutablesRef = useRef({
     size,
     enabledTracks,
     customProps,
+    rendererModule,
   });
   useEffect(() => {
     mutablesRef.current = {
       size,
       enabledTracks,
       customProps,
+      rendererModule,
     };
-  }, [size, enabledTracks, customProps]);
+  }, [size, enabledTracks, customProps, rendererModule]);
 
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
   const [audioBufferSource, setAudioBufferSource] =
@@ -60,7 +62,7 @@ export const Player = () => {
   const [restart, setRestart] = useState(false);
 
   const handlePlay = () => {
-    if (renderer.type !== "Ready" || midiData == null) {
+    if (midiData == null) {
       return;
     }
     if (audioBuffer) {
@@ -79,21 +81,21 @@ export const Player = () => {
       }
       setAudioBufferSource(source);
     }
-    const module = renderer.module;
     const notes = midiData.notes;
     const startTime = performance.now();
     const timer = window.setInterval(() => {
       const display = displayApi!;
       const svg = display.getContainer();
-      const { size, enabledTracks, customProps } = mutablesRef.current;
+      const { size, enabledTracks, customProps, rendererModule } =
+        mutablesRef.current;
       const elapsedSec =
         offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
-      module.update(svg, {
+      rendererModule?.update(svg, {
         notes,
         size,
         enabledTracks,
         elapsedSec,
-        customProps,
+        customProps: customProps ?? {},
         force: false,
       });
     }, 1000 / 60);
@@ -138,7 +140,7 @@ export const Player = () => {
       size,
       enabledTracks,
       elapsedSec,
-      customProps,
+      customProps: customProps ?? {},
       force: true,
     });
   }, [
@@ -168,16 +170,18 @@ export const Player = () => {
     return () => clearInterval(timer);
   }, [playingState, setCurrentTimeInSec]);
 
-  const module = renderer.type === "Ready" ? renderer.module : null;
   useEffect(() => {
-    if (displayApi == null || midiData == null || module == null) {
+    if (displayApi == null || midiData == null) {
       return;
     }
     const container = displayApi.getContainer();
     container.innerHTML = "";
-    module.init(container, { size, notes: midiData.notes });
+    if (rendererModule == null) {
+      return;
+    }
+    rendererModule.init(container, { size, notes: midiData.notes });
     setInitialized(true);
-  }, [displayApi, size, midiData, module]);
+  }, [displayApi, size, midiData, rendererModule]);
 
   const durationForSeekBar = Math.max(
     audioBuffer?.duration ?? 0,
