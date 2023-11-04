@@ -10,7 +10,7 @@ export const imageSizeAtom = atom({
   height: 512 * (9 / 16),
 });
 export const midiDataAtom = atom<MidiData | null>(null);
-export const enabledTracksAtom = atom(new Set<number>());
+export const enabledTracksAtom = atom<boolean[]>([]);
 export const audioBufferAtom = atom<AudioBuffer | null>(null);
 export const currentTimeInSecAtom = atom<number | null>(null);
 export const opacityAtom = atom(0.6);

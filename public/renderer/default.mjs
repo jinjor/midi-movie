@@ -156,7 +156,7 @@ export function update(
   for (const [index, note] of notes.entries()) {
     const rect = rects[index];
     const hidden =
-      !enabledTracks.has(note.trackIndex) ||
+      !enabledTracks[note.trackIndex] ||
       note.noteNumber < minNote ||
       note.noteNumber > maxNote;
     const patch = createPatch({
