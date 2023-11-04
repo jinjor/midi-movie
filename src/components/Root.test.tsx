@@ -46,6 +46,7 @@ test("should play", async () => {
 test("should update Min Note", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   resetCount();
   const input = container.getByLabelText(/Min Note/i);
   input.focus();
@@ -64,6 +65,7 @@ test("should update Min Note", async () => {
 test("should update Max Note", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   resetCount();
   const input = container.getByLabelText(/Max Note/i);
   input.focus();

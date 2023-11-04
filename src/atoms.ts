@@ -3,8 +3,6 @@ import { MidiData } from "./model/types";
 
 export const midiOffsetAtom = atom(0);
 export const audioOffsetAtom = atom(0);
-export const minNoteAtom = atom(0);
-export const maxNoteAtom = atom(127);
 export const imageUrlAtom = atom<string | null>(null);
 export const imageSizeAtom = atom({
   width: 512,

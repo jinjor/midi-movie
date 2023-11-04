@@ -11,9 +11,7 @@ import {
   enabledTracksAtom,
   imageSizeAtom,
   imageUrlAtom,
-  maxNoteAtom,
   midiOffsetAtom,
-  minNoteAtom,
   midiDataAtom,
   gainNodeAtom,
   volumeAtom,
@@ -31,8 +29,6 @@ export const Player = () => {
   useCounter("Player");
   const midiOffsetInSec = useAtomValue(midiOffsetAtom);
   const audioOffsetInSec = useAtomValue(audioOffsetAtom);
-  const minNote = useAtomValue(minNoteAtom);
-  const maxNote = useAtomValue(maxNoteAtom);
   const imageUrl = useAtomValue(imageUrlAtom);
   const size = useAtomValue(imageSizeAtom);
   const midiData = useAtomValue(midiDataAtom);
@@ -45,21 +41,17 @@ export const Player = () => {
 
   const [initialized, setInitialized] = useState(false);
   const mutablesRef = useRef({
-    minNote,
-    maxNote,
     size,
     enabledTracks,
     customProps,
   });
   useEffect(() => {
     mutablesRef.current = {
-      minNote,
-      maxNote,
       size,
       enabledTracks,
       customProps,
     };
-  }, [minNote, maxNote, size, enabledTracks, customProps]);
+  }, [size, enabledTracks, customProps]);
 
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
   const [audioBufferSource, setAudioBufferSource] =
@@ -95,16 +87,13 @@ export const Player = () => {
       const timer = window.setInterval(() => {
         const display = displayApi!;
         const svg = display.getContainer();
-        const { minNote, maxNote, size, enabledTracks, customProps } =
-          mutablesRef.current;
+        const { size, enabledTracks, customProps } = mutablesRef.current;
         const elapsedSec =
           offsetInSec +
           midiOffsetInSec +
           (performance.now() - startTime) / 1000;
         mod.update(svg, {
           notes,
-          minNote,
-          maxNote,
           size,
           enabledTracks,
           elapsedSec,
@@ -151,8 +140,6 @@ export const Player = () => {
       const elapsedSec = offsetInSec + midiOffsetInSec;
       mod.update(svg, {
         notes,
-        minNote,
-        maxNote,
         size,
         enabledTracks,
         elapsedSec,
@@ -166,8 +153,6 @@ export const Player = () => {
     offsetInSec,
     midiOffsetInSec,
     enabledTracks,
-    minNote,
-    maxNote,
     size,
     displayApi,
     initialized,
