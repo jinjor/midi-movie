@@ -6,9 +6,12 @@ function createPatch({
   elapsedSec,
   minNote,
   maxNote,
+  timeRangeSec,
   minHue,
   maxHue,
-  timeRangeSec,
+  baseLightness,
+  peakLightness,
+  activeLightness,
 }) {
   const heightPerNote = size.height / (maxNote - minNote);
   const widthPerSec = size.width / timeRangeSec;
@@ -17,9 +20,6 @@ function createPatch({
   const hue =
     ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
     minHue;
-  const peakLightness = 100;
-  const activeLightness = 80;
-  const baseLightness = 30;
   const lightness =
     elapsedSec < note.fromSec
       ? baseLightness
@@ -63,6 +63,15 @@ export const config = {
       defaultValue: 127,
     },
     {
+      id: "timeRangeSec",
+      name: "Time Range (sec)",
+      type: "number",
+      min: 1,
+      max: 20,
+      step: 1,
+      defaultValue: 10,
+    },
+    {
       id: "minHue",
       name: "Min Hue",
       type: "number",
@@ -81,13 +90,31 @@ export const config = {
       defaultValue: 240,
     },
     {
-      id: "timeRangeSec",
-      name: "Time Range (sec)",
+      id: "baseLightness",
+      name: "Base Lightness",
       type: "number",
-      min: 1,
-      max: 20,
-      step: 1,
-      defaultValue: 10,
+      min: 0,
+      max: 100,
+      step: 5,
+      defaultValue: 30,
+    },
+    {
+      id: "peakLightness",
+      name: "Peak Lightness",
+      type: "number",
+      min: 0,
+      max: 100,
+      step: 5,
+      defaultValue: 100,
+    },
+    {
+      id: "activeLightness",
+      name: "Active Lightness",
+      type: "number",
+      min: 0,
+      max: 100,
+      step: 5,
+      defaultValue: 80,
     },
   ],
 };
@@ -115,7 +142,16 @@ export function update(
   svg,
   { notes, size, enabledTracks, elapsedSec, customProps, force },
 ) {
-  const { minNote, maxNote, minHue, maxHue, timeRangeSec } = customProps;
+  const {
+    minNote,
+    maxNote,
+    minHue,
+    maxHue,
+    timeRangeSec,
+    baseLightness,
+    peakLightness,
+    activeLightness,
+  } = customProps;
   const rects = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
     const rect = rects[index];
@@ -132,6 +168,9 @@ export function update(
       timeRangeSec,
       minHue,
       maxHue,
+      baseLightness,
+      peakLightness,
+      activeLightness,
     });
     const stylePatch = { display: hidden ? "none" : "block" };
     setStyles(rect, stylePatch);
