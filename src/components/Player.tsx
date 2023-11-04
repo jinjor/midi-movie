@@ -38,7 +38,6 @@ export const Player = () => {
   const customProps = renderer.props;
   const rendererModule = renderer.module;
 
-  const [initialized, setInitialized] = useState(false);
   const mutablesRef = useRef({
     size,
     enabledTracks,
@@ -126,8 +125,7 @@ export const Player = () => {
       playingState != null ||
       displayApi == null ||
       midiData == null ||
-      !initialized ||
-      renderer.type !== "Ready"
+      rendererModule == null
     ) {
       return;
     }
@@ -135,7 +133,11 @@ export const Player = () => {
     const display = displayApi;
     const svg = display.getContainer();
     const elapsedSec = offsetInSec + midiOffsetInSec;
-    renderer.module.update(svg, {
+
+    const container = displayApi.getContainer();
+    container.innerHTML = "";
+    rendererModule.init(container, { size, notes: midiData.notes });
+    rendererModule.update(svg, {
       notes,
       size,
       enabledTracks,
@@ -151,8 +153,7 @@ export const Player = () => {
     enabledTracks,
     size,
     displayApi,
-    initialized,
-    renderer,
+    rendererModule,
     customProps,
   ]);
 
@@ -180,7 +181,6 @@ export const Player = () => {
       return;
     }
     rendererModule.init(container, { size, notes: midiData.notes });
-    setInitialized(true);
   }, [displayApi, size, midiData, rendererModule]);
 
   const durationForSeekBar = Math.max(
