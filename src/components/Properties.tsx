@@ -3,15 +3,14 @@ import { useCounter } from "@/counter";
 import { useAtom, useAtomValue } from "jotai";
 import {
   audioOffsetAtom,
-  customPropsAtom,
   gainNodeAtom,
   midiOffsetAtom,
   opacityAtom,
   rendererAtom,
   volumeAtom,
 } from "@/atoms";
-import { useEffect, useState } from "react";
-import { RendererModule, importRendererModule } from "@/model/render";
+import { useEffect } from "react";
+import { RendererState, importRendererModule, renderers } from "@/model/render";
 
 export const Properties = () => {
   useCounter("Properties");
@@ -20,22 +19,26 @@ export const Properties = () => {
   const [volume, setVolume] = useAtom(volumeAtom);
   const [opacity, setOpacity] = useAtom(opacityAtom);
   const gainNode = useAtomValue(gainNodeAtom);
-  const renderer = useAtomValue(rendererAtom);
-  const [customProps, setCustomProps] = useAtom(customPropsAtom);
-  const [rendererConfig, setRendererConfig] = useState<
-    RendererModule["config"] | null
-  >(null);
+  const [renderer, setRenderer] = useAtom(rendererAtom);
   useEffect(() => {
+    if (renderer.type !== "Loading") {
+      return;
+    }
+    const info = renderer.info;
     void (async () => {
-      const module = await importRendererModule(renderer);
-      setRendererConfig(module.config);
-      const props = {} as Record<string, number>;
-      for (const prop of module.config.props) {
-        props[prop.id] = prop.defaultValue;
+      try {
+        const module = await importRendererModule(info.url);
+        const props = {} as Record<string, number>;
+        for (const prop of module.config.props) {
+          props[prop.id] = prop.defaultValue;
+        }
+        setRenderer({ type: "Ready", module, info, props });
+      } catch (e) {
+        console.error(e);
+        setRenderer({ type: "Error", info });
       }
-      setCustomProps(props);
     })();
-  }, [renderer, setCustomProps]);
+  }, [renderer, setRenderer]);
   const handleMidiOffsetChange = (midiOffsetInMilliSec: number) => {
     setMidiOffsetInSec(midiOffsetInMilliSec / 1000);
   };
@@ -51,8 +54,16 @@ export const Properties = () => {
       gainNode.gain.value = volume;
     }
   };
+  const handleSelectRenderer = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const url = e.target.value;
+    const renderer = renderers.find((r) => r.url === url)!;
+    setRenderer({ type: "Loading", info: renderer });
+  };
   const handleCustomPropChange = (key: string, value: number) => {
-    setCustomProps((prev) => ({ ...prev, [key]: value }));
+    if (renderer.type !== "Ready") {
+      return;
+    }
+    setRenderer({ ...renderer, props: { ...renderer.props, [key]: value } });
   };
   return (
     <>
@@ -94,7 +105,38 @@ export const Properties = () => {
           onChange={handleVolumeChange}
         />
       </label>
-      {(rendererConfig?.props ?? []).map((p) => {
+      <label>
+        Renderer:
+        <select onChange={handleSelectRenderer} value={renderer.info.url}>
+          {renderers.map((r) => {
+            return (
+              <option key={r.name} value={r.url}>
+                {r.name}
+              </option>
+            );
+          })}
+        </select>
+      </label>
+      <RendererConfig
+        renderer={renderer}
+        onCustomPropChange={handleCustomPropChange}
+      ></RendererConfig>
+    </>
+  );
+};
+const RendererConfig = ({
+  renderer,
+  onCustomPropChange,
+}: {
+  renderer: RendererState;
+  onCustomPropChange: (key: string, value: number) => void;
+}) => {
+  if (renderer.type !== "Ready") {
+    return null;
+  }
+  return (
+    <>
+      {renderer.module.config.props.map((p) => {
         return (
           <label key={p.id}>
             {p.name}:
@@ -102,8 +144,8 @@ export const Properties = () => {
               min={p.min}
               max={p.max}
               step={p.step}
-              defaultValue={customProps[p.id]}
-              onChange={(value) => handleCustomPropChange(p.id, value)}
+              defaultValue={p.defaultValue}
+              onChange={(value) => onCustomPropChange(p.id, value)}
             />
           </label>
         );

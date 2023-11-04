@@ -1,5 +1,29 @@
 import { Note, Size } from "./types";
 
+export type RendererInfo = {
+  name: string;
+  url: string;
+};
+export type RendererState =
+  | {
+      type: "Loading";
+      info: RendererInfo;
+    }
+  | {
+      type: "Error";
+      info: RendererInfo;
+    }
+  | {
+      type: "Ready";
+      info: RendererInfo;
+      module: RendererModule;
+      props: Record<string, number>;
+    };
+export type RendererModule = {
+  config: Config;
+  init: (svg: SVGSVGElement, props: InitProps) => void;
+  update: (svg: SVGSVGElement, props: UpdateProps) => void;
+};
 type Config = {
   props: {
     id: string;
@@ -23,11 +47,17 @@ type UpdateProps = {
   customProps: Record<string, number>;
   force: boolean;
 };
-export type RendererModule = {
-  config: Config;
-  init: (svg: SVGSVGElement, props: InitProps) => void;
-  update: (svg: SVGSVGElement, props: UpdateProps) => void;
-};
+
+export const renderers: RendererInfo[] = [
+  {
+    name: "Default",
+    url: `${window.location.origin}/renderer/default.mjs`,
+  },
+  {
+    name: "Vertical",
+    url: `${window.location.origin}/renderer/vertical.mjs`,
+  },
+];
 export function importRendererModule(url: string): Promise<RendererModule> {
   return import(url) as Promise<RendererModule>;
 }

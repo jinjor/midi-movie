@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import { MidiData } from "./model/types";
+import { RendererState, renderers } from "./model/render";
 
 export const midiOffsetAtom = atom(0);
 export const audioOffsetAtom = atom(0);
@@ -15,7 +16,7 @@ export const currentTimeInSecAtom = atom<number | null>(null);
 export const opacityAtom = atom(0.6);
 export const volumeAtom = atom(1);
 export const gainNodeAtom = atom<GainNode | null>(null);
-export const rendererAtom = atom(
-  `${window.location.origin}/renderer/default.mjs`,
-);
-export const customPropsAtom = atom<Record<string, number>>({});
+export const rendererAtom = atom<RendererState>({
+  type: "Loading",
+  info: renderers[0],
+});
