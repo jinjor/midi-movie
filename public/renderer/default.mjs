@@ -45,6 +45,24 @@ function createPatch({
 export const config = {
   props: [
     {
+      id: "minNote",
+      name: "Min Note",
+      type: "number",
+      min: 0,
+      max: 127,
+      step: 1,
+      defaultValue: 0,
+    },
+    {
+      id: "maxNote",
+      name: "Max Note",
+      type: "number",
+      min: 0,
+      max: 127,
+      step: 1,
+      defaultValue: 127,
+    },
+    {
       id: "timeRangeSec",
       name: "Time Range (sec)",
       type: "number",
@@ -77,17 +95,9 @@ export function init(svg, { size, notes }) {
 
 export function update(
   svg,
-  {
-    notes,
-    minNote,
-    maxNote,
-    size,
-    enabledTracks,
-    elapsedSec,
-    customProps,
-    force,
-  },
+  { notes, size, enabledTracks, elapsedSec, customProps, force },
 ) {
+  const { minNote, maxNote, timeRangeSec } = customProps;
   const rects = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
     const rect = rects[index];
@@ -101,7 +111,7 @@ export function update(
       elapsedSec,
       minNote,
       maxNote,
-      timeRangeSec: customProps.timeRangeSec,
+      timeRangeSec,
     });
     const stylePatch = { display: hidden ? "none" : "block" };
     setStyles(rect, stylePatch);

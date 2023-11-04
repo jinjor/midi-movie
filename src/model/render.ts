@@ -17,8 +17,6 @@ type InitProps = {
 };
 type UpdateProps = {
   notes: Note[];
-  minNote: number;
-  maxNote: number;
   size: Size;
   enabledTracks: Set<number>;
   elapsedSec: number;
