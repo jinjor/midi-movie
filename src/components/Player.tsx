@@ -169,14 +169,19 @@ export const Player = () => {
   }, [playingState, setCurrentTimeInSec]);
 
   useEffect(() => {
-    if (displayApi == null || midiData == null || renderer.type !== "Ready") {
+    if (
+      displayApi == null ||
+      midiData == null ||
+      renderer.type !== "Ready" ||
+      initialized
+    ) {
       return;
     }
     const container = displayApi.getContainer();
     container.innerHTML = "";
     renderer.module.init(container, { size, notes: midiData.notes });
     setInitialized(true);
-  }, [displayApi, size, midiData, renderer]);
+  }, [displayApi, size, midiData, renderer, initialized]);
 
   const durationForSeekBar = Math.max(
     audioBuffer?.duration ?? 0,

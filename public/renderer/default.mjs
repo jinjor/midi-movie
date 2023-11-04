@@ -6,14 +6,14 @@ function createPatch({
   elapsedSec,
   minNote,
   maxNote,
+  minHue,
+  maxHue,
   timeRangeSec,
 }) {
   const heightPerNote = size.height / (maxNote - minNote);
   const widthPerSec = size.width / timeRangeSec;
   const decaySec = 0.2;
   const releaseSec = 0.4;
-  const minHue = 0;
-  const maxHue = 240;
   const hue =
     ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
     minHue;
@@ -63,6 +63,24 @@ export const config = {
       defaultValue: 127,
     },
     {
+      id: "minHue",
+      name: "Min Hue",
+      type: "number",
+      min: -360,
+      max: 360,
+      step: 5,
+      defaultValue: 0,
+    },
+    {
+      id: "maxHue",
+      name: "Max Hue",
+      type: "number",
+      min: -360,
+      max: 360,
+      step: 5,
+      defaultValue: 240,
+    },
+    {
       id: "timeRangeSec",
       name: "Time Range (sec)",
       type: "number",
@@ -97,7 +115,7 @@ export function update(
   svg,
   { notes, size, enabledTracks, elapsedSec, customProps, force },
 ) {
-  const { minNote, maxNote, timeRangeSec } = customProps;
+  const { minNote, maxNote, minHue, maxHue, timeRangeSec } = customProps;
   const rects = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
     const rect = rects[index];
@@ -112,6 +130,8 @@ export function update(
       minNote,
       maxNote,
       timeRangeSec,
+      minHue,
+      maxHue,
     });
     const stylePatch = { display: hidden ? "none" : "block" };
     setStyles(rect, stylePatch);
