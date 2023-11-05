@@ -43,6 +43,7 @@ export const Player = () => {
     enabledTracks,
     customProps,
     rendererModule,
+    midiOffsetInSec,
   });
   useEffect(() => {
     mutablesRef.current = {
@@ -50,8 +51,9 @@ export const Player = () => {
       enabledTracks,
       customProps,
       rendererModule,
+      midiOffsetInSec,
     };
-  }, [size, enabledTracks, customProps, rendererModule]);
+  }, [size, enabledTracks, customProps, rendererModule, midiOffsetInSec]);
 
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
   const [audioBufferSource, setAudioBufferSource] =
@@ -85,8 +87,13 @@ export const Player = () => {
     const timer = window.setInterval(() => {
       const display = displayApi!;
       const svg = display.getContainer();
-      const { size, enabledTracks, customProps, rendererModule } =
-        mutablesRef.current;
+      const {
+        size,
+        enabledTracks,
+        customProps,
+        rendererModule,
+        midiOffsetInSec,
+      } = mutablesRef.current;
       const elapsedSec =
         offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
       rendererModule?.update(svg, {
