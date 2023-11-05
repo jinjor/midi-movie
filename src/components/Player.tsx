@@ -32,31 +32,16 @@ export const Player = () => {
   const customProps = renderer.props;
   const rendererModule = renderer.module;
 
-  const mutablesRef = useRef({
+  const mutables = {
     size,
     enabledTracks,
     customProps,
     rendererModule,
     midiOffsetInSec,
     volume,
-  });
-  useEffect(() => {
-    mutablesRef.current = {
-      size,
-      enabledTracks,
-      customProps,
-      rendererModule,
-      midiOffsetInSec,
-      volume,
-    };
-  }, [
-    size,
-    enabledTracks,
-    customProps,
-    rendererModule,
-    midiOffsetInSec,
-    volume,
-  ]);
+  };
+  const mutablesRef = useRef(mutables);
+  mutablesRef.current = mutables;
 
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
   const [audioBufferSource, setAudioBufferSource] =
