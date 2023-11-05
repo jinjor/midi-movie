@@ -5,7 +5,6 @@ import { useCounter } from "@/counter";
 import { useAtom, useAtomValue } from "jotai";
 import {
   audioBufferAtom,
-  currentTimeInSecAtom,
   enabledTracksAtom,
   imageSizeAtom,
   imageUrlAtom,
@@ -13,13 +12,11 @@ import {
   midiDataAtom,
   volumeAtom,
   rendererAtom,
+  playingStateAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
-
-type PlayingState = {
-  startTime: number;
-  timer: number;
-};
+import { usePlayingTime } from "@/model/usePlayingTime";
+import { PlayingState } from "@/model/types";
 
 export const Player = () => {
   useCounter("Player");
@@ -31,6 +28,7 @@ export const Player = () => {
   const audioBuffer = useAtomValue(audioBufferAtom);
   const volume = useAtomValue(volumeAtom);
   const renderer = useAtomValue(rendererAtom);
+  const [playingState, setPlayingState] = useAtom(playingStateAtom);
   const customProps = renderer.props;
   const rendererModule = renderer.module;
 
@@ -63,9 +61,8 @@ export const Player = () => {
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
   const [audioBufferSource, setAudioBufferSource] =
     useState<AudioBufferSourceNode | null>(null);
-  const [playingState, setPlayingState] = useState<PlayingState | null>(null);
+
   const [offsetInSec, setOffsetInSec] = useState(0);
-  const [restart, setRestart] = useState(false);
 
   const handlePlay = () => {
     if (midiData == null) {
@@ -170,20 +167,6 @@ export const Player = () => {
     customProps,
   ]);
 
-  const [currentTimeInSec, setCurrentTimeInSec] = useAtom(currentTimeInSecAtom);
-  useEffect(() => {
-    if (playingState === null) {
-      setCurrentTimeInSec(null);
-      return;
-    }
-    const timer = setInterval(() => {
-      setCurrentTimeInSec(
-        Math.floor((performance.now() - playingState.startTime) / 1000),
-      );
-    }, 1000 / 10);
-    return () => clearInterval(timer);
-  }, [playingState, setCurrentTimeInSec]);
-
   useEffect(() => {
     if (displayApi == null || midiData == null) {
       return;
@@ -196,40 +179,64 @@ export const Player = () => {
     rendererModule.init(container, { size, notes: midiData.notes });
   }, [displayApi, size, midiData, rendererModule]);
 
-  const durationForSeekBar = Math.max(
-    audioBuffer?.duration ?? 0,
-    midiData?.endSec ?? 0,
-  );
   return (
     <div style={{ width: size.width }}>
       <Display onMount={setDisplayApi} size={size} imageUrl={imageUrl} />
+      <SmartSeekBar
+        playingState={playingState}
+        offsetInSec={offsetInSec}
+        duration={Math.max(audioBuffer?.duration ?? 0, midiData?.endSec ?? 0)}
+        onPlay={handlePlay}
+        onPause={handlePause}
+        onChangeOffset={setOffsetInSec}
+      />
       <PlayerControl
-        isPlaying={playingState != null}
+        playingState={playingState}
         onPlay={handlePlay}
         onPause={handlePause}
         onReturn={handleReturn}
         offsetInSec={offsetInSec}
-        seekBar={
-          <SeekBar
-            disabled={audioBuffer == null}
-            value={(offsetInSec + (currentTimeInSec ?? 0)) / durationForSeekBar}
-            onStartDragging={(ratio) => {
-              setRestart(currentTimeInSec != null);
-              handlePause();
-              audioBuffer && setOffsetInSec(durationForSeekBar * ratio);
-            }}
-            onStopDragging={() => {
-              if (restart) {
-                handlePlay();
-              }
-              setRestart(false);
-            }}
-            onDrag={(ratio) => {
-              audioBuffer && setOffsetInSec(durationForSeekBar * ratio);
-            }}
-          />
-        }
       />
     </div>
+  );
+};
+
+const SmartSeekBar = ({
+  playingState,
+  offsetInSec,
+  duration,
+  onPlay,
+  onPause,
+  onChangeOffset,
+}: {
+  playingState: PlayingState | null;
+  offsetInSec: number;
+  duration: number;
+  onPlay: () => void;
+  onPause: () => void;
+  onChangeOffset: (offsetInSec: number) => void;
+}) => {
+  const disabled = duration <= 0;
+  const [restart, setRestart] = useState(false);
+  const currentTimeInSec = usePlayingTime(playingState, 10);
+  return (
+    <SeekBar
+      disabled={disabled}
+      value={(offsetInSec + (currentTimeInSec ?? 0)) / duration}
+      onStartDragging={(ratio) => {
+        setRestart(currentTimeInSec != null);
+        onPause();
+        onChangeOffset(duration * ratio);
+      }}
+      onStopDragging={() => {
+        if (restart) {
+          onPlay();
+        }
+        setRestart(false);
+      }}
+      onDrag={(ratio) => {
+        onChangeOffset(duration * ratio);
+      }}
+    />
   );
 };

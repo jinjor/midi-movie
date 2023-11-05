@@ -1,41 +1,36 @@
-import { ReactNode } from "react";
 import styles from "./PlayerControl.module.css";
 import { formatTime } from "../../util";
-import { useAtomValue } from "jotai";
-import { currentTimeInSecAtom } from "@/atoms";
+import { PlayingState } from "@/model/types";
+import { usePlayingTime } from "@/model/usePlayingTime";
 
 type Props = {
   onPlay: () => void;
   onPause: () => void;
   onReturn: () => void;
-  isPlaying: boolean;
+  playingState: PlayingState | null;
   offsetInSec: number;
-  seekBar: ReactNode;
 };
 
 export const PlayerControl = ({
-  isPlaying,
+  playingState,
+  offsetInSec,
   onPlay,
   onPause,
   onReturn,
-  seekBar,
-  offsetInSec,
 }: Props) => {
-  const currentTimeInSec = useAtomValue(currentTimeInSecAtom);
+  const isPlaying = playingState != null;
+  const currentTimeInSec = usePlayingTime(playingState);
   return (
-    <div>
-      {seekBar}
-      <div className={styles.controls}>
-        <div>
-          <button onClick={onReturn}>Return</button>
-          {isPlaying ? (
-            <button onClick={onPause}>Pause</button>
-          ) : (
-            <button onClick={onPlay}>Play</button>
-          )}
-        </div>
-        <div>{formatTime(offsetInSec + (currentTimeInSec ?? 0))}</div>
+    <div className={styles.controls}>
+      <div>
+        <button onClick={onReturn}>Return</button>
+        {isPlaying ? (
+          <button onClick={onPause}>Pause</button>
+        ) : (
+          <button onClick={onPlay}>Play</button>
+        )}
       </div>
+      <div>{formatTime(offsetInSec + (currentTimeInSec ?? 0))}</div>
     </div>
   );
 };

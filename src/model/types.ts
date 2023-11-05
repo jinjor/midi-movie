@@ -37,3 +37,7 @@ export type MidiData = {
   events: Event[];
   endSec: number;
 };
+export type PlayingState = {
+  startTime: number;
+  timer: number;
+};
