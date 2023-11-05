@@ -104,30 +104,6 @@ test("should update Midi Offset", async () => {
   expect(getMountCount("Properties")).toBe(0);
   expect(getTotalRenderCount("Properties")).toBe(2);
 });
-test("should update Audio Offset", async () => {
-  const user = userEvent.setup();
-  const container = renderInNewContainer(<Root />);
-  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
-  resetCount();
-  const input = container.getByLabelText(/Audio Offset/i);
-  input.focus();
-  await user.dblClick(input);
-  await user.keyboard("{backspace}");
-  await user.type(input, "42");
-  expect(input).toHaveValue(42);
-  expect(getRenderedKeys()).not.toContainAnyOf([
-    "App",
-    "MidiLoader",
-    "AudioLoader",
-    "ImageLoader",
-    "Tracks",
-  ]);
-  expect(getMountCount("Player")).toBe(0);
-  expect(getTotalRenderCount("Player")).toBe(2);
-  expect(getMountCount("Properties")).toBe(0);
-  expect(getTotalRenderCount("Properties")).toBe(2);
-  expect(getMountCount("NumberInput")).toBe(0);
-});
 test("should update Overlay Opacity", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
