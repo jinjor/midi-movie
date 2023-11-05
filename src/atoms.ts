@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { MidiData } from "./model/types";
+import { MidiData, PlayingState } from "./model/types";
 import { RendererState, renderers } from "./model/render";
 
 export const midiOffsetAtom = atom(0);
@@ -11,7 +11,7 @@ export const imageSizeAtom = atom({
 export const midiDataAtom = atom<MidiData | null>(null);
 export const enabledTracksAtom = atom<boolean[]>([]);
 export const audioBufferAtom = atom<AudioBuffer | null>(null);
-export const currentTimeInSecAtom = atom<number | null>(null);
+export const playingStateAtom = atom<PlayingState | null>(null);
 export const opacityAtom = atom(0.6);
 export const volumeAtom = atom(1);
 export const rendererAtom = atom<RendererState>({
