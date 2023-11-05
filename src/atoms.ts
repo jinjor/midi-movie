@@ -14,7 +14,6 @@ export const audioBufferAtom = atom<AudioBuffer | null>(null);
 export const currentTimeInSecAtom = atom<number | null>(null);
 export const opacityAtom = atom(0.6);
 export const volumeAtom = atom(1);
-export const gainNodeAtom = atom<GainNode | null>(null);
 export const rendererAtom = atom<RendererState>({
   type: "Loading",
   info: renderers[0],

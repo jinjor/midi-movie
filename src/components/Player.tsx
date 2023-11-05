@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import {
   audioBufferAtom,
   currentTimeInSecAtom,
@@ -11,7 +11,6 @@ import {
   imageUrlAtom,
   midiOffsetAtom,
   midiDataAtom,
-  gainNodeAtom,
   volumeAtom,
   rendererAtom,
 } from "@/atoms";
@@ -30,7 +29,6 @@ export const Player = () => {
   const midiData = useAtomValue(midiDataAtom);
   const enabledTracks = useAtomValue(enabledTracksAtom);
   const audioBuffer = useAtomValue(audioBufferAtom);
-  const setGainNode = useSetAtom(gainNodeAtom);
   const volume = useAtomValue(volumeAtom);
   const renderer = useAtomValue(rendererAtom);
   const customProps = renderer.props;
@@ -42,6 +40,7 @@ export const Player = () => {
     customProps,
     rendererModule,
     midiOffsetInSec,
+    volume,
   });
   useEffect(() => {
     mutablesRef.current = {
@@ -50,8 +49,16 @@ export const Player = () => {
       customProps,
       rendererModule,
       midiOffsetInSec,
+      volume,
     };
-  }, [size, enabledTracks, customProps, rendererModule, midiOffsetInSec]);
+  }, [
+    size,
+    enabledTracks,
+    customProps,
+    rendererModule,
+    midiOffsetInSec,
+    volume,
+  ]);
 
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
   const [audioBufferSource, setAudioBufferSource] =
@@ -64,13 +71,12 @@ export const Player = () => {
     if (midiData == null) {
       return;
     }
+    const ctx = new AudioContext();
+    const source = ctx.createBufferSource();
+    source.buffer = audioBuffer;
+    const gain = ctx.createGain();
+    gain.gain.value = volume;
     if (audioBuffer) {
-      const ctx = new AudioContext();
-      const source = ctx.createBufferSource();
-      source.buffer = audioBuffer;
-      const gain = ctx.createGain();
-      gain.gain.value = volume;
-      setGainNode(gain);
       source.connect(gain).connect(ctx.destination);
       const offset = offsetInSec;
       if (offset > 0) {
@@ -91,7 +97,9 @@ export const Player = () => {
         customProps,
         rendererModule,
         midiOffsetInSec,
+        volume,
       } = mutablesRef.current;
+      gain.gain.value = volume;
       const elapsedSec =
         offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
       rendererModule?.update(svg, {
