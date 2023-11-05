@@ -3,7 +3,6 @@ import { MidiData } from "./model/types";
 import { RendererState, renderers } from "./model/render";
 
 export const midiOffsetAtom = atom(0);
-export const audioOffsetAtom = atom(0);
 export const imageUrlAtom = atom<string | null>(null);
 export const imageSizeAtom = atom({
   width: 512,

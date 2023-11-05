@@ -2,7 +2,6 @@ import { NumberInput } from "@/ui/NumberInput";
 import { useCounter } from "@/counter";
 import { useAtom, useAtomValue } from "jotai";
 import {
-  audioOffsetAtom,
   gainNodeAtom,
   midiOffsetAtom,
   opacityAtom,
@@ -16,7 +15,6 @@ import { Select } from "@/ui/Select";
 export const Properties = () => {
   useCounter("Properties");
   const [midiOffsetInSec, setMidiOffsetInSec] = useAtom(midiOffsetAtom);
-  const [audioOffsetInSec, setAudioOffsetInSec] = useAtom(audioOffsetAtom);
   const [volume, setVolume] = useAtom(volumeAtom);
   const [opacity, setOpacity] = useAtom(opacityAtom);
   const gainNode = useAtomValue(gainNodeAtom);
@@ -42,9 +40,6 @@ export const Properties = () => {
   }, [renderer, setRenderer]);
   const handleMidiOffsetChange = (midiOffsetInMilliSec: number) => {
     setMidiOffsetInSec(midiOffsetInMilliSec / 1000);
-  };
-  const handleAudioOffsetChange = (audioOffsetInMilliSec: number) => {
-    setAudioOffsetInSec(audioOffsetInMilliSec / 1000);
   };
   const handleOpacityChange = (opacity: number) => {
     setOpacity(opacity);
@@ -74,15 +69,6 @@ export const Properties = () => {
           max={60000}
           defaultValue={midiOffsetInSec * 1000}
           onChange={handleMidiOffsetChange}
-        />
-      </label>
-      <label>
-        Audio Offset(ms):
-        <NumberInput
-          min={-60000}
-          max={60000}
-          defaultValue={audioOffsetInSec * 1000}
-          onChange={handleAudioOffsetChange}
         />
       </label>
       <label>

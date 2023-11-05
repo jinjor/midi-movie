@@ -5,7 +5,6 @@ import { useCounter } from "@/counter";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   audioBufferAtom,
-  audioOffsetAtom,
   currentTimeInSecAtom,
   enabledTracksAtom,
   imageSizeAtom,
@@ -26,7 +25,6 @@ type PlayingState = {
 export const Player = () => {
   useCounter("Player");
   const midiOffsetInSec = useAtomValue(midiOffsetAtom);
-  const audioOffsetInSec = useAtomValue(audioOffsetAtom);
   const imageUrl = useAtomValue(imageUrlAtom);
   const size = useAtomValue(imageSizeAtom);
   const midiData = useAtomValue(midiDataAtom);
@@ -74,7 +72,7 @@ export const Player = () => {
       gain.gain.value = volume;
       setGainNode(gain);
       source.connect(gain).connect(ctx.destination);
-      const offset = offsetInSec + audioOffsetInSec;
+      const offset = offsetInSec;
       if (offset > 0) {
         source.start(0, offset);
       } else {
