@@ -1,13 +1,7 @@
 import { NumberInput } from "@/ui/NumberInput";
 import { useCounter } from "@/counter";
-import { useAtom, useAtomValue } from "jotai";
-import {
-  gainNodeAtom,
-  midiOffsetAtom,
-  opacityAtom,
-  rendererAtom,
-  volumeAtom,
-} from "@/atoms";
+import { useAtom } from "jotai";
+import { midiOffsetAtom, opacityAtom, rendererAtom, volumeAtom } from "@/atoms";
 import { useEffect } from "react";
 import { RendererState, importRendererModule, renderers } from "@/model/render";
 import { Select } from "@/ui/Select";
@@ -17,7 +11,6 @@ export const Properties = () => {
   const [midiOffsetInSec, setMidiOffsetInSec] = useAtom(midiOffsetAtom);
   const [volume, setVolume] = useAtom(volumeAtom);
   const [opacity, setOpacity] = useAtom(opacityAtom);
-  const gainNode = useAtomValue(gainNodeAtom);
   const [renderer, setRenderer] = useAtom(rendererAtom);
   useEffect(() => {
     if (renderer.type !== "Loading") {
@@ -46,9 +39,6 @@ export const Properties = () => {
   };
   const handleVolumeChange = (volume: number) => {
     setVolume(volume);
-    if (gainNode) {
-      gainNode.gain.value = volume;
-    }
   };
   const handleSelectRenderer = (name: string) => {
     const renderer = renderers.find((r) => r.name === name)!;
