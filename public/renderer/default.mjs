@@ -1,6 +1,16 @@
 import { setAttributes, setStyles, createSvgElement } from "./util.mjs";
 
-function createPatch({
+function calculateBar({ size }) {
+  return {
+    x: size.width / 2,
+    y: 0,
+    width: 0.5,
+    height: size.height,
+    fill: "#aaa",
+  };
+}
+
+function calculateNote({
   size,
   note,
   elapsedSec,
@@ -12,24 +22,24 @@ function createPatch({
   baseLightness,
   peakLightness,
   activeLightness,
+  decaySec,
+  releaseSec,
 }) {
   const heightPerNote = size.height / (maxNote - minNote);
   const widthPerSec = size.width / timeRangeSec;
-  const decaySec = 0.2;
-  const releaseSec = 0.4;
   const hue =
     ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
     minHue;
-  const lightness =
-    elapsedSec < note.fromSec
-      ? baseLightness
-      : elapsedSec < note.toSec
-      ? activeLightness +
-        (peakLightness - activeLightness) *
-          Math.exp(-(elapsedSec - note.fromSec) / decaySec)
-      : baseLightness +
-        (activeLightness - baseLightness) *
-          Math.exp(-(elapsedSec - note.toSec) / releaseSec);
+  const lightness = calcLightness({
+    baseLightness,
+    peakLightness,
+    activeLightness,
+    decaySec,
+    releaseSec,
+    fromSec: note.fromSec,
+    toSec: note.toSec,
+    elapsedSec,
+  });
   const x = (note.fromSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
   const y = size.height - (note.noteNumber - minNote) * heightPerNote;
   const width = (note.toSec - note.fromSec) * widthPerSec;
@@ -42,6 +52,28 @@ function createPatch({
     fill: `hsl(${hue}, 20%, ${lightness}%)`,
   };
 }
+
+function calcLightness({
+  baseLightness,
+  peakLightness,
+  activeLightness,
+  decaySec,
+  releaseSec,
+  fromSec,
+  toSec,
+  elapsedSec,
+}) {
+  return elapsedSec < fromSec
+    ? baseLightness
+    : elapsedSec < toSec
+    ? activeLightness +
+      (peakLightness - activeLightness) *
+        Math.exp(-(elapsedSec - fromSec) / decaySec)
+    : baseLightness +
+      (activeLightness - baseLightness) *
+        Math.exp(-(elapsedSec - toSec) / releaseSec);
+}
+
 export const config = {
   props: [
     {
@@ -116,6 +148,15 @@ export const config = {
       step: 5,
       defaultValue: 80,
     },
+    {
+      id: "vertical",
+      name: "Vertical",
+      type: "number",
+      min: 0,
+      max: 1,
+      step: 1,
+      defaultValue: 0,
+    },
   ],
 };
 
@@ -147,31 +188,25 @@ export function update(
     baseLightness,
     peakLightness,
     activeLightness,
+    vertical,
   } = customProps;
   const bar = svg.getElementById("bar");
-  setAttributes(bar, {
-    id: "bar",
-    x: size.width / 2,
-    y: 0,
-    width: 0.5,
-    height: size.height,
-    fill: "#aaa",
-  });
+  const barPatch = calculateBar({ size: vertical ? flipSize(size) : size });
+  setAttributes(bar, vertical ? flipRect(barPatch, size) : barPatch);
 
   const rects = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
     const rect = rects[index];
-    const rectX = rect.getAttribute("x");
-    const rectWidth = rect.getAttribute("width");
-    if (playing && rectX + rectWidth < 0) {
+    if (
+      playing &&
+      (vertical
+        ? rect.getAttribute("y") > size.height
+        : rect.getAttribute("x") + rect.getAttribute("width") < 0)
+    ) {
       continue;
     }
-    const hidden =
-      !enabledTracks[note.trackIndex] ||
-      note.noteNumber < minNote ||
-      note.noteNumber > maxNote;
-    const patch = createPatch({
-      size,
+    const patch = calculateNote({
+      size: vertical ? flipSize(size) : size,
       note,
       elapsedSec,
       minNote,
@@ -182,12 +217,34 @@ export function update(
       baseLightness,
       peakLightness,
       activeLightness,
+      decaySec: 0.2,
+      releaseSec: 0.4,
     });
     if (playing && patch.x > size.width) {
       continue;
     }
-    const stylePatch = { display: hidden ? "none" : "block" };
+    const stylePatch = {
+      display: !enabledTracks[note.trackIndex] ? "none" : "block",
+    };
     setStyles(rect, stylePatch);
-    setAttributes(rect, patch);
+    setAttributes(rect, vertical ? flipRect(patch, size) : patch);
   }
+}
+function flipSize({ width, height }) {
+  return {
+    width: height,
+    height: width,
+  };
+}
+function flipRect(
+  { x, y, width, height, ...rest },
+  { width: sizeWidth, height: sizeHeight },
+) {
+  return {
+    ...rest,
+    x: sizeWidth - y - height,
+    y: sizeHeight - x - width,
+    width: height,
+    height: width,
+  };
 }
