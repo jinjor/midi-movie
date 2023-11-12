@@ -3,13 +3,23 @@ import { MidiData, PlayingState } from "./model/types";
 import { RendererState, renderers } from "./model/render";
 import { StorageKey, get, set } from "./storage";
 
-export const store = createStore();
+const subscribeFns: ((store: ReturnType<typeof createStore>) => void)[] = [];
 const atomWithStorage = (key: StorageKey) => {
   const a = atom(get(key));
-  store.sub(a, () => set(key, store.get(a)));
+  subscribeFns.push((store) => {
+    store.sub(a, () => {
+      set(key, store.get(a));
+    });
+  });
   return a;
 };
-
+export const createStoreWithStorage = () => {
+  const store = createStore();
+  for (const fn of subscribeFns) {
+    fn(store);
+  }
+  return store;
+};
 export const midiOffsetAtom = atomWithStorage("midiOffset");
 export const opacityAtom = atomWithStorage("opacity");
 export const volumeAtom = atomWithStorage("volume");
