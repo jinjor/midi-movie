@@ -1,6 +1,6 @@
 import { setAttributes, setStyles, createSvgElement } from "./util.mjs";
 
-function createBarPatch({ size }) {
+function calculateBar({ size }) {
   return {
     x: size.width / 2,
     y: 0,
@@ -10,7 +10,7 @@ function createBarPatch({ size }) {
   };
 }
 
-function createPatch({
+function calculateNote({
   size,
   note,
   elapsedSec,
@@ -22,24 +22,24 @@ function createPatch({
   baseLightness,
   peakLightness,
   activeLightness,
+  decaySec,
+  releaseSec,
 }) {
   const heightPerNote = size.height / (maxNote - minNote);
   const widthPerSec = size.width / timeRangeSec;
-  const decaySec = 0.2;
-  const releaseSec = 0.4;
   const hue =
     ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
     minHue;
-  const lightness =
-    elapsedSec < note.fromSec
-      ? baseLightness
-      : elapsedSec < note.toSec
-      ? activeLightness +
-        (peakLightness - activeLightness) *
-          Math.exp(-(elapsedSec - note.fromSec) / decaySec)
-      : baseLightness +
-        (activeLightness - baseLightness) *
-          Math.exp(-(elapsedSec - note.toSec) / releaseSec);
+  const lightness = calcLightness({
+    baseLightness,
+    peakLightness,
+    activeLightness,
+    decaySec,
+    releaseSec,
+    fromSec: note.fromSec,
+    toSec: note.toSec,
+    elapsedSec,
+  });
   const x = (note.fromSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
   const y = size.height - (note.noteNumber - minNote) * heightPerNote;
   const width = (note.toSec - note.fromSec) * widthPerSec;
@@ -52,6 +52,28 @@ function createPatch({
     fill: `hsl(${hue}, 20%, ${lightness}%)`,
   };
 }
+
+function calcLightness({
+  baseLightness,
+  peakLightness,
+  activeLightness,
+  decaySec,
+  releaseSec,
+  fromSec,
+  toSec,
+  elapsedSec,
+}) {
+  return elapsedSec < fromSec
+    ? baseLightness
+    : elapsedSec < toSec
+    ? activeLightness +
+      (peakLightness - activeLightness) *
+        Math.exp(-(elapsedSec - fromSec) / decaySec)
+    : baseLightness +
+      (activeLightness - baseLightness) *
+        Math.exp(-(elapsedSec - toSec) / releaseSec);
+}
+
 export const config = {
   props: [
     {
@@ -169,7 +191,7 @@ export function update(
     vertical,
   } = customProps;
   const bar = svg.getElementById("bar");
-  const barPatch = createBarPatch({ size: vertical ? flipSize(size) : size });
+  const barPatch = calculateBar({ size: vertical ? flipSize(size) : size });
   setAttributes(bar, vertical ? flipRect(barPatch, size) : barPatch);
 
   const rects = svg.querySelectorAll(".note");
@@ -183,11 +205,7 @@ export function update(
     ) {
       continue;
     }
-    const hidden =
-      !enabledTracks[note.trackIndex] ||
-      note.noteNumber < minNote ||
-      note.noteNumber > maxNote;
-    const patch = createPatch({
+    const patch = calculateNote({
       size: vertical ? flipSize(size) : size,
       note,
       elapsedSec,
@@ -199,11 +217,15 @@ export function update(
       baseLightness,
       peakLightness,
       activeLightness,
+      decaySec: 0.2,
+      releaseSec: 0.4,
     });
     if (playing && patch.x > size.width) {
       continue;
     }
-    const stylePatch = { display: hidden ? "none" : "block" };
+    const stylePatch = {
+      display: !enabledTracks[note.trackIndex] ? "none" : "block",
+    };
     setStyles(rect, stylePatch);
     setAttributes(rect, vertical ? flipRect(patch, size) : patch);
   }
