@@ -140,7 +140,7 @@ export function init(svg, { size, notes }) {
 
 export function update(
   svg,
-  { notes, size, enabledTracks, elapsedSec, customProps, force },
+  { notes, size, enabledTracks, elapsedSec, customProps },
 ) {
   const {
     minNote,
@@ -174,7 +174,7 @@ export function update(
     });
     const stylePatch = { display: hidden ? "none" : "block" };
     setStyles(rect, stylePatch);
-    if (!force && (patch.x + patch.width < 0 || patch.x > size.width)) {
+    if (patch.x + patch.width < 0 || patch.x > size.width) {
       continue;
     }
     setAttributes(rect, patch);

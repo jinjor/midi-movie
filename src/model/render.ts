@@ -49,7 +49,6 @@ type UpdateProps = {
   enabledTracks: boolean[];
   elapsedSec: number;
   customProps: Record<string, number>;
-  force: boolean;
 };
 
 export const renderers: RendererInfo[] = [

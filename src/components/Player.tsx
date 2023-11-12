@@ -90,7 +90,6 @@ export const Player = () => {
         enabledTracks,
         elapsedSec,
         customProps: customProps ?? {},
-        force: false,
       });
     }, 1000 / 60);
     setPlayingState({
@@ -138,7 +137,6 @@ export const Player = () => {
       enabledTracks,
       elapsedSec,
       customProps: customProps ?? {},
-      force: true,
     });
   }, [
     midiData,
