@@ -72,7 +72,7 @@ export const Player = () => {
     const startTime = performance.now();
     const timer = window.setInterval(() => {
       const display = displayApi!;
-      const svg = display.getContainer();
+      const container = display.getContainer();
       const {
         size,
         enabledTracks,
@@ -84,13 +84,12 @@ export const Player = () => {
       gain.gain.value = volume;
       const elapsedSec =
         offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
-      rendererModule?.update(svg, {
+      rendererModule?.update(container, {
         notes,
         size,
         enabledTracks,
         elapsedSec,
         customProps: customProps ?? {},
-        force: false,
       });
     }, 1000 / 60);
     setPlayingState({
@@ -138,7 +137,6 @@ export const Player = () => {
       enabledTracks,
       elapsedSec,
       customProps: customProps ?? {},
-      force: true,
     });
   }, [
     midiData,
@@ -151,18 +149,6 @@ export const Player = () => {
     rendererModule,
     customProps,
   ]);
-
-  useEffect(() => {
-    if (displayApi == null || midiData == null) {
-      return;
-    }
-    const container = displayApi.getContainer();
-    container.innerHTML = "";
-    if (rendererModule == null) {
-      return;
-    }
-    rendererModule.init(container, { size, notes: midiData.notes });
-  }, [displayApi, size, midiData, rendererModule]);
 
   return (
     <div style={{ width: size.width }}>

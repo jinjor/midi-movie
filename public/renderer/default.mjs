@@ -122,11 +122,7 @@ export const config = {
 export function init(svg, { size, notes }) {
   const bar = createSvgElement("rect");
   setAttributes(bar, {
-    x: size.width / 2,
-    y: 0,
-    width: 0.5,
-    height: size.height,
-    fill: "#aaa",
+    id: "bar",
   });
   svg.appendChild(bar);
   for (const _note of notes) {
@@ -140,7 +136,7 @@ export function init(svg, { size, notes }) {
 
 export function update(
   svg,
-  { notes, size, enabledTracks, elapsedSec, customProps, force },
+  { notes, size, enabledTracks, elapsedSec, customProps },
 ) {
   const {
     minNote,
@@ -152,6 +148,16 @@ export function update(
     peakLightness,
     activeLightness,
   } = customProps;
+  const bar = svg.getElementById("bar");
+  setAttributes(bar, {
+    id: "bar",
+    x: size.width / 2,
+    y: 0,
+    width: 0.5,
+    height: size.height,
+    fill: "#aaa",
+  });
+
   const rects = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
     const rect = rects[index];
@@ -174,7 +180,7 @@ export function update(
     });
     const stylePatch = { display: hidden ? "none" : "block" };
     setStyles(rect, stylePatch);
-    if (!force && (patch.x + patch.width < 0 || patch.x > size.width)) {
+    if (patch.x + patch.width < 0 || patch.x > size.width) {
       continue;
     }
     setAttributes(rect, patch);
