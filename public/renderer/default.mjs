@@ -155,7 +155,7 @@ export function init(svg, { size, notes }) {
 
 export function update(
   svg,
-  { notes, size: _size, enabledTracks, elapsedSec, customProps, playing },
+  { notes, size, enabledTracks, elapsedSec, customProps, playing },
 ) {
   const {
     minNote,
@@ -169,9 +169,8 @@ export function update(
     vertical,
   } = customProps;
   const bar = svg.getElementById("bar");
-  const size = vertical ? { width: _size.height, height: _size.width } : _size;
-  const barPatch = createBarPatch({ size });
-  setAttributes(bar, vertical ? flipRect(barPatch, _size) : barPatch);
+  const barPatch = createBarPatch({ size: vertical ? flipSize(size) : size });
+  setAttributes(bar, vertical ? flipRect(barPatch, size) : barPatch);
 
   const rects = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
@@ -179,7 +178,7 @@ export function update(
     if (
       playing &&
       (vertical
-        ? rect.getAttribute("y") > _size.height
+        ? rect.getAttribute("y") > size.height
         : rect.getAttribute("x") + rect.getAttribute("width") < 0)
     ) {
       continue;
@@ -189,7 +188,7 @@ export function update(
       note.noteNumber < minNote ||
       note.noteNumber > maxNote;
     const patch = createPatch({
-      size,
+      size: vertical ? flipSize(size) : size,
       note,
       elapsedSec,
       minNote,
@@ -206,10 +205,15 @@ export function update(
     }
     const stylePatch = { display: hidden ? "none" : "block" };
     setStyles(rect, stylePatch);
-    setAttributes(rect, vertical ? flipRect(patch, _size) : patch);
+    setAttributes(rect, vertical ? flipRect(patch, size) : patch);
   }
 }
-
+function flipSize({ width, height }) {
+  return {
+    width: height,
+    height: width,
+  };
+}
 function flipRect(
   { x, y, width, height, ...rest },
   { width: sizeWidth, height: sizeHeight },
