@@ -1,5 +1,15 @@
 import { setAttributes, setStyles, createSvgElement } from "./util.mjs";
 
+function createBarPatch({ size }) {
+  return {
+    x: size.width / 2,
+    y: 0,
+    width: 0.5,
+    height: size.height,
+    fill: "#aaa",
+  };
+}
+
 function createPatch({
   size,
   note,
@@ -116,6 +126,15 @@ export const config = {
       step: 5,
       defaultValue: 80,
     },
+    {
+      id: "vertical",
+      name: "Vertical",
+      type: "number",
+      min: 0,
+      max: 1,
+      step: 1,
+      defaultValue: 0,
+    },
   ],
 };
 
@@ -136,7 +155,7 @@ export function init(svg, { size, notes }) {
 
 export function update(
   svg,
-  { notes, size, enabledTracks, elapsedSec, customProps, playing },
+  { notes, size: _size, enabledTracks, elapsedSec, customProps, playing },
 ) {
   const {
     minNote,
@@ -147,23 +166,22 @@ export function update(
     baseLightness,
     peakLightness,
     activeLightness,
+    vertical,
   } = customProps;
   const bar = svg.getElementById("bar");
-  setAttributes(bar, {
-    id: "bar",
-    x: size.width / 2,
-    y: 0,
-    width: 0.5,
-    height: size.height,
-    fill: "#aaa",
-  });
+  const size = vertical ? { width: _size.height, height: _size.width } : _size;
+  const barPatch = createBarPatch({ size });
+  setAttributes(bar, vertical ? flipRect(barPatch, _size) : barPatch);
 
   const rects = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
     const rect = rects[index];
-    const rectX = rect.getAttribute("x");
-    const rectWidth = rect.getAttribute("width");
-    if (playing && rectX + rectWidth < 0) {
+    if (
+      playing &&
+      (vertical
+        ? rect.getAttribute("y") > _size.height
+        : rect.getAttribute("x") + rect.getAttribute("width") < 0)
+    ) {
       continue;
     }
     const hidden =
@@ -188,6 +206,19 @@ export function update(
     }
     const stylePatch = { display: hidden ? "none" : "block" };
     setStyles(rect, stylePatch);
-    setAttributes(rect, patch);
+    setAttributes(rect, vertical ? flipRect(patch, _size) : patch);
   }
+}
+
+function flipRect(
+  { x, y, width, height, ...rest },
+  { width: sizeWidth, height: sizeHeight },
+) {
+  return {
+    ...rest,
+    x: sizeWidth - y - height,
+    y: sizeHeight - x - width,
+    width: height,
+    height: width,
+  };
 }
