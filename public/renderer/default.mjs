@@ -136,7 +136,7 @@ export function init(svg, { size, notes }) {
 
 export function update(
   svg,
-  { notes, size, enabledTracks, elapsedSec, customProps },
+  { notes, size, enabledTracks, elapsedSec, customProps, playing },
 ) {
   const {
     minNote,
@@ -161,6 +161,11 @@ export function update(
   const rects = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
     const rect = rects[index];
+    const rectX = rect.getAttribute("x");
+    const rectWidth = rect.getAttribute("width");
+    if (playing && rectX + rectWidth < 0) {
+      continue;
+    }
     const hidden =
       !enabledTracks[note.trackIndex] ||
       note.noteNumber < minNote ||
@@ -178,11 +183,11 @@ export function update(
       peakLightness,
       activeLightness,
     });
-    const stylePatch = { display: hidden ? "none" : "block" };
-    setStyles(rect, stylePatch);
-    if (patch.x + patch.width < 0 || patch.x > size.width) {
+    if (playing && patch.x > size.width) {
       continue;
     }
+    const stylePatch = { display: hidden ? "none" : "block" };
+    setStyles(rect, stylePatch);
     setAttributes(rect, patch);
   }
 }
