@@ -22,18 +22,31 @@ function calculateNote({
   baseLightness,
   peakLightness,
   activeLightness,
+  baseThickness,
+  peakThickness,
+  activeThickness,
   decaySec,
   releaseSec,
 }) {
-  const heightPerNote = size.height / (maxNote - minNote);
+  const fullHeightPerNote = size.height / (maxNote - minNote);
   const widthPerSec = size.width / timeRangeSec;
   const hue =
     ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
     minHue;
-  const lightness = calcLightness({
-    baseLightness,
-    peakLightness,
-    activeLightness,
+  const lightness = calcEnvelope({
+    base: baseLightness,
+    peak: peakLightness,
+    active: activeLightness,
+    decaySec,
+    releaseSec,
+    fromSec: note.fromSec,
+    toSec: note.toSec,
+    elapsedSec,
+  });
+  const thickness = calcEnvelope({
+    base: baseThickness,
+    peak: peakThickness,
+    active: activeThickness,
     decaySec,
     releaseSec,
     fromSec: note.fromSec,
@@ -41,9 +54,11 @@ function calculateNote({
     elapsedSec,
   });
   const x = (note.fromSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
-  const y = size.height - (note.noteNumber - minNote) * heightPerNote;
+  const y =
+    size.height -
+    (note.noteNumber - minNote - 0.5 + thickness / 2) * fullHeightPerNote;
   const width = (note.toSec - note.fromSec) * widthPerSec;
-  const height = heightPerNote;
+  const height = fullHeightPerNote * thickness;
   return {
     x,
     y,
@@ -53,10 +68,10 @@ function calculateNote({
   };
 }
 
-function calcLightness({
-  baseLightness,
-  peakLightness,
-  activeLightness,
+function calcEnvelope({
+  base,
+  peak,
+  active,
   decaySec,
   releaseSec,
   fromSec,
@@ -64,14 +79,10 @@ function calcLightness({
   elapsedSec,
 }) {
   return elapsedSec < fromSec
-    ? baseLightness
+    ? base
     : elapsedSec < toSec
-    ? activeLightness +
-      (peakLightness - activeLightness) *
-        Math.exp(-(elapsedSec - fromSec) / decaySec)
-    : baseLightness +
-      (activeLightness - baseLightness) *
-        Math.exp(-(elapsedSec - toSec) / releaseSec);
+    ? active + (peak - active) * Math.exp(-(elapsedSec - fromSec) / decaySec)
+    : base + (active - base) * Math.exp(-(elapsedSec - toSec) / releaseSec);
 }
 
 export const config = {
@@ -149,6 +160,33 @@ export const config = {
       defaultValue: 80,
     },
     {
+      id: "baseThickness",
+      name: "Base Thickness",
+      type: "number",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      defaultValue: 0.4,
+    },
+    {
+      id: "peakThickness",
+      name: "Peak Thickness",
+      type: "number",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      defaultValue: 1,
+    },
+    {
+      id: "activeThickness",
+      name: "Active Thickness",
+      type: "number",
+      min: 0,
+      max: 1,
+      step: 0.05,
+      defaultValue: 0.6,
+    },
+    {
       id: "vertical",
       name: "Vertical",
       type: "number",
@@ -188,6 +226,9 @@ export function update(
     baseLightness,
     peakLightness,
     activeLightness,
+    baseThickness,
+    peakThickness,
+    activeThickness,
     vertical,
   } = customProps;
   const bar = svg.getElementById("bar");
@@ -217,6 +258,9 @@ export function update(
       baseLightness,
       peakLightness,
       activeLightness,
+      baseThickness,
+      peakThickness,
+      activeThickness,
       decaySec: 0.2,
       releaseSec: 0.4,
     });
