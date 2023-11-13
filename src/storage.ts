@@ -1,27 +1,28 @@
-import z from "zod";
+import { number, parse, Output } from "valibot";
 
 const namespace = "MidiMovie.";
 const schemas = {
-  midiOffset: z.number().default(0),
-  opacity: z.number().default(0.6),
-  volume: z.number().default(1),
+  midiOffset: number(),
+  opacity: number(),
+  volume: number(),
 };
 type Schemas = typeof schemas;
 export type StorageKey = keyof Schemas;
-export const get = (key: StorageKey): z.infer<Schemas[StorageKey]> => {
+export type StorageValue<K extends StorageKey> = Output<Schemas[K]>;
+export const get = (
+  key: StorageKey,
+  defaultValue: StorageValue<StorageKey>,
+): StorageValue<StorageKey> => {
   try {
     const item = localStorage.getItem(namespace + key);
-    return schemas[key].parse(item == null ? undefined : JSON.parse(item));
+    return parse(schemas[key], item == null ? undefined : JSON.parse(item));
   } catch (e) {
-    // JSON error or Zod error
+    // JSON error or schema error
     localStorage.removeItem(namespace + key);
-    return schemas[key].parse(undefined);
+    return defaultValue;
   }
 };
-export const set = (
-  key: StorageKey,
-  value: z.infer<Schemas[StorageKey]>,
-): void => {
+export const set = (key: StorageKey, value: StorageValue<StorageKey>): void => {
   localStorage.setItem(namespace + key, JSON.stringify(value));
 };
 
