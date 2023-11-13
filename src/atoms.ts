@@ -1,11 +1,14 @@
 import { atom, createStore } from "jotai";
 import { MidiData, PlayingState } from "./model/types";
 import { RendererState, renderers } from "./model/render";
-import { StorageKey, get, set } from "./storage";
+import { StorageKey, StorageValue, get, set } from "./storage";
 
 const subscribeFns: ((store: ReturnType<typeof createStore>) => void)[] = [];
-const atomWithStorage = (key: StorageKey) => {
-  const a = atom(get(key));
+const atomWithStorage = (
+  key: StorageKey,
+  defaultValue: StorageValue<StorageKey>,
+) => {
+  const a = atom(get(key, defaultValue));
   subscribeFns.push((store) => {
     store.sub(a, () => {
       set(key, store.get(a));
@@ -20,9 +23,9 @@ export const createStoreWithStorage = () => {
   }
   return store;
 };
-export const midiOffsetAtom = atomWithStorage("midiOffset");
-export const opacityAtom = atomWithStorage("opacity");
-export const volumeAtom = atomWithStorage("volume");
+export const midiOffsetAtom = atomWithStorage("midiOffset", 0);
+export const opacityAtom = atomWithStorage("opacity", 0.6);
+export const volumeAtom = atomWithStorage("volume", 1);
 export const imageUrlAtom = atom<string | null>(null);
 export const imageSizeAtom = atom({
   width: 512,

@@ -19,7 +19,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typed-css-modules": "^0.8.0",
-    "zod": "^3.22.4"
+    "valibot": "^0.20.1"
   },
   "devDependencies": {
     "@testing-library/dom": "^9.3.1",
