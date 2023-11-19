@@ -58,8 +58,8 @@ export const renderers: RendererInfo[] = [
     url: `${window.location.origin}/renderer/default.mjs`,
   },
   {
-    name: "Vertical",
-    url: `${window.location.origin}/renderer/vertical.mjs`,
+    name: "Bubble",
+    url: `${window.location.origin}/renderer/bubble.mjs`,
   },
 ];
 export function importRendererModule(url: string): Promise<RendererModule> {
