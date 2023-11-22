@@ -61,6 +61,10 @@ export const renderers: RendererInfo[] = [
     name: "Bubble",
     url: `${window.location.origin}/renderer/bubble.mjs`,
   },
+  {
+    name: "Arch",
+    url: `${window.location.origin}/renderer/arch.mjs`,
+  },
 ];
 export function importRendererModule(url: string): Promise<RendererModule> {
   return import(url) as Promise<RendererModule>;
