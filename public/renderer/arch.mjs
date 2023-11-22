@@ -1,4 +1,9 @@
-import { setAttributes, setStyles, createSvgElement } from "./util.mjs";
+import {
+  setAttributes,
+  setStyles,
+  createSvgElement,
+  calcEnvelope,
+} from "./util.mjs";
 
 export const config = {
   props: [
@@ -83,13 +88,25 @@ function calculateNote({
     ["stroke-width"]: x < size.width / 2 ? 0 : 1,
     stroke: x < size.width / 2 ? `transparent` : `hsl(${hue}, 20%, 50%)`,
   };
+  const lineLength =
+    calcEnvelope({
+      base: 0,
+      peak: 1,
+      active: 1,
+      end: 0,
+      decaySec: 0.2,
+      releaseSec: 0.5,
+      fromSec: note.fromSec,
+      toSec: note.toSec,
+      elapsedSec,
+    }) * 50;
   const line =
-    x > size.width / 2
+    lineLength < 0.1
       ? null
       : {
-          x1: x,
+          x1: size.width / 2,
           y1: cy,
-          x2: x + width < size.width / 2 ? x + width : size.width / 2,
+          x2: size.width / 2 - lineLength,
           y2: cy,
           stroke: `hsl(${hue}, 20%, 50%)`,
           ["stroke-width"]: r * 2,
