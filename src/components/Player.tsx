@@ -153,7 +153,7 @@ export const Player = () => {
   ]);
 
   return (
-    <div style={{ width: size.width }}>
+    <div style={{ width: size.width, marginLeft: "auto", marginRight: "auto" }}>
       <Display onMount={setDisplayApi} size={size} imageUrl={imageUrl} />
       <SmartSeekBar
         playingState={playingState}
