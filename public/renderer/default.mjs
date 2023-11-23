@@ -5,6 +5,7 @@ import {
   createSvgElement,
   calcEnvelope,
   flipSize,
+  flipLine,
 } from "./util.mjs";
 
 export const config = {
