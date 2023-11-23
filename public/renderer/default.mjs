@@ -130,6 +130,7 @@ function calculateBarForLandscape({ size }) {
     stroke: "#aaa",
   };
 }
+
 function calculateBar({ size, vertical }) {
   const barPatch = calculateBarForLandscape({
     size: vertical ? flipSize(size) : size,
@@ -198,6 +199,7 @@ function calculateNoteForLandscape({
     ended: line.x2 < 0,
   };
 }
+
 function calculateNote({ size, vertical, ...restParams }) {
   const { line, ...rest } = calculateNoteForLandscape({
     size: vertical ? flipSize(size) : size,

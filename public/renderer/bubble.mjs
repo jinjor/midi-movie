@@ -122,7 +122,7 @@ export const config = {
   ],
 };
 
-function calculateBar({ size }) {
+function calculateBarForLandscape({ size }) {
   return {
     x1: size.width / 2,
     x2: size.width / 2,
@@ -133,7 +133,14 @@ function calculateBar({ size }) {
   };
 }
 
-function calculateNote({
+function calculateBar({ size, vertical }) {
+  const barPatch = calculateBarForLandscape({
+    size: vertical ? flipSize(size) : size,
+  });
+  return vertical ? flipLine(barPatch, size) : barPatch;
+}
+
+function calculateNoteForLandscape({
   size,
   note,
   elapsedSec,
@@ -218,6 +225,18 @@ function calculateNote({
   };
 }
 
+function calculateNote({ size, vertical, ...restParams }) {
+  const { circle, line, ...rest } = calculateNoteForLandscape({
+    size: vertical ? flipSize(size) : size,
+    ...restParams,
+  });
+  return {
+    circle: vertical ? flipCircle(circle, size) : circle,
+    line: vertical ? flipLine(line, size) : line,
+    ...rest,
+  };
+}
+
 export function init(svg, { size, notes }) {
   const bar = createSvgElement("line");
   setAttributes(bar, {
@@ -241,10 +260,9 @@ export function update(
   svg,
   { notes, size, enabledTracks, elapsedSec, customProps, playing },
 ) {
-  const vertical = customProps.vertical > 0;
   const bar = svg.getElementById("bar");
-  const barPatch = calculateBar({ size: vertical ? flipSize(size) : size });
-  setAttributes(bar, vertical ? flipLine(barPatch, size) : barPatch);
+  const barPatch = calculateBar({ size, ...customProps });
+  setAttributes(bar, barPatch);
 
   const groups = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
@@ -260,7 +278,7 @@ export function update(
       ended,
       started,
     } = calculateNote({
-      size: vertical ? flipSize(size) : size,
+      size,
       note,
       elapsedSec,
       ...customProps,
@@ -279,10 +297,7 @@ export function update(
     };
     setStyles(circle, stylePatch);
     setStyles(line, stylePatch);
-    setAttributes(
-      circle,
-      vertical ? flipCircle(circlePatch, size) : circlePatch,
-    );
-    setAttributes(line, vertical ? flipLine(linePatch, size) : linePatch);
+    setAttributes(circle, circlePatch);
+    setAttributes(line, linePatch);
   }
 }
