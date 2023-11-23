@@ -1,6 +1,7 @@
 import {
   setAttributes,
   setStyles,
+  getStyle,
   createSvgElement,
   calcEnvelope,
 } from "./util.mjs";
@@ -52,6 +53,15 @@ export const config = {
       step: 5,
       defaultValue: 240,
     },
+    {
+      id: "thickness",
+      name: "Thickness",
+      type: "number",
+      min: 0,
+      max: 1,
+      step: 0.1,
+      defaultValue: 0.6,
+    },
   ],
 };
 
@@ -64,55 +74,67 @@ function calculateNote({
   timeRangeSec,
   minHue,
   maxHue,
+  thickness,
 }) {
-  const fullHeightPerNote = size.height / (maxNote - minNote);
-  const widthPerSec = size.width / timeRangeSec;
+  const padding = 50;
+  const centerX = size.width / 2;
+  const centerY = size.height - padding;
+  const rangeAngle = Math.PI;
+  const midAngle = Math.PI * 1.5;
+  const minAngle = midAngle - rangeAngle / 2;
+  const maxBarLength = 50;
+  const archRadius = size.height - padding * 2 - maxBarLength;
+
+  const noteAngle =
+    ((note.noteNumber - minNote) / (maxNote - minNote)) * rangeAngle + minAngle;
+  const edgeX = centerX + Math.cos(noteAngle) * archRadius;
+  const edgeY = centerY + Math.sin(noteAngle) * archRadius;
+
+  const barWidth =
+    ((archRadius * rangeAngle) / (maxNote - minNote)) * thickness;
+  const circleRadius = barWidth / 2;
+  const distancePerSec = archRadius / timeRangeSec;
   const hue =
     ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
     minHue;
-  const x = (note.fromSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
-  const cy =
-    size.height - (note.noteNumber - minNote - 0.5) * fullHeightPerNote;
-  const width = (note.toSec - note.fromSec) * widthPerSec;
-  const r = fullHeightPerNote / 2;
+  const distance =
+    (timeRangeSec - (note.fromSec - elapsedSec)) * distancePerSec;
+  const circleX = centerX + Math.cos(noteAngle) * distance;
+  const circleY = centerY + Math.sin(noteAngle) * distance;
   const circle = {
-    cx: x > size.width / 2 ? x : size.width / 2,
-    cy,
-    r,
+    cx: circleX,
+    cy: circleY,
+    r: circleRadius,
     fill:
-      x + width < size.width / 2
+      distance < 0 || distance > archRadius
         ? "transparent"
-        : x < size.width / 2
-        ? `hsl(${hue}, 20%, 50%)`
-        : `transparent`,
-    ["stroke-width"]: x < size.width / 2 ? 0 : 1,
-    stroke: x < size.width / 2 ? `transparent` : `hsl(${hue}, 20%, 50%)`,
+        : `hsl(${hue}, 20%, 50%)`,
   };
-  const lineLength =
+  const barLength =
     calcEnvelope({
       base: 0,
       peak: 1,
-      active: 1,
+      active: 0.8,
       end: 0,
       decaySec: 0.2,
       releaseSec: 0.5,
       fromSec: note.fromSec,
       toSec: note.toSec,
       elapsedSec,
-    }) * 50;
-  const line =
-    lineLength < 0.1
-      ? null
-      : {
-          x1: size.width / 2,
-          y1: cy,
-          x2: size.width / 2 - lineLength,
-          y2: cy,
-          stroke: `hsl(${hue}, 20%, 50%)`,
-          ["stroke-width"]: r * 2,
-          ["stroke-linecap"]: "round",
-        };
-  return { circle, line };
+    }) * maxBarLength;
+
+  const barEndX = centerX + Math.cos(noteAngle) * (archRadius + barLength);
+  const barEndY = centerY + Math.sin(noteAngle) * (archRadius + barLength);
+  const line = {
+    x1: edgeX,
+    y1: edgeY,
+    x2: barEndX,
+    y2: barEndY,
+    stroke: barLength < 1 ? "transparent" : `hsl(${hue}, 20%, 50%)`,
+    ["stroke-width"]: barWidth,
+    ["stroke-linecap"]: "round",
+  };
+  return { circle, line, end: elapsedSec > note.toSec && barLength < 1 };
 }
 
 export function init(svg, { size, notes }) {
@@ -133,23 +155,28 @@ export function update(
   svg,
   { notes, size, enabledTracks, elapsedSec, customProps, playing },
 ) {
-  const { minNote, maxNote, minHue, maxHue, timeRangeSec } = customProps;
+  const { minNote, maxNote, minHue, maxHue, thickness, timeRangeSec } =
+    customProps;
 
   const groups = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
-    if (note.noteNumber < minNote || note.noteNumber > maxNote) {
-      continue;
-    }
     const group = groups[index];
     const line = group.children[0];
     const circle = group.children[1];
-    if (
-      playing &&
-      line.getAttribute("x2") + line.getAttribute("stroke-width") < 0
-    ) {
+    if (playing && getStyle(group, "display") === "none") {
       continue;
     }
-    const { circle: circlePatch, line: linePatch } = calculateNote({
+    if (note.noteNumber < minNote || note.noteNumber > maxNote) {
+      setStyles(group, {
+        display: "none",
+      });
+      continue;
+    }
+    const {
+      circle: circlePatch,
+      line: linePatch,
+      end,
+    } = calculateNote({
       size,
       note,
       elapsedSec,
@@ -158,8 +185,12 @@ export function update(
       timeRangeSec,
       minHue,
       maxHue,
+      thickness,
     });
-    if (playing && circlePatch && circlePatch.x - circlePatch.r > size.width) {
+    if (playing && end) {
+      setStyles(group, {
+        display: "none",
+      });
       continue;
     }
     const stylePatch = {
