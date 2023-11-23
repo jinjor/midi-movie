@@ -67,5 +67,5 @@ export const renderers: RendererInfo[] = [
   },
 ];
 export function importRendererModule(url: string): Promise<RendererModule> {
-  return import(url) as Promise<RendererModule>;
+  return import(/* @vite-ignore */ url) as Promise<RendererModule>;
 }
