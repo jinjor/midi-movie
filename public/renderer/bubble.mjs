@@ -241,20 +241,7 @@ export function update(
   svg,
   { notes, size, enabledTracks, elapsedSec, customProps, playing },
 ) {
-  const {
-    minNote,
-    maxNote,
-    minHue,
-    maxHue,
-    timeRangeSec,
-    beforeLightness,
-    peakLightness,
-    afterLightness,
-    beforeThickness,
-    peakThickness,
-    afterThickness,
-    vertical,
-  } = customProps;
+  const vertical = customProps.vertical > 0;
   const bar = svg.getElementById("bar");
   const barPatch = calculateBar({ size: vertical ? flipSize(size) : size });
   setAttributes(bar, vertical ? flipLine(barPatch, size) : barPatch);
@@ -276,17 +263,7 @@ export function update(
       size: vertical ? flipSize(size) : size,
       note,
       elapsedSec,
-      minNote,
-      maxNote,
-      timeRangeSec,
-      minHue,
-      maxHue,
-      beforeLightness,
-      peakLightness,
-      afterLightness,
-      beforeThickness,
-      peakThickness,
-      afterThickness,
+      ...customProps,
     });
     if (playing && ended) {
       setStyles(group, {
