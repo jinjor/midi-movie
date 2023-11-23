@@ -1,5 +1,6 @@
 import {
   setAttributes,
+  getStyle,
   setStyles,
   createSvgElement,
   calcEnvelope,
@@ -179,12 +180,18 @@ function calculateNote({
     (note.noteNumber - minNote - 0.5 + thickness / 2) * fullHeightPerNote;
   const width = (note.toSec - note.fromSec) * widthPerSec;
   const height = fullHeightPerNote * thickness;
-  return {
+
+  const rect = {
     x,
     y,
     width,
     height,
     fill: `hsl(${hue}, 20%, ${lightness}%)`,
+  };
+  return {
+    rect,
+    started: rect.x <= size.width,
+    ended: rect.x + rect.width < 0,
   };
 }
 
@@ -195,11 +202,13 @@ export function init(svg, { size, notes }) {
   });
   svg.appendChild(bar);
   for (const _note of notes) {
+    const g = createSvgElement("g");
     const rect = createSvgElement("rect");
-    setAttributes(rect, {
+    g.appendChild(rect);
+    setAttributes(g, {
       class: "note",
     });
-    svg.appendChild(rect);
+    svg.appendChild(g);
   }
 }
 
@@ -225,18 +234,18 @@ export function update(
   const barPatch = calculateBar({ size: vertical ? flipSize(size) : size });
   setAttributes(bar, vertical ? flipRect(barPatch, size) : barPatch);
 
-  const rects = svg.querySelectorAll(".note");
+  const groups = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
-    const rect = rects[index];
-    if (
-      playing &&
-      (vertical
-        ? rect.getAttribute("y") > size.height
-        : rect.getAttribute("x") + rect.getAttribute("width") < 0)
-    ) {
+    const group = groups[index];
+    const rect = group.children[0];
+    if (playing && getStyle(group, "display") === "none") {
       continue;
     }
-    const patch = calculateNote({
+    const {
+      rect: rectPatch,
+      started,
+      ended,
+    } = calculateNote({
       size: vertical ? flipSize(size) : size,
       note,
       elapsedSec,
@@ -254,13 +263,19 @@ export function update(
       decaySec: 0.2,
       releaseSec: 0.4,
     });
-    if (playing && patch.x > size.width) {
+    if (playing && ended) {
+      setStyles(group, {
+        display: "none",
+      });
+      continue;
+    }
+    if (playing && !started) {
       continue;
     }
     const stylePatch = {
       display: !enabledTracks[note.trackIndex] ? "none" : "block",
     };
     setStyles(rect, stylePatch);
-    setAttributes(rect, vertical ? flipRect(patch, size) : patch);
+    setAttributes(rect, vertical ? flipRect(rectPatch, size) : rectPatch);
   }
 }
