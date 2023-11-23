@@ -149,7 +149,7 @@ function calculateNote({
   decaySec,
   releaseSec,
 }) {
-  const fullHeightPerNote = size.height / (maxNote - minNote);
+  const fullHeightPerNote = size.height / (maxNote - minNote + 1);
   const widthPerSec = size.width / timeRangeSec;
   const hue =
     ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
@@ -174,24 +174,22 @@ function calculateNote({
     toSec: note.toSec,
     elapsedSec,
   });
-  const x = (note.fromSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
-  const y =
-    size.height -
-    (note.noteNumber - minNote - 0.5 + thickness / 2) * fullHeightPerNote;
-  const width = (note.toSec - note.fromSec) * widthPerSec;
-  const height = fullHeightPerNote * thickness;
-
-  const rect = {
-    x,
-    y,
-    width,
-    height,
-    fill: `hsl(${hue}, 20%, ${lightness}%)`,
+  const x1 = (note.fromSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
+  const x2 = (note.toSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
+  const y = size.height - (note.noteNumber - minNote) * fullHeightPerNote;
+  const strokeWidth = fullHeightPerNote * thickness;
+  const line = {
+    x1,
+    x2,
+    y1: y,
+    y2: y,
+    ["stroke-width"]: strokeWidth,
+    stroke: `hsl(${hue}, 20%, ${lightness}%)`,
   };
   return {
-    rect,
-    started: rect.x <= size.width,
-    ended: rect.x + rect.width < 0,
+    line,
+    started: line.x1 <= size.width,
+    ended: line.x2 < 0,
   };
 }
 
@@ -203,8 +201,8 @@ export function init(svg, { size, notes }) {
   svg.appendChild(bar);
   for (const _note of notes) {
     const g = createSvgElement("g");
-    const rect = createSvgElement("rect");
-    g.appendChild(rect);
+    const line = createSvgElement("line");
+    g.appendChild(line);
     setAttributes(g, {
       class: "note",
     });
@@ -237,12 +235,12 @@ export function update(
   const groups = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
     const group = groups[index];
-    const rect = group.children[0];
+    const line = group.children[0];
     if (playing && getStyle(group, "display") === "none") {
       continue;
     }
     const {
-      rect: rectPatch,
+      line: linePatch,
       started,
       ended,
     } = calculateNote({
@@ -275,7 +273,7 @@ export function update(
     const stylePatch = {
       display: !enabledTracks[note.trackIndex] ? "none" : "block",
     };
-    setStyles(rect, stylePatch);
-    setAttributes(rect, vertical ? flipRect(rectPatch, size) : rectPatch);
+    setStyles(line, stylePatch);
+    setAttributes(line, vertical ? flipLine(linePatch, size) : linePatch);
   }
 }
