@@ -5,7 +5,6 @@ import {
   createSvgElement,
   calcQuadraticEnvelope,
   flipSize,
-  flipRect,
   flipCircle,
   flipLine,
 } from "./util.mjs";
@@ -125,11 +124,12 @@ export const config = {
 
 function calculateBar({ size }) {
   return {
-    x: size.width / 2,
-    y: 0,
-    width: 0.5,
-    height: size.height,
-    fill: "#aaa",
+    x1: size.width / 2,
+    x2: size.width / 2,
+    y1: 0,
+    y2: size.height,
+    ["stroke-width"]: 0.5,
+    stroke: "#aaa",
   };
 }
 
@@ -219,7 +219,7 @@ function calculateNote({
 }
 
 export function init(svg, { size, notes }) {
-  const bar = createSvgElement("rect");
+  const bar = createSvgElement("line");
   setAttributes(bar, {
     id: "bar",
   });
@@ -257,7 +257,7 @@ export function update(
   } = customProps;
   const bar = svg.getElementById("bar");
   const barPatch = calculateBar({ size: vertical ? flipSize(size) : size });
-  setAttributes(bar, vertical ? flipRect(barPatch, size) : barPatch);
+  setAttributes(bar, vertical ? flipLine(barPatch, size) : barPatch);
 
   const groups = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
