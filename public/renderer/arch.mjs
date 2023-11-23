@@ -162,9 +162,6 @@ export function update(
   svg,
   { notes, size, enabledTracks, elapsedSec, customProps, playing },
 ) {
-  const { minNote, maxNote, minHue, maxHue, thickness, timeRangeSec } =
-    customProps;
-
   const groups = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
     const group = groups[index];
@@ -182,12 +179,7 @@ export function update(
       size,
       note,
       elapsedSec,
-      minNote,
-      maxNote,
-      timeRangeSec,
-      minHue,
-      maxHue,
-      thickness,
+      ...customProps,
     });
     if (playing && ended) {
       setStyles(group, {

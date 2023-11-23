@@ -5,6 +5,7 @@ import {
   createSvgElement,
   calcEnvelope,
   flipSize,
+  flipLine,
 } from "./util.mjs";
 
 export const config = {
@@ -120,7 +121,7 @@ export const config = {
   ],
 };
 
-function calculateBar({ size }) {
+function calculateBarForLandscape({ size }) {
   return {
     x1: size.width / 2,
     x2: size.width / 2,
@@ -131,7 +132,14 @@ function calculateBar({ size }) {
   };
 }
 
-function calculateNote({
+function calculateBar({ size, vertical }) {
+  const barPatch = calculateBarForLandscape({
+    size: vertical ? flipSize(size) : size,
+  });
+  return vertical ? flipLine(barPatch, size) : barPatch;
+}
+
+function calculateNoteForLandscape({
   size,
   note,
   elapsedSec,
@@ -146,9 +154,9 @@ function calculateNote({
   baseThickness,
   peakThickness,
   activeThickness,
-  decaySec,
-  releaseSec,
 }) {
+  const decaySec = 0.2;
+  const releaseSec = 0.4;
   const fullHeightPerNote = size.height / (maxNote - minNote + 1);
   const widthPerSec = size.width / timeRangeSec;
   const hue =
@@ -193,6 +201,14 @@ function calculateNote({
   };
 }
 
+function calculateNote({ size, vertical, ...restParams }) {
+  const { line, ...rest } = calculateNoteForLandscape({
+    size: vertical ? flipSize(size) : size,
+    ...restParams,
+  });
+  return { line: vertical ? flipLine(line, size) : line, ...rest };
+}
+
 export function init(svg, { size, notes }) {
   const bar = createSvgElement("line");
   setAttributes(bar, {
@@ -214,23 +230,9 @@ export function update(
   svg,
   { notes, size, enabledTracks, elapsedSec, customProps, playing },
 ) {
-  const {
-    minNote,
-    maxNote,
-    minHue,
-    maxHue,
-    timeRangeSec,
-    baseLightness,
-    peakLightness,
-    activeLightness,
-    baseThickness,
-    peakThickness,
-    activeThickness,
-    vertical,
-  } = customProps;
   const bar = svg.getElementById("bar");
-  const barPatch = calculateBar({ size: vertical ? flipSize(size) : size });
-  setAttributes(bar, vertical ? flipLine(barPatch, size) : barPatch);
+  const barPatch = calculateBar({ size, ...customProps });
+  setAttributes(bar, barPatch);
 
   const groups = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
@@ -244,22 +246,10 @@ export function update(
       started,
       ended,
     } = calculateNote({
-      size: vertical ? flipSize(size) : size,
+      size,
       note,
       elapsedSec,
-      minNote,
-      maxNote,
-      timeRangeSec,
-      minHue,
-      maxHue,
-      baseLightness,
-      peakLightness,
-      activeLightness,
-      baseThickness,
-      peakThickness,
-      activeThickness,
-      decaySec: 0.2,
-      releaseSec: 0.4,
+      ...customProps,
     });
     if (playing && ended) {
       setStyles(group, {
@@ -274,6 +264,6 @@ export function update(
       display: !enabledTracks[note.trackIndex] ? "none" : "block",
     };
     setStyles(line, stylePatch);
-    setAttributes(line, vertical ? flipLine(linePatch, size) : linePatch);
+    setAttributes(line, linePatch);
   }
 }
