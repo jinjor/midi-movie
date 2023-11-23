@@ -76,6 +76,7 @@ function calculateNote({
   maxHue,
   thickness,
 }) {
+  const outOfNoteRange = note.noteNumber < minNote || note.noteNumber > maxNote;
   const padding = 50;
   const centerX = size.width / 2;
   const centerY = size.height - padding;
@@ -106,7 +107,7 @@ function calculateNote({
     cy: circleY,
     r: circleRadius,
     fill:
-      distance < 0 || distance > archRadius
+      outOfNoteRange || distance < 0 || distance > archRadius
         ? "transparent"
         : `hsl(${hue}, 20%, 50%)`,
   };
@@ -130,11 +131,17 @@ function calculateNote({
     y1: edgeY,
     x2: barEndX,
     y2: barEndY,
-    stroke: barLength < 1 ? "transparent" : `hsl(${hue}, 20%, 50%)`,
+    stroke:
+      outOfNoteRange || barLength < 1 ? "transparent" : `hsl(${hue}, 20%, 50%)`,
     ["stroke-width"]: barWidth,
     ["stroke-linecap"]: "round",
   };
-  return { circle, line, end: elapsedSec > note.toSec && barLength < 1 };
+  return {
+    circle,
+    line,
+    ended: elapsedSec > note.toSec && barLength < 1,
+    started: elapsedSec >= note.fromSec - timeRangeSec,
+  };
 }
 
 export function init(svg, { size, notes }) {
@@ -166,16 +173,11 @@ export function update(
     if (playing && getStyle(group, "display") === "none") {
       continue;
     }
-    if (note.noteNumber < minNote || note.noteNumber > maxNote) {
-      setStyles(group, {
-        display: "none",
-      });
-      continue;
-    }
     const {
       circle: circlePatch,
       line: linePatch,
-      end,
+      ended,
+      started,
     } = calculateNote({
       size,
       note,
@@ -187,10 +189,13 @@ export function update(
       maxHue,
       thickness,
     });
-    if (playing && end) {
+    if (playing && ended) {
       setStyles(group, {
         display: "none",
       });
+      continue;
+    }
+    if (playing && !started) {
       continue;
     }
     const stylePatch = {

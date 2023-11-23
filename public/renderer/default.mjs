@@ -1,10 +1,10 @@
 import {
   setAttributes,
+  getStyle,
   setStyles,
   createSvgElement,
   calcEnvelope,
   flipSize,
-  flipRect,
 } from "./util.mjs";
 
 export const config = {
@@ -122,11 +122,12 @@ export const config = {
 
 function calculateBar({ size }) {
   return {
-    x: size.width / 2,
-    y: 0,
-    width: 0.5,
-    height: size.height,
-    fill: "#aaa",
+    x1: size.width / 2,
+    x2: size.width / 2,
+    y1: 0,
+    y2: size.height,
+    ["stroke-width"]: 0.5,
+    stroke: "#aaa",
   };
 }
 
@@ -148,7 +149,7 @@ function calculateNote({
   decaySec,
   releaseSec,
 }) {
-  const fullHeightPerNote = size.height / (maxNote - minNote);
+  const fullHeightPerNote = size.height / (maxNote - minNote + 1);
   const widthPerSec = size.width / timeRangeSec;
   const hue =
     ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
@@ -173,33 +174,39 @@ function calculateNote({
     toSec: note.toSec,
     elapsedSec,
   });
-  const x = (note.fromSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
-  const y =
-    size.height -
-    (note.noteNumber - minNote - 0.5 + thickness / 2) * fullHeightPerNote;
-  const width = (note.toSec - note.fromSec) * widthPerSec;
-  const height = fullHeightPerNote * thickness;
+  const x1 = (note.fromSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
+  const x2 = (note.toSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
+  const y = size.height - (note.noteNumber - minNote) * fullHeightPerNote;
+  const strokeWidth = fullHeightPerNote * thickness;
+  const line = {
+    x1,
+    x2,
+    y1: y,
+    y2: y,
+    ["stroke-width"]: strokeWidth,
+    stroke: `hsl(${hue}, 20%, ${lightness}%)`,
+  };
   return {
-    x,
-    y,
-    width,
-    height,
-    fill: `hsl(${hue}, 20%, ${lightness}%)`,
+    line,
+    started: line.x1 <= size.width,
+    ended: line.x2 < 0,
   };
 }
 
 export function init(svg, { size, notes }) {
-  const bar = createSvgElement("rect");
+  const bar = createSvgElement("line");
   setAttributes(bar, {
     id: "bar",
   });
   svg.appendChild(bar);
   for (const _note of notes) {
-    const rect = createSvgElement("rect");
-    setAttributes(rect, {
+    const g = createSvgElement("g");
+    const line = createSvgElement("line");
+    g.appendChild(line);
+    setAttributes(g, {
       class: "note",
     });
-    svg.appendChild(rect);
+    svg.appendChild(g);
   }
 }
 
@@ -223,20 +230,20 @@ export function update(
   } = customProps;
   const bar = svg.getElementById("bar");
   const barPatch = calculateBar({ size: vertical ? flipSize(size) : size });
-  setAttributes(bar, vertical ? flipRect(barPatch, size) : barPatch);
+  setAttributes(bar, vertical ? flipLine(barPatch, size) : barPatch);
 
-  const rects = svg.querySelectorAll(".note");
+  const groups = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
-    const rect = rects[index];
-    if (
-      playing &&
-      (vertical
-        ? rect.getAttribute("y") > size.height
-        : rect.getAttribute("x") + rect.getAttribute("width") < 0)
-    ) {
+    const group = groups[index];
+    const line = group.children[0];
+    if (playing && getStyle(group, "display") === "none") {
       continue;
     }
-    const patch = calculateNote({
+    const {
+      line: linePatch,
+      started,
+      ended,
+    } = calculateNote({
       size: vertical ? flipSize(size) : size,
       note,
       elapsedSec,
@@ -254,13 +261,19 @@ export function update(
       decaySec: 0.2,
       releaseSec: 0.4,
     });
-    if (playing && patch.x > size.width) {
+    if (playing && ended) {
+      setStyles(group, {
+        display: "none",
+      });
+      continue;
+    }
+    if (playing && !started) {
       continue;
     }
     const stylePatch = {
       display: !enabledTracks[note.trackIndex] ? "none" : "block",
     };
-    setStyles(rect, stylePatch);
-    setAttributes(rect, vertical ? flipRect(patch, size) : patch);
+    setStyles(line, stylePatch);
+    setAttributes(line, vertical ? flipLine(linePatch, size) : linePatch);
   }
 }
