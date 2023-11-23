@@ -120,7 +120,7 @@ export const config = {
   ],
 };
 
-function calculateBar({ size }) {
+function calculateBarForLandscape({ size }) {
   return {
     x1: size.width / 2,
     x2: size.width / 2,
@@ -130,8 +130,14 @@ function calculateBar({ size }) {
     stroke: "#aaa",
   };
 }
+function calculateBar({ size, vertical }) {
+  const barPatch = calculateBarForLandscape({
+    size: vertical ? flipSize(size) : size,
+  });
+  return vertical ? flipLine(barPatch, size) : barPatch;
+}
 
-function calculateNote({
+function calculateNoteForLandscape({
   size,
   note,
   elapsedSec,
@@ -146,9 +152,9 @@ function calculateNote({
   baseThickness,
   peakThickness,
   activeThickness,
-  decaySec,
-  releaseSec,
 }) {
+  const decaySec = 0.2;
+  const releaseSec = 0.4;
   const fullHeightPerNote = size.height / (maxNote - minNote + 1);
   const widthPerSec = size.width / timeRangeSec;
   const hue =
@@ -192,6 +198,13 @@ function calculateNote({
     ended: line.x2 < 0,
   };
 }
+function calculateNote({ size, vertical, ...restParams }) {
+  const { line, ...rest } = calculateNoteForLandscape({
+    size: vertical ? flipSize(size) : size,
+    ...restParams,
+  });
+  return { line: vertical ? flipLine(line, size) : line, ...rest };
+}
 
 export function init(svg, { size, notes }) {
   const bar = createSvgElement("line");
@@ -214,10 +227,9 @@ export function update(
   svg,
   { notes, size, enabledTracks, elapsedSec, customProps, playing },
 ) {
-  const vertical = customProps.vertical > 0;
   const bar = svg.getElementById("bar");
-  const barPatch = calculateBar({ size: vertical ? flipSize(size) : size });
-  setAttributes(bar, vertical ? flipLine(barPatch, size) : barPatch);
+  const barPatch = calculateBar({ size, ...customProps });
+  setAttributes(bar, barPatch);
 
   const groups = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
@@ -231,12 +243,10 @@ export function update(
       started,
       ended,
     } = calculateNote({
-      size: vertical ? flipSize(size) : size,
+      size,
       note,
       elapsedSec,
       ...customProps,
-      decaySec: 0.2,
-      releaseSec: 0.4,
     });
     if (playing && ended) {
       setStyles(group, {
@@ -251,6 +261,6 @@ export function update(
       display: !enabledTracks[note.trackIndex] ? "none" : "block",
     };
     setStyles(line, stylePatch);
-    setAttributes(line, vertical ? flipLine(linePatch, size) : linePatch);
+    setAttributes(line, linePatch);
   }
 }
