@@ -1,5 +1,6 @@
 import {
   setAttributes,
+  getStyle,
   setStyles,
   createSvgElement,
   calcQuadraticEnvelope,
@@ -148,6 +149,7 @@ function calculateNote({
   peakThickness,
   afterThickness,
 }) {
+  const outOfNoteRange = note.noteNumber < minNote || note.noteNumber > maxNote;
   const fullHeightPerNote = size.height / (maxNote - minNote);
   const widthPerSec = size.width / timeRangeSec;
   const hue =
@@ -187,28 +189,33 @@ function calculateNote({
     cy,
     r,
     fill:
-      x + width < size.width / 2
+      outOfNoteRange || x + width < size.width / 2 || x > size.width / 2
         ? "transparent"
-        : x < size.width / 2
-        ? `hsl(${hue}, 20%, ${lightness}%)`
-        : `transparent`,
+        : `hsl(${hue}, 20%, ${lightness}%)`,
     ["stroke-width"]: x < size.width / 2 ? 0 : 1,
     stroke:
-      x < size.width / 2 ? `transparent` : `hsl(${hue}, 20%, ${lightness}%)`,
+      outOfNoteRange || x < size.width / 2
+        ? `transparent`
+        : `hsl(${hue}, 20%, ${lightness}%)`,
   };
-  const line =
-    x > size.width / 2
-      ? null
-      : {
-          x1: x,
-          y1: cy,
-          x2: x + width < size.width / 2 ? x + width : size.width / 2,
-          y2: cy,
-          stroke: `hsl(${hue}, 20%, ${afterLightness}%)`,
-          ["stroke-width"]: r * 2,
-          ["stroke-linecap"]: "round",
-        };
-  return { circle, line };
+  const line = {
+    x1: x,
+    y1: cy,
+    x2: x + width < size.width / 2 ? x + width : size.width / 2,
+    y2: cy,
+    stroke:
+      outOfNoteRange || x > size.width / 2
+        ? "transparent"
+        : `hsl(${hue}, 20%, ${afterLightness}%)`,
+    ["stroke-width"]: r * 2,
+    ["stroke-linecap"]: "round",
+  };
+  return {
+    circle,
+    line,
+    ended: line.x2 + r < 0,
+    started: circle.cx - r <= size.width,
+  };
 }
 
 export function init(svg, { size, notes }) {
@@ -254,22 +261,18 @@ export function update(
 
   const groups = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
-    if (note.noteNumber < minNote || note.noteNumber > maxNote) {
-      continue;
-    }
     const group = groups[index];
     const line = group.children[0];
     const circle = group.children[1];
-    if (
-      playing &&
-      (vertical
-        ? line.getAttribute("y2") - line.getAttribute("stroke-width") >
-          size.height
-        : line.getAttribute("x2") + line.getAttribute("stroke-width") < 0)
-    ) {
+    if (playing && getStyle(group, "display") === "none") {
       continue;
     }
-    const { circle: circlePatch, line: linePatch } = calculateNote({
+    const {
+      circle: circlePatch,
+      line: linePatch,
+      ended,
+      started,
+    } = calculateNote({
       size: vertical ? flipSize(size) : size,
       note,
       elapsedSec,
@@ -285,7 +288,13 @@ export function update(
       peakThickness,
       afterThickness,
     });
-    if (playing && circlePatch && circlePatch.x - circlePatch.r > size.width) {
+    if (playing && ended) {
+      setStyles(group, {
+        display: "none",
+      });
+      continue;
+    }
+    if (playing && !started) {
       continue;
     }
     const stylePatch = {
@@ -293,12 +302,10 @@ export function update(
     };
     setStyles(circle, stylePatch);
     setStyles(line, stylePatch);
-    circlePatch &&
-      setAttributes(
-        circle,
-        vertical ? flipCircle(circlePatch, size) : circlePatch,
-      );
-    linePatch &&
-      setAttributes(line, vertical ? flipLine(linePatch, size) : linePatch);
+    setAttributes(
+      circle,
+      vertical ? flipCircle(circlePatch, size) : circlePatch,
+    );
+    setAttributes(line, vertical ? flipLine(linePatch, size) : linePatch);
   }
 }
