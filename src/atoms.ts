@@ -4,9 +4,9 @@ import { RendererState, renderers } from "./model/render";
 import { StorageKey, StorageValue, get, set } from "./storage";
 
 const subscribeFns: ((store: ReturnType<typeof createStore>) => void)[] = [];
-const atomWithStorage = (
-  key: StorageKey,
-  defaultValue: StorageValue<StorageKey>,
+const atomWithStorage = <K extends StorageKey>(
+  key: K,
+  defaultValue: StorageValue<K>,
 ) => {
   const a = atom(get(key, defaultValue));
   subscribeFns.push((store) => {

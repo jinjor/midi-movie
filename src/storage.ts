@@ -9,10 +9,10 @@ const schemas = {
 type Schemas = typeof schemas;
 export type StorageKey = keyof Schemas;
 export type StorageValue<K extends StorageKey> = Output<Schemas[K]>;
-export const get = (
-  key: StorageKey,
-  defaultValue: StorageValue<StorageKey>,
-): StorageValue<StorageKey> => {
+export const get = <K extends StorageKey>(
+  key: K,
+  defaultValue: StorageValue<K>,
+): StorageValue<K> => {
   try {
     const item = localStorage.getItem(namespace + key);
     return parse(schemas[key], item == null ? undefined : JSON.parse(item));
@@ -22,7 +22,10 @@ export const get = (
     return defaultValue;
   }
 };
-export const set = (key: StorageKey, value: StorageValue<StorageKey>): void => {
+export const set = <K extends StorageKey>(
+  key: K,
+  value: StorageValue<K>,
+): void => {
   localStorage.setItem(namespace + key, JSON.stringify(value));
 };
 
