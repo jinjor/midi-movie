@@ -21,8 +21,8 @@ test("should show App", () => {
   expect(getTotalRenderCount("App")).toBe(1);
   expect(getMountCount("Tracks")).toBe(1);
   expect(getTotalRenderCount("Tracks")).toBe(2);
-  expect(getMountCount("Properties")).toBe(1);
-  expect(getTotalRenderCount("Properties")).toBe(2);
+  expect(getMountCount("RenderingSettings")).toBe(1);
+  expect(getTotalRenderCount("RenderingSettings")).toBe(2);
   expect(getMountCount("Player")).toBe(1);
   expect(getTotalRenderCount("Player")).toBe(2);
 });
@@ -38,7 +38,7 @@ test("should play", async () => {
     "AudioLoader",
     "ImageLoader",
     "Tracks",
-    "Properties",
+    "RenderingSettings",
   ]);
   expect(getMountCount("Player")).toBe(0);
   expect(getTotalRenderCount("Player")).toBe(0);
@@ -95,14 +95,12 @@ test("should update Midi Offset", async () => {
   expect(getRenderedKeys()).not.toContainAnyOf([
     "App",
     "MidiLoader",
-    "AudioLoader",
-    "ImageLoader",
-    "Tracks",
+    "RenderingSettings",
   ]);
   expect(getMountCount("Player")).toBe(0);
   expect(getTotalRenderCount("Player")).toBe(2);
-  expect(getMountCount("Properties")).toBe(0);
-  expect(getTotalRenderCount("Properties")).toBe(2);
+  expect(getMountCount("Settings")).toBe(0);
+  expect(getTotalRenderCount("Settings")).toBe(2);
 });
 test("should update Overlay Opacity", async () => {
   const user = userEvent.setup();
@@ -142,7 +140,7 @@ test("should load MIDI file", async () => {
     "App",
     "AudioLoader",
     "ImageLoader",
-    "Properties",
+    "RenderingSettings",
     "NumberInput",
   ]);
   expect(getMountCount("Tracks")).toBe(0);
@@ -168,7 +166,7 @@ test("should load Image file", async () => {
     "App",
     "MidiLoader",
     "AudioLoader",
-    "Properties",
+    "RenderingSettings",
     "NumberInput",
   ]);
   expect(getMountCount("ImageLoader")).toBe(0);
@@ -194,7 +192,7 @@ test("should load Wave file", async () => {
     "App",
     "MidiLoader",
     "ImageLoader",
-    "Properties",
+    "RenderingSettings",
     "NumberInput",
   ]);
   expect(getMountCount("AudioLoader")).toBe(0);

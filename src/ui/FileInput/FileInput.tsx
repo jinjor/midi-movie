@@ -13,7 +13,6 @@ export const FileInput = ({ onLoad, extensions, children }: Props) => {
     if (!file) return;
     onLoad(file);
   };
-  console.log(typeof children);
   return (
     <div className={cx("button", styles.fileInput)}>
       <input
