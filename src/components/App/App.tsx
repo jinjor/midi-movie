@@ -11,7 +11,7 @@ export const App = () => {
   useCounter("App");
   return (
     <div className={styles.vertical}>
-      <div className={cx(styles.pane, styles.resourcePane, styles.fields)}>
+      <div className={cx(styles.pane, styles.fields)}>
         <MidiLoader />
       </div>
       <div className={styles.panes}>
