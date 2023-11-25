@@ -33,23 +33,6 @@ input[type="number"] {
   padding: 5px 10px;
   appearance: none;
 }
-input[type="file"] {
-  border: solid 1px var(--color-border-default);
-  cursor: pointer;
-  padding: 0;
-  &::file-selector-button {
-    font: inherit;
-    color: inherit;
-    background-color: var(--color-bg-button);
-    border: none;
-    border-right: solid 1px var(--color-border-default);
-    cursor: pointer;
-    outline: none;
-    padding: 5px 10px;
-    pointer-events: none;
-    margin-inline-end: 10px;
-  }
-}
 button,
 .button {
   color: inherit;

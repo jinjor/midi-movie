@@ -1,0 +1,7 @@
+.fileInput {
+  border: solid 1px var(--color-border-default);
+  cursor: pointer;
+}
+.fileInput input {
+  display: none;
+}
