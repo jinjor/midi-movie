@@ -1,32 +1,37 @@
 import { FileInput } from "@/ui/FileInput";
 import { Image } from "@/model/types";
 import { useCounter } from "@/counter";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { imageUrlAtom, imageSizeAtom } from "@/atoms";
+import { useState } from "react";
 
 export const ImageLoader = () => {
   useCounter("ImageLoader");
   const [size, setSize] = useAtom(imageSizeAtom);
-  const setImageUrl = useSetAtom(imageUrlAtom);
+  const [name, setName] = useState("");
+  const [imageUrl, setImageUrl] = useAtom(imageUrlAtom);
   const handleLoadImage = (file: File) => {
     void (async () => {
       const image = await getImageInfo(file);
+      setName(file.name);
       setImageUrl(image.url);
       setSize(image.size);
     })();
   };
   return (
     <label>
-      <span>Image:</span>
-      <FileInput
-        onLoad={handleLoadImage}
-        extensions={[".png", "jpg", "jpeg"]}
-      />
-      {size && (
-        <span>
-          {size.width} x {size.height}
-        </span>
-      )}
+      Image:
+      <FileInput onLoad={handleLoadImage} extensions={[".png", "jpg", "jpeg"]}>
+        {name && imageUrl && (
+          <>
+            <span>{name}</span>
+            <br />
+            <span>
+              {size.width} x {size.height}
+            </span>
+          </>
+        )}
+      </FileInput>
     </label>
   );
 };

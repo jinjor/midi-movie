@@ -1,9 +1,17 @@
 .tracks {
   padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
   & > li {
     list-style-type: none;
   }
   & label {
     user-select: none;
   }
+}
+.tracks label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }

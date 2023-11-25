@@ -3,20 +3,18 @@ import { useCounter } from "@/counter";
 import { useAtom } from "jotai";
 import {
   allRendererPropsAtom,
-  midiOffsetAtom,
   opacityAtom,
   rendererAtom,
   selectedRendererAtom,
-  volumeAtom,
 } from "@/atoms";
 import { useEffect } from "react";
 import { RendererState, importRendererModule, renderers } from "@/model/render";
 import { Select } from "@/ui/Select";
+import styles from "./RenderingSettings.module.css";
 
-export const Properties = () => {
-  useCounter("Properties");
-  const [midiOffsetInSec, setMidiOffsetInSec] = useAtom(midiOffsetAtom);
-  const [volume, setVolume] = useAtom(volumeAtom);
+export const RenderingSettings = () => {
+  useCounter("RenderingSettings");
+
   const [opacity, setOpacity] = useAtom(opacityAtom);
   const [renderer, setRenderer] = useAtom(rendererAtom);
   const [selectedRenderer, setSelectedRenderer] = useAtom(selectedRendererAtom);
@@ -51,15 +49,10 @@ export const Properties = () => {
     setAllRendererProps,
     setRenderer,
   ]);
-  const handleMidiOffsetChange = (midiOffsetInMilliSec: number) => {
-    setMidiOffsetInSec(midiOffsetInMilliSec / 1000);
-  };
   const handleOpacityChange = (opacity: number) => {
     setOpacity(opacity);
   };
-  const handleVolumeChange = (volume: number) => {
-    setVolume(volume);
-  };
+
   const handleSelectRenderer = (name: string) => {
     setSelectedRenderer(name);
     setRenderer({ type: "Loading" });
@@ -77,16 +70,7 @@ export const Properties = () => {
     });
   };
   return (
-    <>
-      <label>
-        Midi Offset(ms):
-        <NumberInput
-          min={-60000}
-          max={60000}
-          defaultValue={midiOffsetInSec * 1000}
-          onChange={handleMidiOffsetChange}
-        />
-      </label>
+    <div className={styles.renderingSettings}>
       <label>
         Overlay Opacity:
         <NumberInput
@@ -95,16 +79,6 @@ export const Properties = () => {
           step={0.1}
           defaultValue={opacity}
           onChange={handleOpacityChange}
-        />
-      </label>
-      <label>
-        Volume:
-        <NumberInput
-          min={0}
-          max={1}
-          step={0.1}
-          defaultValue={volume}
-          onChange={handleVolumeChange}
         />
       </label>
       <label>
@@ -120,7 +94,7 @@ export const Properties = () => {
         onCustomPropChange={handleCustomPropChange}
         props={allRendererProps[selectedRenderer]}
       ></RendererConfig>
-    </>
+    </div>
   );
 };
 const RendererConfig = ({
