@@ -118,6 +118,15 @@ export const config = {
       step: 1,
       defaultValue: 0,
     },
+    {
+      id: "lineCap",
+      name: "Line Cap",
+      type: "number",
+      min: 0,
+      max: 1,
+      step: 1,
+      defaultValue: 0,
+    },
   ],
 };
 
@@ -154,6 +163,7 @@ function calculateNoteForLandscape({
   baseThickness,
   peakThickness,
   activeThickness,
+  lineCap,
 }) {
   const decaySec = 0.2;
   const releaseSec = 0.4;
@@ -193,6 +203,7 @@ function calculateNoteForLandscape({
     y2: y,
     ["stroke-width"]: strokeWidth,
     stroke: `hsl(${hue}, 20%, ${lightness}%)`,
+    ["stroke-linecap"]: lineCap ? "round" : "butt",
   };
   return {
     line,
