@@ -1,6 +1,6 @@
 import { atom, createStore } from "jotai";
 import { MidiData, PlayingState } from "./model/types";
-import { RendererState, renderers } from "./model/render";
+import { RendererState } from "./model/render";
 import { StorageKey, StorageValue, get, set } from "./storage";
 
 const subscribeFns: ((store: ReturnType<typeof createStore>) => void)[] = [];
@@ -26,6 +26,11 @@ export const createStoreWithStorage = () => {
 export const midiOffsetAtom = atomWithStorage("midiOffset", 0);
 export const opacityAtom = atomWithStorage("opacity", 0.6);
 export const volumeAtom = atomWithStorage("volume", 1);
+export const selectedRendererAtom = atomWithStorage(
+  "selectedRenderer",
+  "Default",
+);
+export const allRendererPropsAtom = atomWithStorage("allRendererProps", {});
 export const imageUrlAtom = atom<string | null>(null);
 export const imageSizeAtom = atom({
   width: 512,
@@ -37,5 +42,4 @@ export const audioBufferAtom = atom<AudioBuffer | null>(null);
 export const playingStateAtom = atom<PlayingState | null>(null);
 export const rendererAtom = atom<RendererState>({
   type: "Loading",
-  info: renderers[0],
 });

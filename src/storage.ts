@@ -1,10 +1,12 @@
-import { number, parse, Output } from "valibot";
+import { number, parse, Output, string, record } from "valibot";
 
 const namespace = "MidiMovie.";
 const schemas = {
   midiOffset: number(),
   opacity: number(),
   volume: number(),
+  selectedRenderer: string(),
+  allRendererProps: record(string(), record(string(), number())),
 };
 type Schemas = typeof schemas;
 export type StorageKey = keyof Schemas;
