@@ -13,6 +13,8 @@ import {
   volumeAtom,
   rendererAtom,
   playingStateAtom,
+  selectedRendererAtom,
+  allRendererPropsAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 import { usePlayingTime } from "@/model/usePlayingTime";
@@ -28,8 +30,10 @@ export const Player = () => {
   const audioBuffer = useAtomValue(audioBufferAtom);
   const volume = useAtomValue(volumeAtom);
   const renderer = useAtomValue(rendererAtom);
+  const selectedRenderer = useAtomValue(selectedRendererAtom);
+  const allRendererProps = useAtomValue(allRendererPropsAtom);
   const [playingState, setPlayingState] = useAtom(playingStateAtom);
-  const customProps = renderer.props;
+  const customProps = allRendererProps[selectedRenderer];
   const rendererModule = renderer.module;
 
   const mutables = {

@@ -1,13 +1,13 @@
 import { FileInput } from "@/ui/FileInput";
 import { Image } from "@/model/types";
 import { useCounter } from "@/counter";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { imageUrlAtom, imageSizeAtom } from "@/atoms";
 
 export const ImageLoader = () => {
   useCounter("ImageLoader");
   const [size, setSize] = useAtom(imageSizeAtom);
-  const [imageUrl, setImageUrl] = useAtom(imageUrlAtom);
+  const setImageUrl = useSetAtom(imageUrlAtom);
   const handleLoadImage = (file: File) => {
     void (async () => {
       const image = await getImageInfo(file);
@@ -22,7 +22,7 @@ export const ImageLoader = () => {
         onLoad={handleLoadImage}
         extensions={[".png", "jpg", "jpeg"]}
       />
-      {imageUrl && (
+      {size && (
         <span>
           {size.width} x {size.height}
         </span>

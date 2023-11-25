@@ -1,27 +1,20 @@
 import { Note, Size } from "./types";
 
 export type RendererInfo = {
-  name: string;
   url: string;
 };
 export type RendererState =
   | {
       type: "Loading";
-      info: RendererInfo;
       module?: never;
-      props?: never;
     }
   | {
       type: "Error";
-      info: RendererInfo;
       module?: never;
-      props?: never;
     }
   | {
       type: "Ready";
-      info: RendererInfo;
       module: RendererModule;
-      props: Record<string, number>;
     };
 export type RendererModule = {
   config: Config;
@@ -52,7 +45,7 @@ type UpdateProps = {
   playing: boolean;
 };
 
-export const renderers: RendererInfo[] = [
+export const renderers: (RendererInfo & { name: string })[] = [
   {
     name: "Default",
     url: `${window.location.origin}/renderer/default.mjs`,
