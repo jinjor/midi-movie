@@ -20,6 +20,7 @@ const arrayBufferLoader = () => ({
 });
 
 export default defineConfig({
+  base: "/midi-movie/",
   plugins: [arrayBufferLoader(), tsconfigPaths(), react()],
   test: {
     globals: true,
