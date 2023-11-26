@@ -74,6 +74,7 @@ export const Player = () => {
     }
     const notes = midiData.notes;
     const startTime = performance.now();
+    let prevModule = rendererModule;
     const timer = window.setInterval(() => {
       const display = displayApi!;
       const container = display.getContainer();
@@ -88,6 +89,10 @@ export const Player = () => {
       gain.gain.value = volume;
       const elapsedSec =
         offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
+      if (rendererModule && prevModule !== rendererModule) {
+        container.innerHTML = "";
+        rendererModule?.init(container, { size, notes: midiData.notes });
+      }
       rendererModule?.update(container, {
         notes,
         size,
@@ -96,6 +101,7 @@ export const Player = () => {
         customProps: customProps ?? {},
         playing: true,
       });
+      prevModule = rendererModule;
     }, 1000 / 60);
     setPlayingState({
       startTime,
@@ -129,14 +135,12 @@ export const Player = () => {
       return;
     }
     const notes = midiData.notes;
-    const display = displayApi;
-    const svg = display.getContainer();
+    const container = displayApi.getContainer();
     const elapsedSec = offsetInSec + midiOffsetInSec;
 
-    const container = displayApi.getContainer();
     container.innerHTML = "";
     rendererModule.init(container, { size, notes: midiData.notes });
-    rendererModule.update(svg, {
+    rendererModule.update(container, {
       notes,
       size,
       enabledTracks,
