@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
 import { useAtom, useAtomValue } from "jotai";
 import {
   audioBufferAtom,
-  enabledTracksAtom,
   imageSizeAtom,
   imageUrlAtom,
   midiOffsetAtom,
@@ -15,6 +14,8 @@ import {
   playingStateAtom,
   selectedRendererAtom,
   allRendererPropsAtom,
+  selectedMidiFileAtom,
+  allTrackPropsAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 import { usePlayingTime } from "@/model/usePlayingTime";
@@ -26,7 +27,8 @@ export const Player = () => {
   const imageUrl = useAtomValue(imageUrlAtom);
   const size = useAtomValue(imageSizeAtom);
   const midiData = useAtomValue(midiDataAtom);
-  const enabledTracks = useAtomValue(enabledTracksAtom);
+  const selectedMidiFile = useAtomValue(selectedMidiFileAtom);
+  const allTrackProps = useAtomValue(allTrackPropsAtom);
   const audioBuffer = useAtomValue(audioBufferAtom);
   const volume = useAtomValue(volumeAtom);
   const renderer = useAtomValue(rendererAtom);
@@ -35,6 +37,15 @@ export const Player = () => {
   const [playingState, setPlayingState] = useAtom(playingStateAtom);
   const customProps = allRendererProps[selectedRenderer];
   const rendererModule = renderer.module;
+
+  const enabledTracks = useMemo(() => {
+    const tracks = midiData?.tracks ?? [];
+    if (selectedMidiFile == null) {
+      return [];
+    }
+    const trackProps = allTrackProps[selectedMidiFile] ?? [];
+    return tracks.map((_, i) => trackProps[i]?.enabled ?? true);
+  }, [midiData, allTrackProps, selectedMidiFile]);
 
   const mutables = {
     size,

@@ -30,14 +30,15 @@ export const selectedRendererAtom = atomWithStorage(
   "selectedRenderer",
   "Default",
 );
+export const allTrackPropsAtom = atomWithStorage("allTrackProps", {});
 export const allRendererPropsAtom = atomWithStorage("allRendererProps", {});
+export const selectedMidiFileAtom = atom<string | null>(null);
 export const imageUrlAtom = atom<string | null>(null);
 export const imageSizeAtom = atom({
   width: 512,
   height: 512 * (9 / 16),
 });
 export const midiDataAtom = atom<MidiData | null>(null);
-export const enabledTracksAtom = atom<boolean[]>([]);
 export const audioBufferAtom = atom<AudioBuffer | null>(null);
 export const playingStateAtom = atom<PlayingState | null>(null);
 export const rendererAtom = atom<RendererState>({
