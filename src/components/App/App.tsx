@@ -1,11 +1,13 @@
 import styles from "./App.module.css";
 
 import { MidiLoader } from "../MidiLoader";
-import { RenderingSettings } from "../RenderingSettings/RenderingSettings";
+import { Settings } from "../Settings/Settings";
 import { Player } from "../Player";
 import { cx } from "../../util";
 import { useCounter } from "@/counter";
-import { Settings } from "../Settings";
+import { AudioLoader } from "../AudioLoader";
+import { ImageLoader } from "../ImageLoader";
+import { Tracks } from "../Tracks";
 
 export const App = () => {
   useCounter("App");
@@ -13,16 +15,18 @@ export const App = () => {
     <div className={styles.vertical}>
       <div className={cx(styles.pane, styles.fields)}>
         <MidiLoader />
+        <ImageLoader />
+        <AudioLoader />
       </div>
       <div className={styles.panes}>
         <div className={cx(styles.pane)}>
-          <Settings />
+          <Tracks />
         </div>
         <div className={cx(styles.pane)}>
           <Player />
         </div>
         <div className={cx(styles.pane, styles.fields)}>
-          <RenderingSettings />
+          <Settings />
         </div>
       </div>
     </div>

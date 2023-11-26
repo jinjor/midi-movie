@@ -24,9 +24,9 @@ export const ImageLoader = () => {
       <FileInput onLoad={handleLoadImage} extensions={[".png", "jpg", "jpeg"]}>
         {name && imageUrl && (
           <>
-            <span>{name}</span>
-            <br />
+            <span>{name}</span> |{" "}
             <span>
+              {" "}
               {size.width} x {size.height}
             </span>
           </>

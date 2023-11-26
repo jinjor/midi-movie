@@ -28,7 +28,7 @@ export const MidiLoader = () => {
       <FileInput onLoad={handleLoadMidi} extensions={[".mid", "midi"]}>
         {name && midiData && (
           <>
-            <span>{name}</span> <span>{formatTime(midiData.endSec)}</span>
+            <span>{name}</span> | <span>{formatTime(midiData.endSec)}</span>
           </>
         )}
       </FileInput>
