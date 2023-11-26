@@ -1,4 +1,13 @@
-import { number, parse, Output, string, record } from "valibot";
+import {
+  number,
+  parse,
+  Output,
+  string,
+  record,
+  array,
+  object,
+  boolean,
+} from "valibot";
 
 const namespace = "MidiMovie.";
 const schemas = {
@@ -6,6 +15,14 @@ const schemas = {
   opacity: number(),
   volume: number(),
   selectedRenderer: string(),
+  allTrackProps: record(
+    string(),
+    array(
+      object({
+        enabled: boolean(),
+      }),
+    ),
+  ),
   allRendererProps: record(string(), record(string(), number())),
 };
 type Schemas = typeof schemas;
