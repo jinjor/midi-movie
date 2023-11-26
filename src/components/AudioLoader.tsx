@@ -29,8 +29,7 @@ export const AudioLoader = () => {
       <FileInput onLoad={handleLoadAudio} extensions={[".wav"]}>
         {name && audioBuffer && (
           <>
-            <span>{name}</span>
-            <br />
+            <span>{name}</span> |{" "}
             <span>{formatTime(audioBuffer.duration)}</span>
           </>
         )}

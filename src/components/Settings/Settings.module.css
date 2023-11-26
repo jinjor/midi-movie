@@ -1,5 +1,10 @@
-.settings {
+.renderingSettings {
   display: flex;
   flex-direction: column;
+  gap: 5px;
+}
+.renderingSettings label {
+  display: flex;
+  align-items: center;
   gap: 5px;
 }
