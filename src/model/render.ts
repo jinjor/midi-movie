@@ -48,15 +48,15 @@ type UpdateProps = {
 export const renderers: (RendererInfo & { name: string })[] = [
   {
     name: "Default",
-    url: `${window.location.origin}/renderer/default.mjs`,
+    url: `https://jinjor.github.io/midi-movie/renderer/default.mjs`,
   },
   {
     name: "Bubble",
-    url: `${window.location.origin}/renderer/bubble.mjs`,
+    url: `https://jinjor.github.io/midi-movie/renderer/bubble.mjs`,
   },
   {
     name: "Arch",
-    url: `${window.location.origin}/renderer/arch.mjs`,
+    url: `https://jinjor.github.io/midi-movie/renderer/arch.mjs`,
   },
 ];
 export function importRendererModule(url: string): Promise<RendererModule> {
