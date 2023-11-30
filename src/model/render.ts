@@ -45,18 +45,19 @@ type UpdateProps = {
   playing: boolean;
 };
 
+const root = window.location.origin;
 export const renderers: (RendererInfo & { name: string })[] = [
   {
     name: "Default",
-    url: `${window.location.origin}/renderer/default.mjs`,
+    url: `${root}/renderer/default.mjs`,
   },
   {
     name: "Bubble",
-    url: `${window.location.origin}/renderer/bubble.mjs`,
+    url: `${root}/renderer/bubble.mjs`,
   },
   {
     name: "Arch",
-    url: `${window.location.origin}/renderer/arch.mjs`,
+    url: `${root}/renderer/arch.mjs`,
   },
 ];
 export function importRendererModule(url: string): Promise<RendererModule> {
