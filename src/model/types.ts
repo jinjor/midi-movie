@@ -41,3 +41,30 @@ export type PlayingState = {
   startTime: number;
   timer: number;
 };
+export type InitOptions = {
+  size: Size;
+  notes: Note[];
+};
+export type UpdateOptions<T> = {
+  notes: Note[];
+  size: Size;
+  enabledTracks: boolean[];
+  elapsedSec: number;
+  customProps: T;
+  playing: boolean;
+};
+export type ModulePropDef = {
+  id: string;
+  name: string;
+  type: string;
+  min: number;
+  max: number;
+  step: number;
+  defaultValue: number;
+};
+export type ModuleConfig = {
+  props: readonly ModulePropDef[];
+};
+export type ModulePropsType<C extends ModuleConfig> = {
+  [key in C["props"][number]["id"]]: number;
+};

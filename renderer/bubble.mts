@@ -1,4 +1,12 @@
 import {
+  InitOptions,
+  ModuleConfig,
+  ModulePropsType,
+  Note,
+  Size,
+  UpdateOptions,
+} from "@/model/types";
+import {
   setAttributes,
   getStyle,
   setStyles,
@@ -7,7 +15,7 @@ import {
   flipSize,
   flipCircle,
   flipLine,
-} from "./util.mjs";
+} from "./util/util.mts";
 
 export const config = {
   props: [
@@ -120,9 +128,11 @@ export const config = {
       defaultValue: 0,
     },
   ],
-};
+} as const satisfies ModuleConfig;
 
-function calculateBarForLandscape({ size }) {
+type CustomProps = ModulePropsType<typeof config>;
+
+function calculateBarForLandscape({ size }: { size: Size }) {
   return {
     x1: size.width / 2,
     x2: size.width / 2,
@@ -133,7 +143,7 @@ function calculateBarForLandscape({ size }) {
   };
 }
 
-function calculateBar({ size, vertical }) {
+function calculateBar({ size, vertical }: { size: Size; vertical: number }) {
   const barPatch = calculateBarForLandscape({
     size: vertical ? flipSize(size) : size,
   });
@@ -155,6 +165,10 @@ function calculateNoteForLandscape({
   beforeThickness,
   peakThickness,
   afterThickness,
+}: Omit<CustomProps, "vertical"> & {
+  size: Size;
+  note: Note;
+  elapsedSec: number;
 }) {
   const outOfNoteRange = note.noteNumber < minNote || note.noteNumber > maxNote;
   const fullHeightPerNote = size.height / (maxNote - minNote);
@@ -225,7 +239,15 @@ function calculateNoteForLandscape({
   };
 }
 
-function calculateNote({ size, vertical, ...restParams }) {
+function calculateNote({
+  size,
+  vertical,
+  ...restParams
+}: CustomProps & {
+  size: Size;
+  note: Note;
+  elapsedSec: number;
+}) {
   const { circle, line, ...rest } = calculateNoteForLandscape({
     size: vertical ? flipSize(size) : size,
     ...restParams,
@@ -237,12 +259,13 @@ function calculateNote({ size, vertical, ...restParams }) {
   };
 }
 
-export function init(svg, { size, notes }) {
+export function init(svg: SVGSVGElement, { notes }: InitOptions) {
   const bar = createSvgElement("line");
   setAttributes(bar, {
     id: "bar",
   });
   svg.appendChild(bar);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   for (const _note of notes) {
     const g = createSvgElement("g");
     const line = createSvgElement("line");
@@ -257,18 +280,25 @@ export function init(svg, { size, notes }) {
 }
 
 export function update(
-  svg,
-  { notes, size, enabledTracks, elapsedSec, customProps, playing },
+  svg: SVGSVGElement,
+  {
+    notes,
+    size,
+    enabledTracks,
+    elapsedSec,
+    customProps,
+    playing,
+  }: UpdateOptions<CustomProps>,
 ) {
-  const bar = svg.getElementById("bar");
+  const bar = svg.getElementById("bar") as SVGElement;
   const barPatch = calculateBar({ size, ...customProps });
   setAttributes(bar, barPatch);
 
   const groups = svg.querySelectorAll(".note");
   for (const [index, note] of notes.entries()) {
-    const group = groups[index];
-    const line = group.children[0];
-    const circle = group.children[1];
+    const group = groups[index] as SVGGElement;
+    const line = group.children[0] as SVGLineElement;
+    const circle = group.children[1] as SVGCircleElement;
     if (playing && getStyle(group, "display") === "none") {
       continue;
     }
