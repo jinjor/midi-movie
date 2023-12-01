@@ -1,7 +1,10 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 import tsconfigPaths from "vite-tsconfig-paths";
+import * as glob from "glob";
 import * as fs from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 
 const arrayBufferLoader = () => ({
   name: "arraybuffer-loader",
@@ -20,6 +23,30 @@ const arrayBufferLoader = () => ({
 });
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      input: {
+        index: "./index.html",
+        ...Object.fromEntries(
+          glob
+            .sync("renderer/**/*.mts")
+            .map((file) => [
+              file.slice(0, file.length - path.extname(file).length),
+              fileURLToPath(new URL(file, import.meta.url)),
+            ]),
+        ),
+      },
+      output: {
+        entryFileNames: (info) => {
+          if (info.facadeModuleId?.includes("/renderer/")) {
+            return "[name].mjs";
+          }
+          return "assets/[name]-[hash].js";
+        },
+      },
+      preserveEntrySignatures: "allow-extension",
+    },
+  },
   plugins: [arrayBufferLoader(), tsconfigPaths(), react()],
   test: {
     globals: true,

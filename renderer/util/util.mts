@@ -1,23 +1,39 @@
-export function getStyle(el, key) {
+import { Size } from "@/model/types";
+
+export function getStyle(el: SVGElement, key: string) {
   return el.style.getPropertyValue(key);
 }
-
-export function setStyles(el, patch) {
+export function setStyles(
+  el: SVGElement,
+  patch: Record<string, string | number>,
+) {
   for (const [key, value] of Object.entries(patch)) {
     el.style.setProperty(key, String(value));
   }
 }
-
-export function setAttributes(el, patch) {
+export function setAttributes(
+  el: SVGElement,
+  patch: Record<string, string | number>,
+) {
   for (const [key, value] of Object.entries(patch)) {
     el.setAttributeNS(null, key, String(value));
   }
 }
-
-export function createSvgElement(kind) {
+export function createSvgElement(kind: string) {
   return document.createElementNS("http://www.w3.org/2000/svg", kind);
 }
 
+type EnvelopeOptions = {
+  base: number;
+  peak: number;
+  active: number;
+  end?: number;
+  decaySec: number;
+  releaseSec: number;
+  fromSec: number;
+  toSec: number;
+  elapsedSec: number;
+};
 export function calcEnvelope({
   base,
   peak,
@@ -28,7 +44,7 @@ export function calcEnvelope({
   fromSec,
   toSec,
   elapsedSec,
-}) {
+}: EnvelopeOptions) {
   end ??= base;
   return elapsedSec < fromSec
     ? base
@@ -46,7 +62,7 @@ export function calcLinearEnvelope({
   fromSec,
   toSec,
   elapsedSec,
-}) {
+}: EnvelopeOptions) {
   end ??= base;
   return elapsedSec < fromSec
     ? base
@@ -64,7 +80,7 @@ export function calcQuadraticEnvelope({
   fromSec,
   toSec,
   elapsedSec,
-}) {
+}: EnvelopeOptions) {
   end ??= base;
   return elapsedSec < fromSec
     ? base
@@ -76,15 +92,32 @@ export function calcQuadraticEnvelope({
       (active - end) *
         (1 - Math.pow((decaySec - (elapsedSec - toSec)) / releaseSec, 2));
 }
-export function flipSize({ width, height }) {
+export function flipSize({ width, height }: Size) {
   return {
     width: height,
     height: width,
   };
 }
+export type Rect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+export type Line = {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+};
+export type Circle = {
+  cx: number;
+  cy: number;
+  r: number;
+};
 export function flipRect(
-  { x, y, width, height, ...rest },
-  { width: sizeWidth, height: sizeHeight },
+  { x, y, width, height, ...rest }: Rect,
+  { width: sizeWidth, height: sizeHeight }: Size,
 ) {
   return {
     ...rest,
@@ -95,8 +128,8 @@ export function flipRect(
   };
 }
 export function flipLine(
-  { x1, y1, x2, y2, ...rest },
-  { width: sizeWidth, height: sizeHeight },
+  { x1, y1, x2, y2, ...rest }: Line,
+  { width: sizeWidth, height: sizeHeight }: Size,
 ) {
   return {
     ...rest,
@@ -107,8 +140,8 @@ export function flipLine(
   };
 }
 export function flipCircle(
-  { cx, cy, ...rest },
-  { width: sizeWidth, height: sizeHeight },
+  { cx, cy, ...rest }: Circle,
+  { width: sizeWidth, height: sizeHeight }: Size,
 ) {
   return {
     ...rest,

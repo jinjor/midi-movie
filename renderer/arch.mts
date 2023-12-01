@@ -1,10 +1,18 @@
 import {
+  InitOptions,
+  ModuleConfig,
+  ModulePropsType,
+  Note,
+  Size,
+  UpdateOptions,
+} from "@/model/types";
+import {
   setAttributes,
   setStyles,
   getStyle,
   createSvgElement,
   calcEnvelope,
-} from "./util.mjs";
+} from "./util/util.mts";
 
 export const config = {
   props: [
@@ -63,7 +71,9 @@ export const config = {
       defaultValue: 0.6,
     },
   ],
-};
+} as const satisfies ModuleConfig;
+
+type CustomProps = ModulePropsType<typeof config>;
 
 function calculateNote({
   size,
@@ -75,6 +85,10 @@ function calculateNote({
   minHue,
   maxHue,
   thickness,
+}: CustomProps & {
+  size: Size;
+  note: Note;
+  elapsedSec: number;
 }) {
   const outOfNoteRange = note.noteNumber < minNote || note.noteNumber > maxNote;
   const padding = 50;
@@ -144,7 +158,8 @@ function calculateNote({
   };
 }
 
-export function init(svg, { size, notes }) {
+export function init(svg: SVGSVGElement, { notes }: InitOptions) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   for (const _note of notes) {
     const g = createSvgElement("g");
     const line = createSvgElement("line");
@@ -159,14 +174,22 @@ export function init(svg, { size, notes }) {
 }
 
 export function update(
-  svg,
-  { notes, size, enabledTracks, elapsedSec, customProps, playing },
+  svg: SVGSVGElement,
+  {
+    notes,
+    size,
+    enabledTracks,
+    elapsedSec,
+    customProps,
+    playing,
+  }: UpdateOptions<CustomProps>,
 ) {
-  const groups = svg.querySelectorAll(".note");
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const groups = svg.querySelectorAll(".note") as NodeListOf<SVGGElement>;
   for (const [index, note] of notes.entries()) {
     const group = groups[index];
-    const line = group.children[0];
-    const circle = group.children[1];
+    const line = group.children[0] as SVGLineElement;
+    const circle = group.children[1] as SVGCircleElement;
     if (playing && getStyle(group, "display") === "none") {
       continue;
     }
