@@ -147,8 +147,8 @@ function calculateNote({
     y2: barEndY,
     stroke:
       outOfNoteRange || barLength < 1 ? "transparent" : `hsl(${hue}, 20%, 50%)`,
-    ["stroke-width"]: barWidth,
-    ["stroke-linecap"]: "round",
+    "stroke-width": barWidth,
+    "stroke-linecap": "round",
   };
   return {
     circle,

@@ -115,13 +115,13 @@ export const Settings = () => {
           onChange={handleSelectRenderer}
           value={selectedRenderer}
           options={renderers.map((r) => r.name)}
-        ></Select>
+        />
       </label>
       <RendererConfig
         renderer={renderer}
         onCustomPropChange={handleCustomPropChange}
         props={allRendererProps[selectedRenderer]}
-      ></RendererConfig>
+      />
     </div>
   );
 };

@@ -138,7 +138,7 @@ function calculateBarForLandscape({ size }: { size: Size }) {
     x2: size.width / 2,
     y1: 0,
     y2: size.height,
-    ["stroke-width"]: 0.5,
+    "stroke-width": 0.5,
     stroke: "#aaa",
   };
 }
@@ -213,10 +213,10 @@ function calculateNoteForLandscape({
       outOfNoteRange || x + width < size.width / 2 || x > size.width / 2
         ? "transparent"
         : `hsl(${hue}, 20%, ${lightness}%)`,
-    ["stroke-width"]: x < size.width / 2 ? 0 : 1,
+    "stroke-width": x < size.width / 2 ? 0 : 1,
     stroke:
       outOfNoteRange || x < size.width / 2
-        ? `transparent`
+        ? "transparent"
         : `hsl(${hue}, 20%, ${lightness}%)`,
   };
   const line = {
@@ -228,8 +228,8 @@ function calculateNoteForLandscape({
       outOfNoteRange || x > size.width / 2
         ? "transparent"
         : `hsl(${hue}, 20%, ${afterLightness}%)`,
-    ["stroke-width"]: r * 2,
-    ["stroke-linecap"]: "round",
+    "stroke-width": r * 2,
+    "stroke-linecap": "round",
   };
   return {
     circle,

@@ -10,7 +10,7 @@ const arrayBufferLoader = () => ({
   name: "arraybuffer-loader",
   transform(_code: any, id: string) {
     const [path, query] = id.split("?");
-    if (query != "buffer") {
+    if (query !== "buffer") {
       return null;
     }
     const hex = fs.readFileSync(path, "hex");

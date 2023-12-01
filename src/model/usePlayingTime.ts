@@ -20,7 +20,7 @@ export const usePlayingTime = (
       );
     }, 1000 / 60);
     return () => clearInterval(timer);
-  }, [playingState, setCurrentTimeInSec, updatesPerSecond]);
+  }, [playingState, updatesPerSecond]);
 
   return currentTimeInSec;
 };

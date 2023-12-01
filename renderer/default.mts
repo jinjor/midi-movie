@@ -146,7 +146,7 @@ function calculateBarForLandscape({ size }: { size: Size }) {
     x2: size.width / 2,
     y1: 0,
     y2: size.height,
-    ["stroke-width"]: 0.5,
+    "stroke-width": 0.5,
     stroke: "#aaa",
   };
 }
@@ -215,9 +215,9 @@ function calculateNoteForLandscape({
     x2,
     y1: y,
     y2: y,
-    ["stroke-width"]: strokeWidth,
+    "stroke-width": strokeWidth,
     stroke: `hsl(${hue}, 20%, ${lightness}%)`,
-    ["stroke-linecap"]: lineCap ? "round" : "butt",
+    "stroke-linecap": lineCap ? "round" : "butt",
   };
   return {
     line,

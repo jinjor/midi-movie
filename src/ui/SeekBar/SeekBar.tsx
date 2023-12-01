@@ -64,7 +64,7 @@ export const SeekBar = ({
           width: `${value * 100}%`,
         }}
       >
-        <div className={styles.knob} onMouseDown={handleMouseDown}></div>
+        <div className={styles.knob} onMouseDown={handleMouseDown} />
       </div>
     </div>
   );
