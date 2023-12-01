@@ -29,7 +29,7 @@ export default defineConfig({
         index: "./index.html",
         ...Object.fromEntries(
           glob
-            .sync("renderer/*.mts")
+            .sync("renderer/**/*.mts")
             .map((file) => [
               file.slice(0, file.length - path.extname(file).length),
               fileURLToPath(new URL(file, import.meta.url)),
@@ -44,6 +44,7 @@ export default defineConfig({
           return "assets/[name]-[hash].js";
         },
       },
+      preserveEntrySignatures: "allow-extension",
     },
   },
   plugins: [arrayBufferLoader(), tsconfigPaths(), react()],

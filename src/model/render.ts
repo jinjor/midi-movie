@@ -46,18 +46,19 @@ type UpdateProps = {
 };
 
 const root = window.location.origin;
+const ext = window.location.port === "5173" ? ".mts" : ".mjs";
 export const renderers: (RendererInfo & { name: string })[] = [
   {
     name: "Default",
-    url: `${root}/renderer/default.mjs`,
+    url: `${root}/renderer/default${ext}`,
   },
   {
     name: "Bubble",
-    url: `${root}/renderer/bubble.mjs`,
+    url: `${root}/renderer/bubble${ext}`,
   },
   {
     name: "Arch",
-    url: `${root}/renderer/arch.mjs`,
+    url: `${root}/renderer/arch${ext}`,
   },
 ];
 export function importRendererModule(url: string): Promise<RendererModule> {
