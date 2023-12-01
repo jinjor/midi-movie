@@ -49,8 +49,8 @@ export function calcEnvelope({
   return elapsedSec < fromSec
     ? base
     : elapsedSec < toSec
-    ? active + (peak - active) * Math.exp(-(elapsedSec - fromSec) / decaySec)
-    : end + (active - end) * Math.exp(-(elapsedSec - toSec) / releaseSec);
+      ? active + (peak - active) * Math.exp(-(elapsedSec - fromSec) / decaySec)
+      : end + (active - end) * Math.exp(-(elapsedSec - toSec) / releaseSec);
 }
 export function calcLinearEnvelope({
   base,
@@ -67,9 +67,10 @@ export function calcLinearEnvelope({
   return elapsedSec < fromSec
     ? base
     : elapsedSec < toSec
-    ? peak - (peak - active) * ((elapsedSec - fromSec) / decaySec)
-    : active - (active - end) * ((elapsedSec - toSec) / releaseSec);
+      ? peak - (peak - active) * ((elapsedSec - fromSec) / decaySec)
+      : active - (active - end) * ((elapsedSec - toSec) / releaseSec);
 }
+
 export function calcQuadraticEnvelope({
   base,
   peak,
@@ -85,12 +86,12 @@ export function calcQuadraticEnvelope({
   return elapsedSec < fromSec
     ? base
     : elapsedSec < toSec
-    ? peak -
-      (peak - active) *
-        (1 - Math.pow((decaySec - (elapsedSec - fromSec)) / decaySec, 2))
-    : active -
-      (active - end) *
-        (1 - Math.pow((decaySec - (elapsedSec - toSec)) / releaseSec, 2));
+      ? peak -
+        (peak - active) *
+          (1 - ((decaySec - (elapsedSec - fromSec)) / decaySec) ** 2)
+      : active -
+        (active - end) *
+          (1 - ((decaySec - (elapsedSec - toSec)) / releaseSec) ** 2);
 }
 export function flipSize({ width, height }: Size) {
   return {

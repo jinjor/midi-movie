@@ -38,6 +38,6 @@ export const Display = ({ onMount, size, imageUrl }: Props) => {
         ),url(${imageUrl})`
           : undefined,
       }}
-    ></svg>
+    />
   );
 };
