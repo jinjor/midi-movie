@@ -119,7 +119,6 @@ function calculateNote({
 }
 
 export function init(svg: SVGSVGElement, { notes }: InitOptions) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   for (const _note of notes) {
     const g = createSvgElement("g");
     const line = createSvgElement("line");
@@ -144,7 +143,6 @@ export function update(
     playing,
   }: UpdateOptions<CustomProps>,
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const groups = svg.querySelectorAll(".note") as NodeListOf<SVGGElement>;
   for (const [index, note] of notes.entries()) {
     const group = groups[index];

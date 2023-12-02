@@ -154,7 +154,6 @@ export function init(svg: SVGSVGElement, { notes }: InitOptions) {
     id: "bar",
   });
   svg.appendChild(bar);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   for (const _note of notes) {
     const g = createSvgElement("g");
     const line = createSvgElement("line");
