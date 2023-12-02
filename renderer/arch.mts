@@ -11,65 +11,25 @@ import {
   setStyles,
   getStyle,
   createSvgElement,
-  calcEnvelope,
-} from "./util/util.mts";
+} from "./util/svg.mts";
+import { calcEnvelope } from "./util/envelope.mts";
+import {
+  maxHue,
+  maxNote,
+  minHue,
+  minNote,
+  thickness,
+  timeRangeSec,
+} from "./util/props.mts";
 
 export const config = {
   props: [
-    {
-      id: "minNote",
-      name: "Min Note",
-      type: "number",
-      min: 0,
-      max: 127,
-      step: 1,
-      defaultValue: 0,
-    },
-    {
-      id: "maxNote",
-      name: "Max Note",
-      type: "number",
-      min: 0,
-      max: 127,
-      step: 1,
-      defaultValue: 127,
-    },
-    {
-      id: "timeRangeSec",
-      name: "Time Range (sec)",
-      type: "number",
-      min: 1,
-      max: 20,
-      step: 1,
-      defaultValue: 6,
-    },
-    {
-      id: "minHue",
-      name: "Min Hue",
-      type: "number",
-      min: -360,
-      max: 360,
-      step: 5,
-      defaultValue: 0,
-    },
-    {
-      id: "maxHue",
-      name: "Max Hue",
-      type: "number",
-      min: -360,
-      max: 360,
-      step: 5,
-      defaultValue: 240,
-    },
-    {
-      id: "thickness",
-      name: "Thickness",
-      type: "number",
-      min: 0,
-      max: 1,
-      step: 0.1,
-      defaultValue: 0.6,
-    },
+    minNote(0),
+    maxNote(127),
+    timeRangeSec(6),
+    minHue(0),
+    maxHue(240),
+    thickness(0.6),
   ],
 } as const satisfies ModuleConfig;
 
