@@ -19,6 +19,8 @@ import {
   activeThickness,
   baseLightness,
   baseThickness,
+  colorByTrack,
+  depth,
   lineCap,
   maxHue,
   maxNote,
@@ -47,6 +49,8 @@ export const config = {
     activeThickness(0.6),
     vertical(0),
     lineCap(0),
+    colorByTrack(1),
+    depth(2),
   ],
 } as const satisfies ModuleConfig;
 
@@ -87,18 +91,34 @@ function calculateNoteForLandscape({
   peakThickness,
   activeThickness,
   lineCap,
+  colorByTrack,
+  depth,
+  numberOfTracks,
 }: Omit<CustomProps, "vertical"> & {
   size: Size;
   note: Note;
   elapsedSec: number;
+  numberOfTracks: number;
 }) {
+  const maxTrackIndex = numberOfTracks - 1;
+  const shallowestScale = 1;
+  const deepestScale = shallowestScale / depth;
+  const scale =
+    deepestScale * ((maxTrackIndex - note.trackIndex) / maxTrackIndex) +
+    shallowestScale * (note.trackIndex / maxTrackIndex);
+  const height = size.height * scale;
+  const bottom = size.height / 2 + height / 2;
+  const scaledTimeRangeSec = timeRangeSec / scale;
+
   const decaySec = 0.2;
   const releaseSec = 0.4;
-  const fullHeightPerNote = size.height / (maxNote - minNote + 1);
-  const widthPerSec = size.width / timeRangeSec;
-  const hue =
-    ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
-    minHue;
+  const fullHeightPerNote = height / (maxNote - minNote + 1);
+  const widthPerSec = size.width / scaledTimeRangeSec;
+  const hue = colorByTrack
+    ? maxHue * ((maxTrackIndex - note.trackIndex) / maxTrackIndex) +
+      minHue * (note.trackIndex / maxTrackIndex)
+    : ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
+      minHue;
   const lightness = calcEnvelope({
     base: baseLightness,
     peak: peakLightness,
@@ -119,17 +139,20 @@ function calculateNoteForLandscape({
     toSec: note.toSec,
     elapsedSec,
   });
-  const x1 = (note.fromSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
-  const x2 = (note.toSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
-  const y = size.height - (note.noteNumber - minNote) * fullHeightPerNote;
+  const x1 = (note.fromSec - elapsedSec + scaledTimeRangeSec / 2) * widthPerSec;
+  const x2 = (note.toSec - elapsedSec + scaledTimeRangeSec / 2) * widthPerSec;
+  const y = bottom - (note.noteNumber - minNote) * fullHeightPerNote;
   const strokeWidth = fullHeightPerNote * thickness;
+  const hidden = note.noteNumber < minNote || note.noteNumber > maxNote;
   const line = {
     x1,
     x2,
     y1: y,
     y2: y,
     "stroke-width": strokeWidth,
-    stroke: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+    stroke: hidden
+      ? "transparent"
+      : `hsl(${hue}, ${saturation}%, ${lightness}%)`,
     "stroke-linecap": lineCap ? "round" : "butt",
   };
   return {
@@ -143,7 +166,12 @@ function calculateNote({
   size,
   vertical,
   ...restParams
-}: CustomProps & { size: Size; note: Note; elapsedSec: number }) {
+}: CustomProps & {
+  size: Size;
+  note: Note;
+  elapsedSec: number;
+  numberOfTracks: number;
+}) {
   const { line, ...rest } = calculateNoteForLandscape({
     size: vertical ? flipSize(size) : size,
     ...restParams,
@@ -157,11 +185,13 @@ export function init(svg: SVGSVGElement, { notes }: InitOptions) {
     id: "bar",
   });
   svg.appendChild(bar);
-  for (const _note of notes) {
+  notes.sort((a, b) => a.trackIndex - b.trackIndex);
+  for (const note of notes) {
     const g = createSvgElement("g");
     const line = createSvgElement("line");
     g.appendChild(line);
     setAttributes(g, {
+      id: `note-${note.index}`,
       class: "note",
     });
     svg.appendChild(g);
@@ -183,9 +213,10 @@ export function update(
   const barPatch = calculateBar({ size, ...customProps });
   setAttributes(bar, barPatch);
 
-  const groups = svg.querySelectorAll(".note");
-  for (const [index, note] of notes.entries()) {
-    const group = groups[index] as SVGGElement;
+  for (const note of notes) {
+    const group = document.getElementById(
+      `note-${note.index}`,
+    ) as unknown as SVGGElement;
     const line = group.children[0] as SVGLineElement;
     if (playing && getStyle(group, "display") === "none") {
       continue;
@@ -198,6 +229,7 @@ export function update(
       size,
       note,
       elapsedSec,
+      numberOfTracks: enabledTracks.length,
       ...customProps,
     });
     if (playing && ended) {

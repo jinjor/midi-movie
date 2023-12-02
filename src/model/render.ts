@@ -60,6 +60,10 @@ export const renderers: (RendererInfo & { name: string })[] = [
     name: "Arch",
     url: `${root}/renderer/arch${ext}`,
   },
+  {
+    name: "Depth",
+    url: `${root}/renderer/depth${ext}`,
+  },
 ];
 export function importRendererModule(url: string): Promise<RendererModule> {
   return import(/* @vite-ignore */ url) as Promise<RendererModule>;

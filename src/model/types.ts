@@ -26,6 +26,7 @@ export type Event = {
     }
 );
 export type Note = {
+  index: number;
   trackIndex: number;
   fromSec: number;
   toSec: number;

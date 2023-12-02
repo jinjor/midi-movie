@@ -18,6 +18,7 @@ import {
   maxNote,
   minHue,
   minNote,
+  saturation,
   thickness,
   timeRangeSec,
 } from "./util/props.mts";
@@ -27,6 +28,7 @@ export const config = {
     minNote(0),
     maxNote(127),
     timeRangeSec(6),
+    saturation(40),
     minHue(0),
     maxHue(240),
     thickness(0.6),
@@ -42,6 +44,7 @@ function calculateNote({
   minNote,
   maxNote,
   timeRangeSec,
+  saturation,
   minHue,
   maxHue,
   thickness,
@@ -83,7 +86,7 @@ function calculateNote({
     fill:
       outOfNoteRange || distance < 0 || distance > archRadius
         ? "transparent"
-        : `hsl(${hue}, 20%, 50%)`,
+        : `hsl(${hue}, ${saturation}%, 50%)`,
   };
   const barLength =
     calcEnvelope({
@@ -106,7 +109,9 @@ function calculateNote({
     x2: barEndX,
     y2: barEndY,
     stroke:
-      outOfNoteRange || barLength < 1 ? "transparent" : `hsl(${hue}, 20%, 50%)`,
+      outOfNoteRange || barLength < 1
+        ? "transparent"
+        : `hsl(${hue}, ${saturation}%, 50%)`,
     "stroke-width": barWidth,
     "stroke-linecap": "round",
   };

@@ -25,6 +25,7 @@ import {
   minNote,
   peakLightness,
   peakThickness,
+  saturation,
   timeRangeSec,
   vertical,
 } from "./util/props.mts";
@@ -34,6 +35,7 @@ export const config = {
     minNote(0),
     maxNote(127),
     timeRangeSec(6),
+    saturation(40),
     minHue(0),
     maxHue(240),
     beforeLightness(45),
@@ -81,6 +83,7 @@ function calculateNoteForLandscape({
   minNote,
   maxNote,
   timeRangeSec,
+  saturation,
   minHue,
   maxHue,
   beforeLightness,
@@ -136,12 +139,12 @@ function calculateNoteForLandscape({
     fill:
       outOfNoteRange || x + width < size.width / 2 || x > size.width / 2
         ? "transparent"
-        : `hsl(${hue}, 20%, ${lightness}%)`,
+        : `hsl(${hue}, ${saturation}%, ${lightness}%)`,
     "stroke-width": x < size.width / 2 ? 0 : 1,
     stroke:
       outOfNoteRange || x < size.width / 2
         ? "transparent"
-        : `hsl(${hue}, 20%, ${lightness}%)`,
+        : `hsl(${hue}, ${saturation}%, ${lightness}%)`,
   };
   const line = {
     x1: x,
@@ -151,7 +154,7 @@ function calculateNoteForLandscape({
     stroke:
       outOfNoteRange || x > size.width / 2
         ? "transparent"
-        : `hsl(${hue}, 20%, ${afterLightness}%)`,
+        : `hsl(${hue}, ${saturation}%, ${afterLightness}%)`,
     "stroke-width": r * 2,
     "stroke-linecap": "round",
   };

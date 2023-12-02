@@ -74,6 +74,28 @@ export const maxHue = (defaultValue: number) => {
   });
 };
 
+export const makeSaturation = (<ID extends string>(defs: {
+  id: ID;
+  name: string;
+  defaultValue: number;
+}) => {
+  return {
+    type: "number",
+    min: 0,
+    max: 100,
+    step: 5,
+    ...defs,
+  } as const;
+}) satisfies ModulePropDefCreator;
+
+export const saturation = (defaultValue: number) => {
+  return makeSaturation({
+    id: "saturation",
+    name: "Saturation",
+    defaultValue,
+  });
+};
+
 export const makeLightness = (<ID extends string>(defs: {
   id: ID;
   name: string;
@@ -230,5 +252,27 @@ export const lineCap = ((defaultValue: number) =>
     min: 0,
     max: 1,
     step: 1,
+    defaultValue,
+  }) as const) satisfies ModulePropDefCreator;
+
+export const colorByTrack = ((defaultValue: number) =>
+  ({
+    id: "colorByTrack",
+    name: "Color By Track",
+    type: "number",
+    min: 0,
+    max: 1,
+    step: 1,
+    defaultValue,
+  }) as const) satisfies ModulePropDefCreator;
+
+export const depth = ((defaultValue: number) =>
+  ({
+    id: "depth",
+    name: "Depth",
+    type: "number",
+    min: 1,
+    max: 5,
+    step: 0.5,
     defaultValue,
   }) as const) satisfies ModulePropDefCreator;
