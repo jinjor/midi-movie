@@ -29,9 +29,9 @@ export const config = {
     minNote(0),
     maxNote(127),
     timeRangeSec(6),
-    saturation(40),
     minHue(0),
     maxHue(240),
+    saturation(40),
     thickness(0.6),
   ],
 } as const satisfies ModuleConfig;
