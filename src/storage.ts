@@ -20,7 +20,6 @@ const fileDataSchema = object({
 const schemas = {
   midiFile: nullable(fileDataSchema),
   imageFile: nullable(fileDataSchema),
-  audioFile: nullable(fileDataSchema),
   midiOffset: number(),
   opacity: number(),
   volume: number(),
