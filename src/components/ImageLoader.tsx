@@ -29,7 +29,7 @@ export const ImageLoader = () => {
       setName(file.name);
       setImageUrl(image.url);
       setSize(image.size);
-      save({
+      await save({
         name: file.name,
         type: file.type,
         loadedAt: Date.now(),

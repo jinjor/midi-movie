@@ -30,7 +30,7 @@ export const AudioLoader = () => {
   const handleLoadAudio = (file: File) => {
     void (async () => {
       const arrayBuffer = await file.arrayBuffer();
-      save({
+      await save({
         name: file.name,
         type: file.type,
         loadedAt: Date.now(),

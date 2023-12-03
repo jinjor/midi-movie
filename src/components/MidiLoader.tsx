@@ -25,7 +25,7 @@ export const MidiLoader = () => {
       const midiData = parseMidiData(buffer);
       setSelectedMidiFile(file.name);
       setMidiData(midiData);
-      save({
+      await save({
         name: file.name,
         type: file.type,
         loadedAt: Date.now(),
