@@ -8,9 +8,10 @@ export const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
   return buf;
 };
 export const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
-  const str = String.fromCharCode.apply(
-    null,
-    new Uint8Array(buffer) as unknown as number[],
-  );
-  return window.btoa(str);
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
 };

@@ -3,11 +3,17 @@ import styles from "./FileInput.module.css";
 import { cx } from "@/util";
 
 type Props = {
+  disabled?: boolean;
   onLoad: (file: File) => void;
   extensions: string[];
   children?: React.ReactNode;
 };
-export const FileInput = ({ onLoad, extensions, children }: Props) => {
+export const FileInput = ({
+  disabled,
+  onLoad,
+  extensions,
+  children,
+}: Props) => {
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -16,6 +22,7 @@ export const FileInput = ({ onLoad, extensions, children }: Props) => {
   return (
     <div className={cx("button", styles.fileInput)}>
       <input
+        disabled={disabled}
         type="file"
         onChange={handleFileChange}
         accept={extensions.join(",")}

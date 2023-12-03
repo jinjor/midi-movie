@@ -36,7 +36,7 @@ export type StoredFile = {
   name: string;
   type: string;
   loadedAt: number;
-  data: string;
+  data: ArrayBuffer;
 };
 export type MidiData = {
   tracks: Track[];

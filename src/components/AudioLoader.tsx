@@ -5,7 +5,6 @@ import { useCounter } from "@/counter";
 import { audioBufferAtom } from "@/atoms";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { arrayBufferToBase64, base64ToArrayBuffer } from "@/model/base64";
 import { useFileStorage } from "@/fileStorage";
 
 export type Image = {
@@ -16,11 +15,11 @@ export const AudioLoader = () => {
   useCounter("AudioLoader");
   const [audioBuffer, setAudioBuffer] = useAtom(audioBufferAtom);
   const [name, setName] = useState("");
-  const { save, data: audioFile } = useFileStorage("audio");
+  const { status, save, data: audioFile } = useFileStorage("audio");
   useEffect(() => {
     if (audioFile) {
       void (async () => {
-        const arrayBuffer = base64ToArrayBuffer(audioFile.data);
+        const arrayBuffer = audioFile.data;
         const ctx = new AudioContext();
         const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
         setName(audioFile.name);
@@ -35,7 +34,7 @@ export const AudioLoader = () => {
         name: file.name,
         type: file.type,
         loadedAt: Date.now(),
-        data: arrayBufferToBase64(arrayBuffer),
+        data: arrayBuffer,
       });
       const ctx = new AudioContext();
       const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
@@ -46,7 +45,11 @@ export const AudioLoader = () => {
   return (
     <label>
       Audio:
-      <FileInput onLoad={handleLoadAudio} extensions={[".wav"]}>
+      <FileInput
+        disabled={status === "loading"}
+        onLoad={handleLoadAudio}
+        extensions={[".wav"]}
+      >
         {name && audioBuffer && (
           <>
             <span>{name}</span> |{" "}

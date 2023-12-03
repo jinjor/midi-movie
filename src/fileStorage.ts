@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { StoredFile } from "./model/types";
 import { number, object, string, parse } from "valibot";
+import { arrayBufferToBase64, base64ToArrayBuffer } from "./model/base64";
 
 const fileDataSchema = object({
   name: string(),
@@ -10,8 +11,8 @@ const fileDataSchema = object({
 });
 
 export const useFileStorage = (id: string) => {
-  const [status, setStatus] = useState<"init" | "loading" | "ready" | "error">(
-    "init",
+  const [status, setStatus] = useState<null | "loading" | "ready" | "error">(
+    null,
   );
   const [data, setData] = useState<StoredFile | null>(null);
   const openDB = useCallback(
@@ -41,18 +42,26 @@ export const useFileStorage = (id: string) => {
   );
 
   useEffect(() => {
-    if (status !== "init") {
+    if (status !== null) {
       return;
     }
+    setStatus("loading");
     openDB((db) => {
       const request = db
         .transaction("files", "readonly")
         .objectStore("files")
         .get(id);
       request.onsuccess = (event: any) => {
-        const file = parse(fileDataSchema, event.target?.result);
+        const data = event.target?.result;
         setStatus("ready");
-        setData(file);
+        if (data == null) {
+          return;
+        }
+        const file = parse(fileDataSchema, event.target?.result);
+        setData({
+          ...file,
+          data: base64ToArrayBuffer(file.data),
+        });
       };
     });
   }, [status, id, openDB]);
@@ -63,12 +72,13 @@ export const useFileStorage = (id: string) => {
         db.transaction("files", "readwrite")
           .objectStore("files")
           .put({
-            id,
             ...file,
+            data: arrayBufferToBase64(file.data),
+            id,
           });
       });
     },
     [id, openDB],
   );
-  return { status, save, data };
+  return { status: status ?? "loading", save, data };
 };
