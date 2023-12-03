@@ -32,6 +32,7 @@ import {
   timeRangeSec,
   vertical,
 } from "./util/props.mts";
+import { putInRange, ratio } from "./util/calc.mts";
 
 export const config = {
   props: [
@@ -103,9 +104,11 @@ function calculateNoteForLandscape({
   const maxTrackIndex = numberOfTracks - 1;
   const shallowestScale = 1;
   const deepestScale = shallowestScale / depth;
-  const scale =
-    deepestScale * ((maxTrackIndex - note.trackIndex) / maxTrackIndex) +
-    shallowestScale * (note.trackIndex / maxTrackIndex);
+  const scale = putInRange(
+    deepestScale,
+    shallowestScale,
+    note.trackIndex / maxTrackIndex,
+  );
   const height = size.height * scale;
   const bottom = size.height / 2 + height / 2;
   const scaledTimeRangeSec = timeRangeSec / scale;
@@ -115,10 +118,8 @@ function calculateNoteForLandscape({
   const fullHeightPerNote = height / (maxNote - minNote + 1);
   const widthPerSec = size.width / scaledTimeRangeSec;
   const hue = colorByTrack
-    ? maxHue * ((maxTrackIndex - note.trackIndex) / maxTrackIndex) +
-      minHue * (note.trackIndex / maxTrackIndex)
-    : ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
-      minHue;
+    ? putInRange(minHue, maxHue, note.trackIndex / maxTrackIndex)
+    : putInRange(minHue, maxHue, ratio(minNote, maxNote, note.noteNumber));
   const lightness = calcEnvelope({
     base: baseLightness,
     peak: peakLightness,

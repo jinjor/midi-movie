@@ -22,6 +22,7 @@ import {
   thickness,
   timeRangeSec,
 } from "./util/props.mts";
+import { putInRange, ratio } from "./util/calc.mts";
 
 export const config = {
   props: [
@@ -60,11 +61,15 @@ function calculateNote({
   const rangeAngle = Math.PI;
   const midAngle = Math.PI * 1.5;
   const minAngle = midAngle - rangeAngle / 2;
+  const maxAngle = midAngle + rangeAngle / 2;
   const maxBarLength = 50;
   const archRadius = size.height - padding * 2 - maxBarLength;
 
-  const noteAngle =
-    ((note.noteNumber - minNote) / (maxNote - minNote)) * rangeAngle + minAngle;
+  const noteAngle = putInRange(
+    minAngle,
+    maxAngle,
+    ratio(minNote, maxNote, note.noteNumber),
+  );
   const edgeX = centerX + Math.cos(noteAngle) * archRadius;
   const edgeY = centerY + Math.sin(noteAngle) * archRadius;
 
@@ -72,9 +77,11 @@ function calculateNote({
     ((archRadius * rangeAngle) / (maxNote - minNote)) * thickness;
   const circleRadius = barWidth / 2;
   const distancePerSec = archRadius / timeRangeSec;
-  const hue =
-    ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
-    minHue;
+  const hue = putInRange(
+    minHue,
+    maxHue,
+    ratio(minNote, maxNote, note.noteNumber),
+  );
   const distance =
     (timeRangeSec - (note.fromSec - elapsedSec)) * distancePerSec;
   const circleX = centerX + Math.cos(noteAngle) * distance;

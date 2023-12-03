@@ -30,6 +30,7 @@ import {
   timeRangeSec,
   vertical,
 } from "./util/props.mts";
+import { putInRange, ratio } from "./util/calc.mts";
 
 export const config = {
   props: [
@@ -96,9 +97,11 @@ function calculateNoteForLandscape({
   const releaseSec = 0.4;
   const fullHeightPerNote = size.height / (maxNote - minNote + 1);
   const widthPerSec = size.width / timeRangeSec;
-  const hue =
-    ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
-    minHue;
+  const hue = putInRange(
+    minHue,
+    maxHue,
+    ratio(minNote, maxNote, note.noteNumber),
+  );
   const lightness = calcEnvelope({
     base: baseLightness,
     peak: peakLightness,
