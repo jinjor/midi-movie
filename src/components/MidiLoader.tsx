@@ -12,6 +12,13 @@ export const MidiLoader = () => {
   const [midiFile, setMidiFile] = useAtom(midiFileAtom);
   const [selectedMidiFile, setSelectedMidiFile] = useAtom(selectedMidiFileAtom);
   const [midiData, setMidiData] = useAtom(midiDataAtom);
+  useEffect(() => {
+    if (midiFile) {
+      const midiData = parseMidiData(base64ToArrayBuffer(midiFile.data));
+      setSelectedMidiFile(midiFile.name);
+      setMidiData(midiData);
+    }
+  }, [midiFile, setSelectedMidiFile, setMidiData]);
   const handleLoadMidi = (file: File) => {
     void (async () => {
       const buffer = await file.arrayBuffer();
@@ -26,13 +33,6 @@ export const MidiLoader = () => {
       });
     })();
   };
-  useEffect(() => {
-    if (midiFile) {
-      const midiData = parseMidiData(base64ToArrayBuffer(midiFile.data));
-      setSelectedMidiFile(midiFile.name);
-      setMidiData(midiData);
-    }
-  }, [midiFile, setSelectedMidiFile, setMidiData]);
   return (
     <label>
       <span>MIDI:</span>

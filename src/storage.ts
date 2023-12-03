@@ -11,15 +11,16 @@ import {
 } from "valibot";
 
 const namespace = "MidiMovie.";
+const fileDataSchema = object({
+  name: string(),
+  type: string(),
+  loadedAt: number(),
+  data: string(),
+});
 const schemas = {
-  midiFile: nullable(
-    object({
-      name: string(),
-      type: string(),
-      loadedAt: number(),
-      data: string(),
-    }),
-  ),
+  midiFile: nullable(fileDataSchema),
+  imageFile: nullable(fileDataSchema),
+  audioFile: nullable(fileDataSchema),
   midiOffset: number(),
   opacity: number(),
   volume: number(),
