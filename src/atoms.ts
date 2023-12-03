@@ -23,6 +23,7 @@ export const createStoreWithStorage = () => {
   }
   return store;
 };
+export const midiFileAtom = atomWithStorage("midiFile", null);
 export const midiOffsetAtom = atomWithStorage("midiOffset", 0);
 export const opacityAtom = atomWithStorage("opacity", 0.6);
 export const volumeAtom = atomWithStorage("volume", 1);

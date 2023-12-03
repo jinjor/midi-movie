@@ -7,10 +7,19 @@ import {
   array,
   object,
   boolean,
+  nullable,
 } from "valibot";
 
 const namespace = "MidiMovie.";
 const schemas = {
+  midiFile: nullable(
+    object({
+      name: string(),
+      type: string(),
+      loadedAt: number(),
+      data: string(),
+    }),
+  ),
   midiOffset: number(),
   opacity: number(),
   volume: number(),
