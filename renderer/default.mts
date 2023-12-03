@@ -26,9 +26,11 @@ import {
   minNote,
   peakLightness,
   peakThickness,
+  saturation,
   timeRangeSec,
   vertical,
 } from "./util/props.mts";
+import { putInRange, ratio } from "./util/calc.mts";
 
 export const config = {
   props: [
@@ -37,6 +39,7 @@ export const config = {
     timeRangeSec(6),
     minHue(0),
     maxHue(240),
+    saturation(40),
     baseLightness(30),
     peakLightness(100),
     activeLightness(80),
@@ -75,6 +78,7 @@ function calculateNoteForLandscape({
   minNote,
   maxNote,
   timeRangeSec,
+  saturation,
   minHue,
   maxHue,
   baseLightness,
@@ -93,9 +97,11 @@ function calculateNoteForLandscape({
   const releaseSec = 0.4;
   const fullHeightPerNote = size.height / (maxNote - minNote + 1);
   const widthPerSec = size.width / timeRangeSec;
-  const hue =
-    ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
-    minHue;
+  const hue = putInRange(
+    minHue,
+    maxHue,
+    ratio(minNote, maxNote, note.noteNumber),
+  );
   const lightness = calcEnvelope({
     base: baseLightness,
     peak: peakLightness,
@@ -126,7 +132,7 @@ function calculateNoteForLandscape({
     y1: y,
     y2: y,
     "stroke-width": strokeWidth,
-    stroke: `hsl(${hue}, 20%, ${lightness}%)`,
+    stroke: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
     "stroke-linecap": lineCap ? "round" : "butt",
   };
   return {
@@ -148,7 +154,7 @@ function calculateNote({
   return { line: vertical ? flipLine(line, size) : line, ...rest };
 }
 
-export function init(svg: SVGSVGElement, { notes }: InitOptions) {
+export function init(svg: SVGSVGElement, { notes }: InitOptions<CustomProps>) {
   const bar = createSvgElement("line");
   setAttributes(bar, {
     id: "bar",

@@ -35,6 +35,7 @@ type Config = {
 type InitProps = {
   size: Size;
   notes: Note[];
+  customProps: Record<string, number>;
 };
 type UpdateProps = {
   notes: Note[];
@@ -59,6 +60,10 @@ export const renderers: (RendererInfo & { name: string })[] = [
   {
     name: "Arch",
     url: `${root}/renderer/arch${ext}`,
+  },
+  {
+    name: "Depth",
+    url: `${root}/renderer/depth${ext}`,
   },
 ];
 export function importRendererModule(url: string): Promise<RendererModule> {

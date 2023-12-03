@@ -54,8 +54,8 @@ function collectEvents(parsed: midiManager.MidiData): Event[] {
   return events.sort((a, b) => a.time - b.time);
 }
 function collectNotes(timeDivision: number, events: Event[]): Note[] {
-  const notes: Note[] = [];
-  const noteMap = new Map<string, Note>();
+  const notes: Omit<Note, "index">[] = [];
+  const noteMap = new Map<string, Omit<Note, "index">>();
   let microsecondsPerBeat = 500000; // bpm=120
   let time = 0;
   let sec = 0;
@@ -83,5 +83,10 @@ function collectNotes(timeDivision: number, events: Event[]): Note[] {
       noteMap.delete(key);
     }
   }
-  return notes.sort((a, b) => a.fromSec - b.fromSec);
+  return notes
+    .sort((a, b) => a.fromSec - b.fromSec)
+    .map((note, index) => ({
+      ...note,
+      index,
+    }));
 }

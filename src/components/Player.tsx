@@ -92,7 +92,7 @@ export const Player = () => {
       const {
         size,
         enabledTracks,
-        customProps,
+        customProps = {},
         rendererModule,
         midiOffsetInSec,
         volume,
@@ -102,14 +102,18 @@ export const Player = () => {
         offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
       if (rendererModule && prevModule !== rendererModule) {
         container.innerHTML = "";
-        rendererModule?.init(container, { size, notes: midiData.notes });
+        rendererModule?.init(container, {
+          size,
+          notes: midiData.notes,
+          customProps,
+        });
       }
       rendererModule?.update(container, {
         notes,
         size,
         enabledTracks,
         elapsedSec,
-        customProps: customProps ?? {},
+        customProps: customProps,
         playing: true,
       });
       prevModule = rendererModule;
@@ -150,7 +154,11 @@ export const Player = () => {
     const elapsedSec = offsetInSec + midiOffsetInSec;
 
     container.innerHTML = "";
-    rendererModule.init(container, { size, notes: midiData.notes });
+    rendererModule.init(container, {
+      size,
+      notes: midiData.notes,
+      customProps: customProps ?? {},
+    });
     rendererModule.update(container, {
       notes,
       size,

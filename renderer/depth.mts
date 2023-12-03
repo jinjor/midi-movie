@@ -12,19 +12,23 @@ import {
   setStyles,
   createSvgElement,
 } from "./util/svg.mts";
-import { flipCircle, flipLine, flipSize } from "./util/shape.mts";
-import { calcQuadraticEnvelope } from "./util/envelope.mts";
+import { flipLine, flipSize } from "./util/shape.mts";
+import { calcEnvelope } from "./util/envelope.mts";
 import {
-  afterLightness,
-  afterThickness,
-  beforeLightness,
-  beforeThickness,
+  activeLightness,
+  activeThickness,
+  baseLightness,
+  baseThickness,
+  colorByTrack,
+  depth,
+  lineCap,
   maxHue,
   maxNote,
   minHue,
   minNote,
   peakLightness,
   peakThickness,
+  reverseDepth,
   saturation,
   timeRangeSec,
   vertical,
@@ -39,21 +43,17 @@ export const config = {
     minHue(0),
     maxHue(240),
     saturation(40),
-    beforeLightness(45),
-    peakLightness(75),
-    afterLightness(45),
-    beforeThickness(2, {
-      min: 0,
-      max: 10,
-      step: 0.1,
-    }),
-    peakThickness(3, {
-      min: 0,
-      max: 10,
-      step: 0.1,
-    }),
-    afterThickness(0.4),
+    baseLightness(30),
+    peakLightness(100),
+    activeLightness(80),
+    baseThickness(0.4),
+    peakThickness(1),
+    activeThickness(0.6),
     vertical(0),
+    lineCap(0),
+    colorByTrack(1),
+    depth(2),
+    reverseDepth(0),
   ],
 } as const satisfies ModuleConfig;
 
@@ -87,85 +87,83 @@ function calculateNoteForLandscape({
   saturation,
   minHue,
   maxHue,
-  beforeLightness,
+  baseLightness,
   peakLightness,
-  afterLightness,
-  beforeThickness,
+  activeLightness,
+  baseThickness,
   peakThickness,
-  afterThickness,
+  activeThickness,
+  lineCap,
+  colorByTrack,
+  depth,
+  reverseDepth,
+  numberOfTracks,
 }: Omit<CustomProps, "vertical"> & {
   size: Size;
   note: Note;
   elapsedSec: number;
+  numberOfTracks: number;
 }) {
-  const outOfNoteRange = note.noteNumber < minNote || note.noteNumber > maxNote;
-  const fullHeightPerNote = size.height / (maxNote - minNote);
-  const widthPerSec = size.width / timeRangeSec;
-  const hue = putInRange(
-    minHue,
-    maxHue,
-    ratio(minNote, maxNote, note.noteNumber),
+  const maxTrackIndex = numberOfTracks - 1;
+  const shallowestScale = 1;
+  const deepestScale = shallowestScale / depth;
+  const scale = putInRange(
+    shallowestScale,
+    deepestScale,
+    note.trackIndex / maxTrackIndex,
+    !!reverseDepth,
   );
-  const decaySec = note.toSec - note.fromSec;
-  const releaseSec = 0.1;
-  const lightness = calcQuadraticEnvelope({
-    base: beforeLightness,
+  const height = size.height * scale;
+  const bottom = size.height / 2 + height / 2;
+  const scaledTimeRangeSec = timeRangeSec / scale;
+
+  const decaySec = 0.2;
+  const releaseSec = 0.4;
+  const fullHeightPerNote = height / (maxNote - minNote + 1);
+  const widthPerSec = size.width / scaledTimeRangeSec;
+  const hue = colorByTrack
+    ? putInRange(minHue, maxHue, note.trackIndex / maxTrackIndex)
+    : putInRange(minHue, maxHue, ratio(minNote, maxNote, note.noteNumber));
+  const lightness = calcEnvelope({
+    base: baseLightness,
     peak: peakLightness,
-    active: afterLightness,
-    end: afterLightness,
+    active: activeLightness,
     decaySec,
     releaseSec,
     fromSec: note.fromSec,
     toSec: note.toSec,
     elapsedSec,
   });
-  const thickness = calcQuadraticEnvelope({
-    base: beforeThickness * Math.sqrt((note.toSec - note.fromSec) * 4),
-    peak: peakThickness * Math.sqrt((note.toSec - note.fromSec) * 4),
-    active: afterThickness,
-    end: afterThickness,
+  const thickness = calcEnvelope({
+    base: baseThickness,
+    peak: peakThickness,
+    active: activeThickness,
     decaySec,
     releaseSec,
     fromSec: note.fromSec,
     toSec: note.toSec,
     elapsedSec,
   });
-  const x = (note.fromSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
-  const cy =
-    size.height - (note.noteNumber - minNote - 0.5) * fullHeightPerNote;
-  const width = (note.toSec - note.fromSec) * widthPerSec;
-  const r = (fullHeightPerNote * thickness) / 2;
-  const circle = {
-    cx: x > size.width / 2 ? x : size.width / 2,
-    cy,
-    r,
-    fill:
-      outOfNoteRange || x + width < size.width / 2 || x > size.width / 2
-        ? "transparent"
-        : `hsl(${hue}, ${saturation}%, ${lightness}%)`,
-    "stroke-width": x < size.width / 2 ? 0 : 1,
-    stroke:
-      outOfNoteRange || x < size.width / 2
-        ? "transparent"
-        : `hsl(${hue}, ${saturation}%, ${lightness}%)`,
-  };
+  const x1 = (note.fromSec - elapsedSec + scaledTimeRangeSec / 2) * widthPerSec;
+  const x2 = (note.toSec - elapsedSec + scaledTimeRangeSec / 2) * widthPerSec;
+  const y = bottom - (note.noteNumber - minNote) * fullHeightPerNote;
+  const strokeWidth = fullHeightPerNote * thickness;
+  const hidden = note.noteNumber < minNote || note.noteNumber > maxNote;
   const line = {
-    x1: x,
-    y1: cy,
-    x2: x + width < size.width / 2 ? x + width : size.width / 2,
-    y2: cy,
-    stroke:
-      outOfNoteRange || x > size.width / 2
-        ? "transparent"
-        : `hsl(${hue}, ${saturation}%, ${afterLightness}%)`,
-    "stroke-width": r * 2,
-    "stroke-linecap": "round",
+    x1,
+    x2,
+    y1: y,
+    y2: y,
+    "stroke-width": strokeWidth,
+    stroke: hidden
+      ? "transparent"
+      : `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+    "stroke-linecap": lineCap ? "round" : "butt",
   };
   return {
-    circle,
     line,
-    ended: line.x2 + r < 0,
-    started: circle.cx - r <= size.width,
+    started: line.x1 <= size.width,
+    ended: line.x2 < 0,
   };
 }
 
@@ -177,31 +175,34 @@ function calculateNote({
   size: Size;
   note: Note;
   elapsedSec: number;
+  numberOfTracks: number;
 }) {
-  const { circle, line, ...rest } = calculateNoteForLandscape({
+  const { line, ...rest } = calculateNoteForLandscape({
     size: vertical ? flipSize(size) : size,
     ...restParams,
   });
-  return {
-    circle: vertical ? flipCircle(circle, size) : circle,
-    line: vertical ? flipLine(line, size) : line,
-    ...rest,
-  };
+  return { line: vertical ? flipLine(line, size) : line, ...rest };
 }
 
-export function init(svg: SVGSVGElement, { notes }: InitOptions<CustomProps>) {
+export function init(
+  svg: SVGSVGElement,
+  { notes, customProps }: InitOptions<CustomProps>,
+) {
   const bar = createSvgElement("line");
   setAttributes(bar, {
     id: "bar",
   });
   svg.appendChild(bar);
-  for (const _note of notes) {
+  notes.sort((a, b) => b.trackIndex - a.trackIndex);
+  if (customProps.reverseDepth) {
+    notes.reverse();
+  }
+  for (const note of notes) {
     const g = createSvgElement("g");
     const line = createSvgElement("line");
-    const circle = createSvgElement("circle");
     g.appendChild(line);
-    g.appendChild(circle);
     setAttributes(g, {
+      id: `note-${note.index}`,
       class: "note",
     });
     svg.appendChild(g);
@@ -223,23 +224,23 @@ export function update(
   const barPatch = calculateBar({ size, ...customProps });
   setAttributes(bar, barPatch);
 
-  const groups = svg.querySelectorAll(".note");
-  for (const [index, note] of notes.entries()) {
-    const group = groups[index] as SVGGElement;
+  for (const note of notes) {
+    const group = document.getElementById(
+      `note-${note.index}`,
+    ) as unknown as SVGGElement;
     const line = group.children[0] as SVGLineElement;
-    const circle = group.children[1] as SVGCircleElement;
     if (playing && getStyle(group, "display") === "none") {
       continue;
     }
     const {
-      circle: circlePatch,
       line: linePatch,
-      ended,
       started,
+      ended,
     } = calculateNote({
       size,
       note,
       elapsedSec,
+      numberOfTracks: enabledTracks.length,
       ...customProps,
     });
     if (playing && ended) {
@@ -254,9 +255,7 @@ export function update(
     const stylePatch = {
       display: !enabledTracks[note.trackIndex] ? "none" : "block",
     };
-    setStyles(circle, stylePatch);
     setStyles(line, stylePatch);
-    setAttributes(circle, circlePatch);
     setAttributes(line, linePatch);
   }
 }

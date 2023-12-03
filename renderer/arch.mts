@@ -18,9 +18,11 @@ import {
   maxNote,
   minHue,
   minNote,
+  saturation,
   thickness,
   timeRangeSec,
 } from "./util/props.mts";
+import { putInRange, ratio } from "./util/calc.mts";
 
 export const config = {
   props: [
@@ -29,6 +31,7 @@ export const config = {
     timeRangeSec(6),
     minHue(0),
     maxHue(240),
+    saturation(40),
     thickness(0.6),
   ],
 } as const satisfies ModuleConfig;
@@ -42,6 +45,7 @@ function calculateNote({
   minNote,
   maxNote,
   timeRangeSec,
+  saturation,
   minHue,
   maxHue,
   thickness,
@@ -57,11 +61,15 @@ function calculateNote({
   const rangeAngle = Math.PI;
   const midAngle = Math.PI * 1.5;
   const minAngle = midAngle - rangeAngle / 2;
+  const maxAngle = midAngle + rangeAngle / 2;
   const maxBarLength = 50;
   const archRadius = size.height - padding * 2 - maxBarLength;
 
-  const noteAngle =
-    ((note.noteNumber - minNote) / (maxNote - minNote)) * rangeAngle + minAngle;
+  const noteAngle = putInRange(
+    minAngle,
+    maxAngle,
+    ratio(minNote, maxNote, note.noteNumber),
+  );
   const edgeX = centerX + Math.cos(noteAngle) * archRadius;
   const edgeY = centerY + Math.sin(noteAngle) * archRadius;
 
@@ -69,9 +77,11 @@ function calculateNote({
     ((archRadius * rangeAngle) / (maxNote - minNote)) * thickness;
   const circleRadius = barWidth / 2;
   const distancePerSec = archRadius / timeRangeSec;
-  const hue =
-    ((note.noteNumber - minNote) / (maxNote - minNote)) * (maxHue - minHue) +
-    minHue;
+  const hue = putInRange(
+    minHue,
+    maxHue,
+    ratio(minNote, maxNote, note.noteNumber),
+  );
   const distance =
     (timeRangeSec - (note.fromSec - elapsedSec)) * distancePerSec;
   const circleX = centerX + Math.cos(noteAngle) * distance;
@@ -83,7 +93,7 @@ function calculateNote({
     fill:
       outOfNoteRange || distance < 0 || distance > archRadius
         ? "transparent"
-        : `hsl(${hue}, 20%, 50%)`,
+        : `hsl(${hue}, ${saturation}%, 50%)`,
   };
   const barLength =
     calcEnvelope({
@@ -106,7 +116,9 @@ function calculateNote({
     x2: barEndX,
     y2: barEndY,
     stroke:
-      outOfNoteRange || barLength < 1 ? "transparent" : `hsl(${hue}, 20%, 50%)`,
+      outOfNoteRange || barLength < 1
+        ? "transparent"
+        : `hsl(${hue}, ${saturation}%, 50%)`,
     "stroke-width": barWidth,
     "stroke-linecap": "round",
   };
@@ -118,7 +130,7 @@ function calculateNote({
   };
 }
 
-export function init(svg: SVGSVGElement, { notes }: InitOptions) {
+export function init(svg: SVGSVGElement, { notes }: InitOptions<CustomProps>) {
   for (const _note of notes) {
     const g = createSvgElement("g");
     const line = createSvgElement("line");
