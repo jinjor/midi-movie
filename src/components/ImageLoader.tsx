@@ -3,25 +3,48 @@ import { Image } from "@/model/types";
 import { useCounter } from "@/counter";
 import { useAtom } from "jotai";
 import { imageUrlAtom, imageSizeAtom } from "@/atoms";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useFileStorage } from "@/fileStorage";
 
 export const ImageLoader = () => {
   useCounter("ImageLoader");
+  const { status, save, data: imageFile } = useFileStorage("image");
   const [size, setSize] = useAtom(imageSizeAtom);
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useAtom(imageUrlAtom);
+  useEffect(() => {
+    if (imageFile) {
+      void (async () => {
+        const image = await getImageInfo(imageFile.type, imageFile.data);
+        setName(imageFile.name);
+        setImageUrl(image.url);
+        setSize(image.size);
+      })();
+    }
+  }, [imageFile, setImageUrl, setSize]);
   const handleLoadImage = (file: File) => {
     void (async () => {
-      const image = await getImageInfo(file);
+      const buffer = await file.arrayBuffer();
+      const image = await getImageInfo(file.type, buffer);
       setName(file.name);
       setImageUrl(image.url);
       setSize(image.size);
+      await save({
+        name: file.name,
+        type: file.type,
+        loadedAt: Date.now(),
+        data: buffer,
+      });
     })();
   };
   return (
     <label>
       Image:
-      <FileInput onLoad={handleLoadImage} extensions={[".png", "jpg", "jpeg"]}>
+      <FileInput
+        disabled={status === "loading"}
+        onLoad={handleLoadImage}
+        extensions={[".png", "jpg", "jpeg"]}
+      >
         {name && imageUrl && (
           <>
             <span>{name}</span> |{" "}
@@ -35,9 +58,11 @@ export const ImageLoader = () => {
     </label>
   );
 };
-async function getImageInfo(file: File): Promise<Image> {
-  const buffer = await file.arrayBuffer();
-  const blob = new Blob([buffer], { type: file.type });
+async function getImageInfo(
+  fileType: string,
+  buffer: ArrayBuffer,
+): Promise<Image> {
+  const blob = new Blob([buffer], { type: fileType });
   return new Promise((resolve, reject) => {
     const img = new window.Image();
     img.onload = () => {
@@ -51,6 +76,6 @@ async function getImageInfo(file: File): Promise<Image> {
     img.onerror = (error) => {
       reject(error);
     };
-    img.src = URL.createObjectURL(file);
+    img.src = URL.createObjectURL(blob);
   });
 }

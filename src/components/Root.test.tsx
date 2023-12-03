@@ -178,7 +178,7 @@ test("should load Image file", async () => {
 });
 test("should load Wave file", async () => {
   const container = renderInNewContainer(<Root />);
-  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 300)));
   resetCount();
   const input = container.getByLabelText(/Audio:/i);
   const file = new File([wavFile], "test.wav", {
@@ -189,7 +189,7 @@ test("should load Wave file", async () => {
       files: [file],
     },
   });
-  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 500)));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 800)));
   expect(getRenderedKeys()).not.toContainAnyOf([
     "App",
     "MidiLoader",

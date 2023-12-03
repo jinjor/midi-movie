@@ -32,6 +32,12 @@ export type Note = {
   toSec: number;
   noteNumber: number;
 };
+export type StoredFile = {
+  name: string;
+  type: string;
+  loadedAt: number;
+  data: ArrayBuffer;
+};
 export type MidiData = {
   tracks: Track[];
   notes: Note[];

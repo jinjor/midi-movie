@@ -10,6 +10,7 @@ import {
 } from "valibot";
 
 const namespace = "MidiMovie.";
+
 const schemas = {
   midiOffset: number(),
   opacity: number(),
