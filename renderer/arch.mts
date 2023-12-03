@@ -130,7 +130,7 @@ function calculateNote({
   };
 }
 
-export function init(svg: SVGSVGElement, { notes }: InitOptions) {
+export function init(svg: SVGSVGElement, { notes }: InitOptions<CustomProps>) {
   for (const _note of notes) {
     const g = createSvgElement("g");
     const line = createSvgElement("line");

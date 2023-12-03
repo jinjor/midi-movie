@@ -42,9 +42,10 @@ export type PlayingState = {
   startTime: number;
   timer: number;
 };
-export type InitOptions = {
+export type InitOptions<T> = {
   size: Size;
   notes: Note[];
+  customProps: T;
 };
 export type UpdateOptions<T> = {
   notes: Note[];

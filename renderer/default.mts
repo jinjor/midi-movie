@@ -154,7 +154,7 @@ function calculateNote({
   return { line: vertical ? flipLine(line, size) : line, ...rest };
 }
 
-export function init(svg: SVGSVGElement, { notes }: InitOptions) {
+export function init(svg: SVGSVGElement, { notes }: InitOptions<CustomProps>) {
   const bar = createSvgElement("line");
   setAttributes(bar, {
     id: "bar",

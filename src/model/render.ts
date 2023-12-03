@@ -35,6 +35,7 @@ type Config = {
 type InitProps = {
   size: Size;
   notes: Note[];
+  customProps: Record<string, number>;
 };
 type UpdateProps = {
   notes: Note[];

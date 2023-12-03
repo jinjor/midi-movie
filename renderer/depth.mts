@@ -28,6 +28,7 @@ import {
   minNote,
   peakLightness,
   peakThickness,
+  reverseDepth,
   saturation,
   timeRangeSec,
   vertical,
@@ -52,6 +53,7 @@ export const config = {
     lineCap(0),
     colorByTrack(1),
     depth(2),
+    reverseDepth(0),
   ],
 } as const satisfies ModuleConfig;
 
@@ -94,6 +96,7 @@ function calculateNoteForLandscape({
   lineCap,
   colorByTrack,
   depth,
+  reverseDepth,
   numberOfTracks,
 }: Omit<CustomProps, "vertical"> & {
   size: Size;
@@ -105,9 +108,10 @@ function calculateNoteForLandscape({
   const shallowestScale = 1;
   const deepestScale = shallowestScale / depth;
   const scale = putInRange(
-    deepestScale,
     shallowestScale,
+    deepestScale,
     note.trackIndex / maxTrackIndex,
+    !!reverseDepth,
   );
   const height = size.height * scale;
   const bottom = size.height / 2 + height / 2;
@@ -180,13 +184,19 @@ function calculateNote({
   return { line: vertical ? flipLine(line, size) : line, ...rest };
 }
 
-export function init(svg: SVGSVGElement, { notes }: InitOptions) {
+export function init(
+  svg: SVGSVGElement,
+  { notes, customProps }: InitOptions<CustomProps>,
+) {
   const bar = createSvgElement("line");
   setAttributes(bar, {
     id: "bar",
   });
   svg.appendChild(bar);
-  notes.sort((a, b) => a.trackIndex - b.trackIndex);
+  notes.sort((a, b) => b.trackIndex - a.trackIndex);
+  if (customProps.reverseDepth) {
+    notes.reverse();
+  }
   for (const note of notes) {
     const g = createSvgElement("g");
     const line = createSvgElement("line");

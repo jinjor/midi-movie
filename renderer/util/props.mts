@@ -276,3 +276,14 @@ export const depth = ((defaultValue: number) =>
     step: 0.5,
     defaultValue,
   }) as const) satisfies ModulePropDefCreator;
+
+export const reverseDepth = ((defaultValue: number) =>
+  ({
+    id: "reverseDepth",
+    name: "Reverse Depth",
+    type: "number",
+    min: 0,
+    max: 1,
+    step: 1,
+    defaultValue,
+  }) as const) satisfies ModulePropDefCreator;
