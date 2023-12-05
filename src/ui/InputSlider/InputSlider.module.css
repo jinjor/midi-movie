@@ -1,0 +1,7 @@
+.InputSlider {
+  display: grid;
+  align-items: center;
+  justify-content: space-between;
+  grid-template-columns: 1fr 70px;
+  gap: 10px;
+}

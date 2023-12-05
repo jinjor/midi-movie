@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from "react";
 type Props = {
   disabled: boolean;
   value: number; // 0-1
-  onStartDragging: (value: number) => void;
-  onStopDragging: (value: number) => void;
+  onStartDragging?: (value: number) => void;
+  onStopDragging?: (value: number) => void;
   onDrag: (value: number) => void;
 };
 
@@ -32,7 +32,7 @@ export const SeekBar = ({
       maxX: bounds.right,
     };
     setDrag(drag);
-    onStartDragging(calculateValue(e.clientX, drag));
+    onStartDragging?.(calculateValue(e.clientX, drag));
   };
   useEffect(() => {
     if (drag === null) {
@@ -43,7 +43,7 @@ export const SeekBar = ({
     };
     const handleMouseUp = (e: MouseEvent) => {
       setDrag(null);
-      onStopDragging(calculateValue(e.clientX, drag));
+      onStopDragging?.(calculateValue(e.clientX, drag));
     };
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);

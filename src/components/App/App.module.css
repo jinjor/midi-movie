@@ -10,7 +10,7 @@
 
 .panes {
   display: grid;
-  grid-template-columns: 300px 1fr 350px;
+  grid-template-columns: 300px 1fr 250px;
   gap: 2px;
 }
 .pane {
@@ -23,7 +23,7 @@
   align-items: flex-start;
   gap: 5px;
 }
-label {
+.fields > label {
   display: inline-flex;
   align-items: center;
   gap: 5px;

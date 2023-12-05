@@ -5,6 +5,7 @@ import { useAtom } from "jotai";
 import { imageUrlAtom, imageSizeAtom } from "@/atoms";
 import { useEffect, useState } from "react";
 import { useFileStorage } from "@/fileStorage";
+import { ControlLabel } from "@/ui/ControlLabel";
 
 export const ImageLoader = () => {
   useCounter("ImageLoader");
@@ -38,8 +39,7 @@ export const ImageLoader = () => {
     })();
   };
   return (
-    <label>
-      Image:
+    <ControlLabel text="Image">
       <FileInput
         disabled={status === "loading"}
         onLoad={handleLoadImage}
@@ -55,7 +55,7 @@ export const ImageLoader = () => {
           </>
         )}
       </FileInput>
-    </label>
+    </ControlLabel>
   );
 };
 async function getImageInfo(
