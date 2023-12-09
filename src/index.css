@@ -6,6 +6,7 @@
   --color-border-default: #444;
   --color-accent: #0a9;
   --color-text: #ddd;
+  --font-size-control: 12px;
 }
 html,
 body {
@@ -32,6 +33,7 @@ input[type="number"] {
   outline: none;
   padding: 5px 10px;
   appearance: none;
+  font-size: var(--font-size-control);
 }
 button,
 .button {
@@ -42,6 +44,7 @@ button,
   padding: 5px 10px;
   appearance: none;
   cursor: pointer;
+  font-size: var(--font-size-control);
 }
 .select {
   position: relative;

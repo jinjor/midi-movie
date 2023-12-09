@@ -6,7 +6,6 @@ import { midiDataAtom, selectedMidiFileAtom } from "@/atoms";
 import { formatTime } from "@/util";
 import { useEffect } from "react";
 import { useFileStorage } from "@/fileStorage";
-import { ControlLabel } from "@/ui/ControlLabel";
 
 export const MidiLoader = () => {
   useCounter("MidiLoader");
@@ -35,19 +34,17 @@ export const MidiLoader = () => {
     })();
   };
   return (
-    <ControlLabel text="MIDI">
-      <FileInput
-        disabled={status === "loading"}
-        onLoad={handleLoadMidi}
-        extensions={[".mid", "midi"]}
-      >
-        {selectedMidiFile && midiData && (
-          <>
-            <span>{selectedMidiFile}</span> |{" "}
-            <span>{formatTime(midiData.endSec)}</span>
-          </>
-        )}
-      </FileInput>
-    </ControlLabel>
+    <FileInput
+      disabled={status === "loading"}
+      onLoad={handleLoadMidi}
+      extensions={[".mid", "midi"]}
+    >
+      {selectedMidiFile && midiData && (
+        <>
+          <span>{selectedMidiFile}</span> |{" "}
+          <span>{formatTime(midiData.endSec)}</span>
+        </>
+      )}
+    </FileInput>
   );
 };

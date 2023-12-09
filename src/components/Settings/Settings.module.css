@@ -4,3 +4,8 @@
   gap: 10px;
   width: 100%;
 }
+
+.renderingSettings label {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+}

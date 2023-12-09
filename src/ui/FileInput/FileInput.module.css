@@ -1,6 +1,8 @@
 .fileInput {
   border: solid 1px var(--color-border-default);
   cursor: pointer;
+  white-space: nowrap;
+  font-size: var(--font-size-control);
 }
 .fileInput input {
   display: none;

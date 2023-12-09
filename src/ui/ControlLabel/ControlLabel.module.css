@@ -1,4 +1,9 @@
-.ContollLabelText {
-  font-size: 12px;
+.ControlLabel {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.ControlLabelText {
+  font-size: var(--font-size-control);
   font-weight: bold;
 }

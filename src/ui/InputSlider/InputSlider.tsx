@@ -34,15 +34,15 @@ export const InputSlider = ({
   );
   return (
     <div className={styles.InputSlider}>
-      <NumberSlider
+      <NumberInput
+        className={styles.InputSliderInput}
         min={min}
         max={max}
         step={step}
         value={sharedValue}
         onChange={handleChange}
       />
-      <NumberInput
-        className={styles.InputSliderInput}
+      <NumberSlider
         min={min}
         max={max}
         step={step}

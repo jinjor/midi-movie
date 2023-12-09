@@ -1,30 +1,25 @@
-.vertical {
+.App {
   display: flex;
   flex-direction: column;
   gap: 2px;
   height: 100dvh;
 }
-.vertical > *:last-child {
-  flex-grow: 1;
+.App > *:last-child {
+  min-height: 0;
 }
-
-.panes {
+.body {
   display: grid;
-  grid-template-columns: 300px 1fr 250px;
+  grid-template-columns: minmax(min-content, 1fr) 400px 250px;
   gap: 2px;
 }
+.body > * {
+  overflow-y: scroll;
+}
 .pane {
-  padding: 20px;
+  padding: 15px 30px;
   background-color: var(--color-bg-foreground);
 }
-.fields {
+.files {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 5px;
-}
-.fields > label {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  gap: 20px;
 }

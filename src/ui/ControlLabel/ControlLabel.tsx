@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import styles from "./ControlLabel.module.css";
+import { cx } from "@/util";
 
 type Props = {
   text: string;
@@ -9,8 +10,8 @@ type Props = {
 
 export const ControlLabel = ({ text, className, children }: Props) => {
   return (
-    <label className={className}>
-      <span className={styles.ContollLabelText}>{text}</span>
+    <label className={cx(styles.ControlLabel, className)}>
+      <span className={styles.ControlLabelText}>{text}</span>
       {children}
     </label>
   );

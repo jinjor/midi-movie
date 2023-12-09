@@ -2,6 +2,6 @@
   display: grid;
   align-items: center;
   justify-content: space-between;
-  grid-template-columns: 1fr 70px;
-  gap: 10px;
+  grid-template-columns: 70px 1fr;
+  gap: 15px;
 }

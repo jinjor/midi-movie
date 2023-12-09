@@ -6,7 +6,6 @@ import { audioBufferAtom } from "@/atoms";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { useFileStorage } from "@/fileStorage";
-import { ControlLabel } from "@/ui/ControlLabel";
 
 export type Image = {
   imageUrl: string;
@@ -44,19 +43,16 @@ export const AudioLoader = () => {
     })();
   };
   return (
-    <ControlLabel text="Audio">
-      <FileInput
-        disabled={status === "loading"}
-        onLoad={handleLoadAudio}
-        extensions={[".wav"]}
-      >
-        {name && audioBuffer && (
-          <>
-            <span>{name}</span> |{" "}
-            <span>{formatTime(audioBuffer.duration)}</span>
-          </>
-        )}
-      </FileInput>
-    </ControlLabel>
+    <FileInput
+      disabled={status === "loading"}
+      onLoad={handleLoadAudio}
+      extensions={[".wav"]}
+    >
+      {name && audioBuffer && (
+        <>
+          <span>{name}</span> | <span>{formatTime(audioBuffer.duration)}</span>
+        </>
+      )}
+    </FileInput>
   );
 };
