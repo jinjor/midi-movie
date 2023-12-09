@@ -165,7 +165,7 @@ test("should load Image file", async () => {
     type: "image/png",
   });
   const container = renderInNewContainer(<Root />);
-  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 200)));
   resetCount();
   const input = container.getByLabelText(/Image/i);
   fireEvent.change(input, {
@@ -188,7 +188,7 @@ test("should load Image file", async () => {
 });
 test("should load Wave file", async () => {
   const container = renderInNewContainer(<Root />);
-  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 300)));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 500)));
   resetCount();
   const input = container.getByLabelText(/Audio/i);
   const file = new File([wavFile], "test.wav", {
