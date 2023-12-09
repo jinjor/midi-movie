@@ -43,20 +43,16 @@ export const AudioLoader = () => {
     })();
   };
   return (
-    <label>
-      Audio:
-      <FileInput
-        disabled={status === "loading"}
-        onLoad={handleLoadAudio}
-        extensions={[".wav"]}
-      >
-        {name && audioBuffer && (
-          <>
-            <span>{name}</span> |{" "}
-            <span>{formatTime(audioBuffer.duration)}</span>
-          </>
-        )}
-      </FileInput>
-    </label>
+    <FileInput
+      disabled={status === "loading"}
+      onLoad={handleLoadAudio}
+      extensions={[".wav"]}
+    >
+      {name && audioBuffer && (
+        <>
+          <span>{name}</span> | <span>{formatTime(audioBuffer.duration)}</span>
+        </>
+      )}
+    </FileInput>
   );
 };

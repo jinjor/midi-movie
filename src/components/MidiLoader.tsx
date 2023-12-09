@@ -34,20 +34,17 @@ export const MidiLoader = () => {
     })();
   };
   return (
-    <label>
-      <span>MIDI:</span>
-      <FileInput
-        disabled={status === "loading"}
-        onLoad={handleLoadMidi}
-        extensions={[".mid", "midi"]}
-      >
-        {selectedMidiFile && midiData && (
-          <>
-            <span>{selectedMidiFile}</span> |{" "}
-            <span>{formatTime(midiData.endSec)}</span>
-          </>
-        )}
-      </FileInput>
-    </label>
+    <FileInput
+      disabled={status === "loading"}
+      onLoad={handleLoadMidi}
+      extensions={[".mid", "midi"]}
+    >
+      {selectedMidiFile && midiData && (
+        <>
+          <span>{selectedMidiFile}</span> |{" "}
+          <span>{formatTime(midiData.endSec)}</span>
+        </>
+      )}
+    </FileInput>
   );
 };

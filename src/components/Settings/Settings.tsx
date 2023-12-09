@@ -1,4 +1,3 @@
-import { NumberInput } from "@/ui/NumberInput";
 import { useCounter } from "@/counter";
 import { useAtom } from "jotai";
 import {
@@ -13,6 +12,8 @@ import { useEffect } from "react";
 import { RendererState, importRendererModule, renderers } from "@/model/render";
 import { Select } from "@/ui/Select";
 import styles from "./Settings.module.css";
+import { ControlLabel } from "@/ui/ControlLabel";
+import { InputSlider } from "@/ui/InputSlider";
 
 export const Settings = () => {
   useCounter("Settings");
@@ -80,43 +81,41 @@ export const Settings = () => {
   };
   return (
     <div className={styles.renderingSettings}>
-      <label>
-        Midi Offset(ms):
-        <NumberInput
+      <ControlLabel text="Midi Offset(ms)">
+        <InputSlider
           min={-60000}
           max={60000}
           defaultValue={midiOffsetInSec * 1000}
           onChange={handleMidiOffsetChange}
         />
-      </label>
-      <label>
-        Volume:
-        <NumberInput
+      </ControlLabel>
+      <ControlLabel text="Volume">
+        <InputSlider
           min={0}
           max={1}
           step={0.1}
           defaultValue={volume}
           onChange={handleVolumeChange}
         />
-      </label>
-      <label>
-        Overlay Opacity:
-        <NumberInput
+      </ControlLabel>
+      <ControlLabel text="Overlay Opacity">
+        <InputSlider
           min={0}
           max={1}
           step={0.1}
           defaultValue={opacity}
           onChange={handleOpacityChange}
         />
-      </label>
-      <label>
-        Renderer:
-        <Select
-          onChange={handleSelectRenderer}
-          value={selectedRenderer}
-          options={renderers.map((r) => r.name)}
-        />
-      </label>
+      </ControlLabel>
+      <ControlLabel text="Renderer">
+        <div>
+          <Select
+            onChange={handleSelectRenderer}
+            value={selectedRenderer}
+            options={renderers.map((r) => r.name)}
+          />
+        </div>
+      </ControlLabel>
       <RendererConfig
         renderer={renderer}
         onCustomPropChange={handleCustomPropChange}
@@ -141,16 +140,15 @@ const RendererConfig = ({
     <>
       {renderer.module.config.props.map((p) => {
         return (
-          <label key={p.id}>
-            {p.name}:
-            <NumberInput
+          <ControlLabel key={p.id} text={p.name}>
+            <InputSlider
               min={p.min}
               max={p.max}
               step={p.step}
               defaultValue={props[p.id] ?? p.defaultValue}
               onChange={(value) => onCustomPropChange(p.id, value)}
             />
-          </label>
+          </ControlLabel>
         );
       })}
     </>

@@ -1,10 +1,11 @@
 .renderingSettings {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 10px;
+  width: 100%;
 }
+
 .renderingSettings label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  display: grid;
+  grid-template-columns: 150px 1fr;
 }

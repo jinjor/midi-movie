@@ -20,7 +20,7 @@ export const FileInput = ({
     onLoad(file);
   };
   return (
-    <div className={cx("button", styles.fileInput)}>
+    <span className={cx("button", styles.fileInput)}>
       <input
         disabled={disabled}
         type="file"
@@ -28,6 +28,6 @@ export const FileInput = ({
         accept={extensions.join(",")}
       />
       {children || "Select"}
-    </div>
+    </span>
   );
 };

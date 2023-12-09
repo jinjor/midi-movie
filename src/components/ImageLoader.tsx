@@ -38,24 +38,21 @@ export const ImageLoader = () => {
     })();
   };
   return (
-    <label>
-      Image:
-      <FileInput
-        disabled={status === "loading"}
-        onLoad={handleLoadImage}
-        extensions={[".png", "jpg", "jpeg"]}
-      >
-        {name && imageUrl && (
-          <>
-            <span>{name}</span> |{" "}
-            <span>
-              {" "}
-              {size.width} x {size.height}
-            </span>
-          </>
-        )}
-      </FileInput>
-    </label>
+    <FileInput
+      disabled={status === "loading"}
+      onLoad={handleLoadImage}
+      extensions={[".png", "jpg", "jpeg"]}
+    >
+      {name && imageUrl && (
+        <>
+          <span>{name}</span> |{" "}
+          <span>
+            {" "}
+            {size.width} x {size.height}
+          </span>
+        </>
+      )}
+    </FileInput>
   );
 };
 async function getImageInfo(

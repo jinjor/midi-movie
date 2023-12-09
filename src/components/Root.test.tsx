@@ -1,4 +1,4 @@
-import { fireEvent, waitFor } from "@testing-library/react";
+import { configure, fireEvent, waitFor } from "@testing-library/react";
 import {
   getMountCount,
   getRenderedKeys,
@@ -11,6 +11,15 @@ import { Root } from "./Root";
 import midiFile from "@/assets/1.midi?buffer";
 import pngFile from "@/assets/1.png?buffer";
 import wavFile from "@/assets/1.wav?buffer";
+
+configure({
+  getElementError: (message: string | null) => {
+    const error = new Error(message ?? "");
+    error.name = "TestingLibraryElementError";
+    error.stack = undefined;
+    return error;
+  },
+});
 
 afterEach(() => {
   resetCount();
@@ -29,6 +38,7 @@ test("should show App", () => {
 test("should play", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   resetCount();
   const playButton = container.getByText(/Play/i);
   await user.click(playButton);
@@ -128,7 +138,7 @@ test("should load MIDI file", async () => {
   const container = renderInNewContainer(<Root />);
   await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
   resetCount();
-  const input = container.getByLabelText(/MIDI:/i);
+  const input = container.getByLabelText(/MIDI/);
   const file = new File([midiFile], "test.midi", {
     type: "audio/midi",
   });
@@ -155,9 +165,9 @@ test("should load Image file", async () => {
     type: "image/png",
   });
   const container = renderInNewContainer(<Root />);
-  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 500)));
   resetCount();
-  const input = container.getByLabelText(/Image:/i);
+  const input = container.getByLabelText(/Image/i);
   fireEvent.change(input, {
     target: {
       files: [file],
@@ -178,9 +188,9 @@ test("should load Image file", async () => {
 });
 test("should load Wave file", async () => {
   const container = renderInNewContainer(<Root />);
-  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 300)));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 500)));
   resetCount();
-  const input = container.getByLabelText(/Audio:/i);
+  const input = container.getByLabelText(/Audio/i);
   const file = new File([wavFile], "test.wav", {
     type: "audio/wav",
   });
