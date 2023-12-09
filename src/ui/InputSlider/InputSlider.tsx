@@ -35,7 +35,6 @@ export const InputSlider = ({
   return (
     <div className={styles.InputSlider}>
       <NumberInput
-        className={styles.InputSliderInput}
         min={min}
         max={max}
         step={step}
