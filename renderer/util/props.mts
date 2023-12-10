@@ -233,33 +233,33 @@ export const afterThickness = (
     ...options,
   });
 
-export const vertical = ((defaultValue: number) =>
+export const vertical = ((defaultValue: 0 | 1) =>
   ({
     id: "vertical",
     name: "Vertical",
-    type: "number",
+    type: "boolean",
     min: 0,
     max: 1,
     step: 1,
     defaultValue,
   }) as const) satisfies ModulePropDefCreator;
 
-export const lineCap = ((defaultValue: number) =>
+export const lineCap = ((defaultValue: 0 | 1) =>
   ({
     id: "lineCap",
     name: "Line Cap",
-    type: "number",
+    type: "boolean",
     min: 0,
     max: 1,
     step: 1,
     defaultValue,
   }) as const) satisfies ModulePropDefCreator;
 
-export const colorByTrack = ((defaultValue: number) =>
+export const colorByTrack = ((defaultValue: 0 | 1) =>
   ({
     id: "colorByTrack",
     name: "Color By Track",
-    type: "number",
+    type: "boolean",
     min: 0,
     max: 1,
     step: 1,
@@ -277,11 +277,11 @@ export const depth = ((defaultValue: number) =>
     defaultValue,
   }) as const) satisfies ModulePropDefCreator;
 
-export const reverseDepth = ((defaultValue: number) =>
+export const reverseDepth = ((defaultValue: 0 | 1) =>
   ({
     id: "reverseDepth",
     name: "Reverse Depth",
-    type: "number",
+    type: "boolean",
     min: 0,
     max: 1,
     step: 1,

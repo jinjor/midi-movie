@@ -25,6 +25,7 @@ ul {
 }
 input[type="checkbox"] {
   accent-color: var(--color-accent);
+  cursor: pointer;
 }
 input[type="number"] {
   color: inherit;

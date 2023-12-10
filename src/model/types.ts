@@ -61,15 +61,25 @@ export type UpdateOptions<T> = {
   customProps: T;
   playing: boolean;
 };
-export type ModulePropDef = {
-  id: string;
-  name: string;
-  type: string;
-  min: number;
-  max: number;
-  step: number;
-  defaultValue: number;
-};
+export type ModulePropDef =
+  | {
+      id: string;
+      name: string;
+      type: "number";
+      min: number;
+      max: number;
+      step: number;
+      defaultValue: number;
+    }
+  | {
+      id: string;
+      name: string;
+      type: "boolean";
+      min: 0;
+      max: 1;
+      step: 1;
+      defaultValue: 0 | 1;
+    };
 export type ModuleConfig = {
   props: readonly ModulePropDef[];
 };
