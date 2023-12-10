@@ -55,16 +55,18 @@ export const SeekBar = ({
   return (
     <div
       ref={barRef}
-      className={cx(styles.bar, [styles.disabled, disabled])}
       onMouseDown={handleMouseDown}
+      className={cx(styles.SeekBar, [styles.disabled, disabled])}
     >
-      <div
-        className={styles.progress}
-        style={{
-          width: `${value * 100}%`,
-        }}
-      >
-        <div className={styles.knob} onMouseDown={handleMouseDown} />
+      <div className={styles.bar}>
+        <div
+          className={styles.progress}
+          style={{
+            width: `${value * 100}%`,
+          }}
+        >
+          <div className={styles.knob} onMouseDown={handleMouseDown} />
+        </div>
       </div>
     </div>
   );
