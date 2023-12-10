@@ -23,10 +23,7 @@ export type RendererModule<T = Record<string, number>> = {
 };
 
 const root = window.location.origin;
-const ext =
-  window.location.port === "5173" || window.location.port === "5174"
-    ? ".mts"
-    : ".mjs";
+const ext = import.meta.env.DEV ? ".mts" : ".mjs";
 export const renderers: (RendererInfo & { name: string })[] = [
   {
     name: "Default",
