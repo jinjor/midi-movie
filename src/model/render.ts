@@ -1,4 +1,4 @@
-import { Note, Size } from "./types";
+import { InitOptions, ModuleConfig, UpdateOptions } from "./types";
 
 export type RendererInfo = {
   url: string;
@@ -16,34 +16,10 @@ export type RendererState =
       type: "Ready";
       module: RendererModule;
     };
-export type RendererModule = {
-  config: Config;
-  init: (svg: SVGSVGElement, props: InitProps) => void;
-  update: (svg: SVGSVGElement, props: UpdateProps) => void;
-};
-type Config = {
-  props: {
-    id: string;
-    name: string;
-    type: "number";
-    min: number;
-    max: number;
-    step: number;
-    defaultValue: number;
-  }[];
-};
-type InitProps = {
-  size: Size;
-  notes: Note[];
-  customProps: Record<string, number>;
-};
-type UpdateProps = {
-  notes: Note[];
-  size: Size;
-  enabledTracks: boolean[];
-  elapsedSec: number;
-  customProps: Record<string, number>;
-  playing: boolean;
+export type RendererModule<T = Record<string, number>> = {
+  config: ModuleConfig;
+  init: (svg: SVGSVGElement, props: InitOptions<T>) => void;
+  update: (svg: SVGSVGElement, props: UpdateOptions<T>) => void;
 };
 
 const root = window.location.origin;
