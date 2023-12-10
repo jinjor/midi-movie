@@ -83,6 +83,7 @@ export const Settings = () => {
     <div className={styles.renderingSettings}>
       <ControlLabel text="Midi Offset(ms)">
         <InputSlider
+          className={styles.inputSlider}
           min={-60000}
           max={60000}
           defaultValue={midiOffsetInSec * 1000}
@@ -91,6 +92,7 @@ export const Settings = () => {
       </ControlLabel>
       <ControlLabel text="Volume">
         <InputSlider
+          className={styles.inputSlider}
           min={0}
           max={1}
           step={0.1}
@@ -100,6 +102,7 @@ export const Settings = () => {
       </ControlLabel>
       <ControlLabel text="Overlay Opacity">
         <InputSlider
+          className={styles.inputSlider}
           min={0}
           max={1}
           step={0.1}
@@ -141,13 +144,24 @@ const RendererConfig = ({
       {renderer.module.config.props.map((p) => {
         return (
           <ControlLabel key={p.id} text={p.name}>
-            <InputSlider
-              min={p.min}
-              max={p.max}
-              step={p.step}
-              defaultValue={props[p.id] ?? p.defaultValue}
-              onChange={(value) => onCustomPropChange(p.id, value)}
-            />
+            {p.type === "number" ? (
+              <InputSlider
+                className={styles.inputSlider}
+                min={p.min}
+                max={p.max}
+                step={p.step}
+                defaultValue={props[p.id] ?? p.defaultValue}
+                onChange={(value) => onCustomPropChange(p.id, value)}
+              />
+            ) : p.type === "boolean" ? (
+              <input
+                type="checkbox"
+                checked={!!(props[p.id] ?? p.defaultValue)}
+                onChange={(e) =>
+                  onCustomPropChange(p.id, e.target.checked ? 1 : 0)
+                }
+              />
+            ) : null}
           </ControlLabel>
         );
       })}

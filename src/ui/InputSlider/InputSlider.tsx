@@ -3,8 +3,10 @@ import { NumberInput } from "../NumberInput";
 import { useCallback, useState } from "react";
 import { NumberSlider } from "../NumberSlider";
 import styles from "./InputSlider.module.css";
+import { cx } from "@/util";
 
 type Props = {
+  className?: string;
   value?: number;
   defaultValue?: number;
   onChange: (value: number) => void;
@@ -14,6 +16,7 @@ type Props = {
 };
 
 export const InputSlider = ({
+  className,
   value,
   defaultValue,
   onChange,
@@ -33,7 +36,7 @@ export const InputSlider = ({
     [onChange],
   );
   return (
-    <div className={styles.InputSlider}>
+    <div className={cx(styles.InputSlider, className)}>
       <NumberInput
         min={min}
         max={max}
