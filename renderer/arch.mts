@@ -33,13 +33,91 @@ export const config = {
     maxHue(240),
     saturation(40),
     thickness(0.6),
+    {
+      id: "angleRange",
+      name: "Angle Range",
+      type: "number",
+      min: 10,
+      max: 350,
+      step: 1,
+      defaultValue: 180,
+    },
+    {
+      id: "barLength",
+      name: "Bar Length",
+      type: "number",
+      min: 10,
+      max: 200,
+      step: 1,
+      defaultValue: 50,
+    },
+    {
+      id: "padding",
+      name: "Padding",
+      type: "number",
+      min: 0,
+      max: 50,
+      step: 1,
+      defaultValue: 30,
+    },
   ],
 } as const satisfies ModuleConfig;
 
 type CustomProps = ModulePropsType<typeof config>;
 
-function calculateNote({
+type Arch = {
+  minAngle: number;
+  maxAngle: number;
+  centerX: number;
+  centerY: number;
+  archRadius: number;
+  angleRange: number;
+};
+
+function calculateArch({
   size,
+  angleRange: angleRangeDeg,
+  barLength: maxBarLength,
+  padding,
+}: CustomProps & {
+  size: Size;
+}): Arch {
+  const angleRange = (angleRangeDeg / 180) * Math.PI;
+  const midAngle = Math.PI * 1.5;
+  const minAngle = midAngle - angleRange / 2;
+  const maxAngle = midAngle + angleRange / 2;
+
+  const innerWidth = size.width - padding * 2;
+  const innerHeight = size.height - padding * 2;
+  const containerAspectRatio = innerWidth / innerHeight;
+  const archAspectRatio =
+    angleRange >= Math.PI
+      ? 2 / (Math.sin(maxAngle) + 1)
+      : (2 * Math.cos(maxAngle)) / 1;
+  const archOuterRadius =
+    containerAspectRatio > archAspectRatio
+      ? innerHeight / (angleRange >= Math.PI ? 1 + Math.sin(maxAngle) : 1)
+      : innerWidth / 2 / (angleRange >= Math.PI ? 1 : Math.cos(maxAngle));
+  const centerX = size.width / 2;
+  const centerY =
+    containerAspectRatio > archAspectRatio
+      ? padding + archOuterRadius
+      : padding +
+        (innerHeight - (innerHeight * containerAspectRatio) / archAspectRatio) /
+          2 +
+        archOuterRadius;
+  const archRadius = archOuterRadius - maxBarLength;
+  return {
+    minAngle,
+    maxAngle,
+    centerX,
+    centerY,
+    archRadius,
+    angleRange,
+  };
+}
+
+function calculateNote({
   note,
   elapsedSec,
   minNote,
@@ -49,22 +127,16 @@ function calculateNote({
   minHue,
   maxHue,
   thickness,
+  barLength: maxBarLength,
+  arch,
 }: CustomProps & {
-  size: Size;
   note: Note;
   elapsedSec: number;
+  arch: Arch;
 }) {
-  const outOfNoteRange = note.noteNumber < minNote || note.noteNumber > maxNote;
-  const padding = 50;
-  const centerX = size.width / 2;
-  const centerY = size.height - padding;
-  const rangeAngle = Math.PI;
-  const midAngle = Math.PI * 1.5;
-  const minAngle = midAngle - rangeAngle / 2;
-  const maxAngle = midAngle + rangeAngle / 2;
-  const maxBarLength = 50;
-  const archRadius = size.height - padding * 2 - maxBarLength;
+  const { minAngle, maxAngle, centerX, centerY, angleRange, archRadius } = arch;
 
+  const outOfNoteRange = note.noteNumber < minNote || note.noteNumber > maxNote;
   const noteAngle = putInRange(
     minAngle,
     maxAngle,
@@ -74,7 +146,7 @@ function calculateNote({
   const edgeY = centerY + Math.sin(noteAngle) * archRadius;
 
   const barWidth =
-    ((archRadius * rangeAngle) / (maxNote - minNote)) * thickness;
+    ((archRadius * angleRange) / (maxNote - minNote)) * thickness;
   const circleRadius = barWidth / 2;
   const distancePerSec = archRadius / timeRangeSec;
   const hue = putInRange(
@@ -156,6 +228,11 @@ export function update(
   }: UpdateOptions<CustomProps>,
 ) {
   const groups = svg.querySelectorAll(".note") as NodeListOf<SVGGElement>;
+
+  const arch = calculateArch({
+    size,
+    ...customProps,
+  });
   for (const [index, note] of notes.entries()) {
     const group = groups[index];
     const line = group.children[0] as SVGLineElement;
@@ -169,7 +246,7 @@ export function update(
       ended,
       started,
     } = calculateNote({
-      size,
+      arch,
       note,
       elapsedSec,
       ...customProps,
