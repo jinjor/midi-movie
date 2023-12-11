@@ -52,11 +52,20 @@ export const config = {
       defaultValue: 50,
     },
     {
+      id: "barSustain",
+      name: "Bar Sustain",
+      type: "number",
+      min: 0,
+      max: 1,
+      step: 0.1,
+      defaultValue: 0.7,
+    },
+    {
       id: "padding",
       name: "Padding",
       type: "number",
       min: 0,
-      max: 50,
+      max: 100,
       step: 1,
       defaultValue: 30,
     },
@@ -128,6 +137,7 @@ function calculateNote({
   maxHue,
   thickness,
   barLength: maxBarLength,
+  barSustain,
   arch,
 }: CustomProps & {
   note: Note;
@@ -171,9 +181,9 @@ function calculateNote({
     calcEnvelope({
       base: 0,
       peak: 1,
-      active: 0.8,
+      active: barSustain,
       end: 0,
-      decaySec: 0.2,
+      decaySec: 0.3,
       releaseSec: 0.5,
       fromSec: note.fromSec,
       toSec: note.toSec,
