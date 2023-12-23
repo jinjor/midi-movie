@@ -126,6 +126,42 @@ function calculateArch({
   };
 }
 
+function calculatePlaceholder({
+  noteNumber,
+  minNote,
+  maxNote,
+  saturation,
+  minHue,
+  maxHue,
+  thickness,
+  arch,
+}: CustomProps & {
+  noteNumber: number;
+  arch: Arch;
+}) {
+  const { minAngle, maxAngle, centerX, centerY, angleRange, archRadius } = arch;
+  const outOfNoteRange = noteNumber < minNote || noteNumber > maxNote;
+  const noteAngle = putInRange(
+    minAngle,
+    maxAngle,
+    ratio(minNote, maxNote, noteNumber),
+  );
+  const barWidth =
+    ((archRadius * angleRange) / (maxNote - minNote)) * thickness;
+  const circleRadius = barWidth / 2;
+  const hue = putInRange(minHue, maxHue, ratio(minNote, maxNote, noteNumber));
+  const circleX = centerX + Math.cos(noteAngle) * archRadius;
+  const circleY = centerY + Math.sin(noteAngle) * archRadius;
+  return {
+    cx: circleX,
+    cy: circleY,
+    r: circleRadius - 1,
+    stroke: outOfNoteRange ? "transparent" : `hsl(${hue}, ${saturation}%, 50%)`,
+    strokeWidth: 1,
+    fill: "transparent",
+  };
+}
+
 function calculateNote({
   note,
   elapsedSec,
@@ -213,6 +249,13 @@ function calculateNote({
 }
 
 export function init(svg: SVGSVGElement, { notes }: InitOptions<CustomProps>) {
+  for (let i = 0; i < 128; i++) {
+    const circle = createSvgElement("circle");
+    setAttributes(circle, {
+      class: "placeholder",
+    });
+    svg.appendChild(circle);
+  }
   for (const _note of notes) {
     const g = createSvgElement("g");
     const line = createSvgElement("line");
@@ -237,12 +280,23 @@ export function update(
     playing,
   }: UpdateOptions<CustomProps>,
 ) {
+  const placeholders = svg.querySelectorAll(
+    ".placeholder",
+  ) as NodeListOf<SVGCircleElement>;
   const groups = svg.querySelectorAll(".note") as NodeListOf<SVGGElement>;
 
   const arch = calculateArch({
     size,
     ...customProps,
   });
+  for (let noteNumber = 0; noteNumber < 128; noteNumber++) {
+    const circlePatch = calculatePlaceholder({
+      arch,
+      noteNumber,
+      ...customProps,
+    });
+    setAttributes(placeholders[noteNumber], circlePatch);
+  }
   for (const [index, note] of notes.entries()) {
     const group = groups[index];
     const line = group.children[0] as SVGLineElement;
