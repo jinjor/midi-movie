@@ -105,6 +105,7 @@ export const Player = () => {
         rendererModule?.init(container, {
           size,
           notes: midiData.notes,
+          enabledTracks,
           customProps,
         });
       }
@@ -157,6 +158,7 @@ export const Player = () => {
     rendererModule.init(container, {
       size,
       notes: midiData.notes,
+      enabledTracks,
       customProps: customProps ?? {},
     });
     rendererModule.update(container, {

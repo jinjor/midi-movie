@@ -51,11 +51,12 @@ export type PlayingState = {
 export type InitOptions<T> = {
   size: Size;
   notes: Note[];
+  enabledTracks: boolean[];
   customProps: T;
 };
 export type UpdateOptions<T> = {
-  notes: Note[];
   size: Size;
+  notes: Note[];
   enabledTracks: boolean[];
   elapsedSec: number;
   customProps: T;
