@@ -31,17 +31,17 @@ export const config = {
     timeRangeSec(6),
     minHue(0),
     maxHue(240),
-    saturation(40),
-    thickness(0.6),
     {
-      id: "barLength",
-      name: "Bar Length",
-      type: "number",
+      id: "hueByTrack",
+      name: "Hue By Track",
+      type: "boolean",
       min: 0,
       max: 1,
-      step: 0.1,
-      defaultValue: 0.9,
+      step: 1,
+      defaultValue: 0,
     },
+    saturation(40),
+    thickness(0.6),
     {
       id: "barSustain",
       name: "Bar Sustain",
@@ -60,6 +60,24 @@ export const config = {
       step: 1,
       defaultValue: 30,
     },
+    {
+      id: "gap",
+      name: "Gap",
+      type: "number",
+      min: 0,
+      max: 100,
+      step: 1,
+      defaultValue: 10,
+    },
+    {
+      id: "bidirectional",
+      name: "Bidirectional",
+      type: "boolean",
+      min: 0,
+      max: 1,
+      step: 1,
+      defaultValue: 0,
+    },
   ],
 } as const satisfies ModuleConfig;
 
@@ -70,23 +88,36 @@ type Positions = {
   maxX: number;
   minY: number;
   maxY: number;
+  trackHeight: number;
 };
 
 function calculatePositions({
   size,
   padding,
+  gap,
+  bidirectional,
+  enabledTracks,
 }: CustomProps & {
   size: Size;
+  enabledTracks: boolean[];
 }): Positions {
   const minX = padding;
   const maxX = size.width - padding;
-  const minY = padding;
-  const maxY = size.height - padding;
+
+  const numberOfTracks = enabledTracks.filter((enabled) => enabled).length;
+  const innerHeight = size.height - padding * 2;
+  const trackHeight =
+    (innerHeight - gap * (numberOfTracks - 1)) / numberOfTracks;
+  const minY = bidirectional ? padding + trackHeight / 2 : padding;
+  const maxY = bidirectional
+    ? size.height - padding - trackHeight / 2
+    : size.height - padding;
   return {
     minX,
     maxX,
     minY,
     maxY,
+    trackHeight,
   };
 }
 
@@ -99,6 +130,7 @@ function calculatePlaceholder({
   saturation,
   minHue,
   maxHue,
+  hueByTrack,
   thickness,
   positions,
 }: CustomProps & {
@@ -116,7 +148,13 @@ function calculatePlaceholder({
   const outOfNoteRange = noteNumber < minNote || noteNumber > maxNote;
   const barWidth = ((maxX - minX) / (maxNote - minNote)) * thickness;
   const circleRadius = barWidth / 2;
-  const hue = putInRange(minHue, maxHue, ratio(minNote, maxNote, noteNumber));
+  const hue = putInRange(
+    minHue,
+    maxHue,
+    hueByTrack
+      ? ratio(0, trackIndices.length - 1, trackIndices.indexOf(trackIndex))
+      : ratio(minNote, maxNote, noteNumber),
+  );
   const circleX =
     minX + ((maxX - minX) / (maxNote - minNote)) * (noteNumber - minNote);
   const circleY =
@@ -145,9 +183,10 @@ function calculateNote({
   saturation,
   minHue,
   maxHue,
+  hueByTrack,
   thickness,
-  barLength: barRatio,
   barSustain,
+  bidirectional,
   enabledTracks,
   positions,
 }: CustomProps & {
@@ -156,28 +195,22 @@ function calculateNote({
   enabledTracks: boolean[];
   positions: Positions;
 }) {
-  const { minX, maxX, minY, maxY } = positions;
+  const { minX, maxX, minY, maxY, trackHeight } = positions;
 
   const trackIndices = enabledTracks
     .map((enabled, index) => [enabled, index])
     .filter(([enabled]) => enabled)
     .map(([, index]) => index);
-
   const outOfNoteRange = note.noteNumber < minNote || note.noteNumber > maxNote;
-  const x = putInRange(minX, maxX, ratio(minNote, maxNote, note.noteNumber));
-  const y1 = putInRange(
-    minY,
-    maxY,
-    trackIndices.indexOf(note.trackIndex) / (trackIndices.length - 1),
-  );
-  const maxBarLength = ((maxY - minY) / (trackIndices.length - 1)) * barRatio;
-  const barWidth = ((maxX - minX) / (maxNote - minNote)) * thickness;
+
   const hue = putInRange(
     minHue,
     maxHue,
-    ratio(minNote, maxNote, note.noteNumber),
+    hueByTrack
+      ? ratio(0, trackIndices.length - 1, trackIndices.indexOf(note.trackIndex))
+      : ratio(minNote, maxNote, note.noteNumber),
   );
-
+  const barWidth = ((maxX - minX) / (maxNote - minNote)) * thickness;
   const barLength =
     calcEnvelope({
       base: 0,
@@ -189,13 +222,21 @@ function calculateNote({
       fromSec: note.fromSec,
       toSec: note.toSec,
       elapsedSec,
-    }) * maxBarLength;
+    }) * trackHeight;
+  const x = putInRange(minX, maxX, ratio(minNote, maxNote, note.noteNumber));
+  const y = putInRange(
+    minY,
+    maxY,
+    trackIndices.indexOf(note.trackIndex) / (trackIndices.length - 1),
+  );
+  const y1 = bidirectional ? y - barLength : y;
+  const y2 = bidirectional ? y + barLength : y - barLength;
 
   const line = {
     x1: x,
     y1,
     x2: x,
-    y2: y1 - barLength,
+    y2,
     stroke:
       outOfNoteRange || barLength < 1
         ? "transparent"
@@ -254,6 +295,7 @@ export function update(
 
   const positions = calculatePositions({
     size,
+    enabledTracks,
     ...customProps,
   });
   for (let trackIndex = 0; trackIndex < enabledTracks.length; trackIndex++) {
