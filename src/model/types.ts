@@ -58,6 +58,10 @@ export type UpdateOptions<T> = {
   size: Size;
   notes: Note[];
   enabledTracks: boolean[];
+  tracks: {
+    enabled: boolean;
+    order: number;
+  }[];
   elapsedSec: number;
   customProps: T;
   playing: boolean;

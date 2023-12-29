@@ -96,15 +96,15 @@ function calculatePositions({
   padding,
   gap,
   bidirectional,
-  enabledTracks,
+  tracks,
 }: CustomProps & {
   size: Size;
-  enabledTracks: boolean[];
+  tracks: { enabled: boolean }[];
 }): Positions {
   const minX = padding;
   const maxX = size.width - padding;
 
-  const numberOfTracks = enabledTracks.filter((enabled) => enabled).length;
+  const numberOfTracks = tracks.filter(({ enabled }) => enabled).length;
   const innerHeight = size.height - padding * 2;
   const trackHeight =
     (innerHeight - gap * (numberOfTracks - 1)) / numberOfTracks;
@@ -124,7 +124,7 @@ function calculatePositions({
 function calculatePlaceholder({
   trackIndex,
   noteNumber,
-  enabledTracks,
+  tracks,
   minNote,
   maxNote,
   saturation,
@@ -136,14 +136,18 @@ function calculatePlaceholder({
 }: CustomProps & {
   trackIndex: number;
   noteNumber: number;
-  enabledTracks: boolean[];
+  tracks: { enabled: boolean; order: number }[];
   positions: Positions;
 }) {
   const { minX, maxX, minY, maxY } = positions;
-  const trackIndices = enabledTracks
-    .map((enabled, index) => [enabled, index])
-    .filter(([enabled]) => enabled)
-    .map(([, index]) => index);
+  const tracksWithIndex = tracks.map((track, index) => ({
+    ...track,
+    index,
+  }));
+  tracksWithIndex.sort((a, b) => a.order - b.order);
+  const trackIndices = tracksWithIndex
+    .filter(({ enabled }) => enabled)
+    .map(({ index }) => index);
 
   const outOfNoteRange = noteNumber < minNote || noteNumber > maxNote;
   const barWidth = ((maxX - minX) / (maxNote - minNote)) * thickness;
@@ -166,7 +170,7 @@ function calculatePlaceholder({
     cy: circleY,
     r: circleRadius - 1,
     stroke:
-      outOfNoteRange || !enabledTracks[trackIndex]
+      outOfNoteRange || !tracks[trackIndex].enabled
         ? "transparent"
         : `hsl(${hue}, ${saturation}%, 50%)`,
     strokeWidth: 1,
@@ -187,20 +191,24 @@ function calculateNote({
   thickness,
   barSustain,
   bidirectional,
-  enabledTracks,
+  tracks,
   positions,
 }: CustomProps & {
   note: Note;
   elapsedSec: number;
-  enabledTracks: boolean[];
+  tracks: { enabled: boolean; order: number }[];
   positions: Positions;
 }) {
   const { minX, maxX, minY, maxY, trackHeight } = positions;
 
-  const trackIndices = enabledTracks
-    .map((enabled, index) => [enabled, index])
-    .filter(([enabled]) => enabled)
-    .map(([, index]) => index);
+  const tracksWithIndex = tracks.map((track, index) => ({
+    ...track,
+    index,
+  }));
+  tracksWithIndex.sort((a, b) => a.order - b.order);
+  const trackIndices = tracksWithIndex
+    .filter(({ enabled }) => enabled)
+    .map(({ index }) => index);
   const outOfNoteRange = note.noteNumber < minNote || note.noteNumber > maxNote;
 
   const hue = putInRange(
@@ -282,7 +290,7 @@ export function update(
   {
     notes,
     size,
-    enabledTracks,
+    tracks,
     elapsedSec,
     customProps,
     playing,
@@ -295,10 +303,10 @@ export function update(
 
   const positions = calculatePositions({
     size,
-    enabledTracks,
+    tracks,
     ...customProps,
   });
-  for (let trackIndex = 0; trackIndex < enabledTracks.length; trackIndex++) {
+  for (let trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
     const circles = placeholders[trackIndex]
       .childNodes as NodeListOf<SVGCircleElement>;
     for (let noteNumber = 0; noteNumber < 128; noteNumber++) {
@@ -306,7 +314,7 @@ export function update(
         positions,
         noteNumber,
         trackIndex,
-        enabledTracks,
+        tracks,
         ...customProps,
       });
       setAttributes(circles[noteNumber], circlePatch);
@@ -326,7 +334,7 @@ export function update(
       positions,
       note,
       elapsedSec,
-      enabledTracks,
+      tracks,
       ...customProps,
     });
     if (playing && ended) {
@@ -339,7 +347,7 @@ export function update(
       continue;
     }
     const stylePatch = {
-      display: !enabledTracks[note.trackIndex] ? "none" : "block",
+      display: !tracks[note.trackIndex].enabled ? "none" : "block",
     };
     setStyles(line, stylePatch);
     linePatch && setAttributes(line, linePatch);
