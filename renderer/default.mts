@@ -176,7 +176,7 @@ export function update(
   {
     notes,
     size,
-    enabledTracks,
+    tracks,
     elapsedSec,
     customProps,
     playing,
@@ -213,7 +213,7 @@ export function update(
       continue;
     }
     const stylePatch = {
-      display: !enabledTracks[note.trackIndex] ? "none" : "block",
+      display: !tracks[note.trackIndex].enabled ? "none" : "block",
     };
     setStyles(line, stylePatch);
     setAttributes(line, linePatch);

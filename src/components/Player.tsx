@@ -38,18 +38,21 @@ export const Player = () => {
   const customProps = allRendererProps[selectedRenderer];
   const rendererModule = renderer.module;
 
-  const enabledTracks = useMemo(() => {
-    const tracks = midiData?.tracks ?? [];
-    if (selectedMidiFile == null) {
-      return [];
+  const trackProps = useMemo(() => {
+    const trackProps =
+      selectedMidiFile != null ? allTrackProps[selectedMidiFile] ?? [] : [];
+    for (let i = trackProps.length; i < (midiData?.tracks?.length ?? 0); i++) {
+      trackProps.push({
+        order: i,
+        enabled: true,
+      });
     }
-    const trackProps = allTrackProps[selectedMidiFile] ?? [];
-    return tracks.map((_, i) => trackProps[i]?.enabled ?? true);
-  }, [midiData, allTrackProps, selectedMidiFile]);
+    return trackProps;
+  }, [allTrackProps, midiData, selectedMidiFile]);
 
   const mutables = {
     size,
-    enabledTracks,
+    trackProps,
     customProps,
     rendererModule,
     midiOffsetInSec,
@@ -91,7 +94,7 @@ export const Player = () => {
       const container = display.getContainer();
       const {
         size,
-        enabledTracks,
+        trackProps,
         customProps = {},
         rendererModule,
         midiOffsetInSec,
@@ -105,14 +108,14 @@ export const Player = () => {
         rendererModule?.init(container, {
           size,
           notes: midiData.notes,
-          enabledTracks,
+          tracks: trackProps,
           customProps,
         });
       }
       rendererModule?.update(container, {
         notes,
         size,
-        enabledTracks,
+        tracks: trackProps,
         elapsedSec,
         customProps: customProps,
         playing: true,
@@ -158,13 +161,13 @@ export const Player = () => {
     rendererModule.init(container, {
       size,
       notes: midiData.notes,
-      enabledTracks,
+      tracks: trackProps,
       customProps: customProps ?? {},
     });
     rendererModule.update(container, {
       notes,
       size,
-      enabledTracks,
+      tracks: trackProps,
       elapsedSec,
       customProps: customProps ?? {},
       playing: false,
@@ -174,7 +177,7 @@ export const Player = () => {
     playingState,
     offsetInSec,
     midiOffsetInSec,
-    enabledTracks,
+    trackProps,
     size,
     displayApi,
     rendererModule,

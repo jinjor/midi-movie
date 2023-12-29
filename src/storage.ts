@@ -20,6 +20,7 @@ const schemas = {
     string(),
     array(
       object({
+        order: number(),
         enabled: boolean(),
       }),
     ),

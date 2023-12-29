@@ -48,16 +48,20 @@ export type PlayingState = {
   startTime: number;
   timer: number;
 };
+export type TrackOptions = {
+  enabled: boolean;
+  order: number;
+};
 export type InitOptions<T> = {
   size: Size;
   notes: Note[];
-  enabledTracks: boolean[];
+  tracks: TrackOptions[];
   customProps: T;
 };
 export type UpdateOptions<T> = {
   size: Size;
   notes: Note[];
-  enabledTracks: boolean[];
+  tracks: TrackOptions[];
   elapsedSec: number;
   customProps: T;
   playing: boolean;
