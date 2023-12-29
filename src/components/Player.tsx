@@ -50,15 +50,6 @@ export const Player = () => {
     return trackProps;
   }, [allTrackProps, midiData, selectedMidiFile]);
 
-  // const enabledTracks = useMemo(() => {
-  //   const tracks = midiData?.tracks ?? [];
-  //   if (selectedMidiFile == null) {
-  //     return [];
-  //   }
-  //   const trackProps = allTrackProps[selectedMidiFile] ?? [];
-  //   return tracks.map((_, i) => trackProps[i]?.enabled ?? true);
-  // }, [midiData, allTrackProps, selectedMidiFile]);
-
   const mutables = {
     size,
     trackProps,
@@ -117,14 +108,13 @@ export const Player = () => {
         rendererModule?.init(container, {
           size,
           notes: midiData.notes,
-          enabledTracks: trackProps.map((p) => p.enabled),
+          tracks: trackProps,
           customProps,
         });
       }
       rendererModule?.update(container, {
         notes,
         size,
-        enabledTracks: trackProps.map((p) => p.enabled),
         tracks: trackProps,
         elapsedSec,
         customProps: customProps,
@@ -171,13 +161,12 @@ export const Player = () => {
     rendererModule.init(container, {
       size,
       notes: midiData.notes,
-      enabledTracks: trackProps.map((p) => p.enabled),
+      tracks: trackProps,
       customProps: customProps ?? {},
     });
     rendererModule.update(container, {
       notes,
       size,
-      enabledTracks: trackProps.map((p) => p.enabled),
       tracks: trackProps,
       elapsedSec,
       customProps: customProps ?? {},

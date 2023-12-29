@@ -51,13 +51,15 @@ export type PlayingState = {
 export type InitOptions<T> = {
   size: Size;
   notes: Note[];
-  enabledTracks: boolean[];
+  tracks: {
+    enabled: boolean;
+    order: number;
+  }[];
   customProps: T;
 };
 export type UpdateOptions<T> = {
   size: Size;
   notes: Note[];
-  enabledTracks: boolean[];
   tracks: {
     enabled: boolean;
     order: number;

@@ -261,9 +261,9 @@ function calculateNote({
 
 export function init(
   svg: SVGSVGElement,
-  { notes, enabledTracks }: InitOptions<CustomProps>,
+  { notes, tracks }: InitOptions<CustomProps>,
 ) {
-  for (let i = 0; i < enabledTracks.length; i++) {
+  for (let i = 0; i < tracks.length; i++) {
     const g = createSvgElement("g");
     setAttributes(g, {
       class: "placeholder",
