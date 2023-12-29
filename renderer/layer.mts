@@ -4,6 +4,7 @@ import {
   ModulePropsType,
   Note,
   Size,
+  TrackOptions,
   UpdateOptions,
 } from "@/model/types";
 import {
@@ -99,7 +100,7 @@ function calculatePositions({
   tracks,
 }: CustomProps & {
   size: Size;
-  tracks: { enabled: boolean }[];
+  tracks: TrackOptions[];
 }): Positions {
   const minX = padding;
   const maxX = size.width - padding;
@@ -136,7 +137,7 @@ function calculatePlaceholder({
 }: CustomProps & {
   trackIndex: number;
   noteNumber: number;
-  tracks: { enabled: boolean; order: number }[];
+  tracks: TrackOptions[];
   positions: Positions;
 }) {
   const { minX, maxX, minY, maxY } = positions;
@@ -196,7 +197,7 @@ function calculateNote({
 }: CustomProps & {
   note: Note;
   elapsedSec: number;
-  tracks: { enabled: boolean; order: number }[];
+  tracks: TrackOptions[];
   positions: Positions;
 }) {
   const { minX, maxX, minY, maxY, trackHeight } = positions;
