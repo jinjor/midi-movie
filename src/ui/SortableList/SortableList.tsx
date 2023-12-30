@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCounter } from "@/counter";
 import styles from "./SortableList.module.css";
 import { cx } from "@/util";
@@ -14,7 +14,6 @@ export const SortableList = <T,>(props: {
   const { className, items, onSort, getKey, renderItem } = props;
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  const containerRef = useRef<HTMLUListElement>(null);
 
   const temporarySortedItems = useMemo(() => {
     if (draggingIndex == null || dragOverIndex == null) {
@@ -64,7 +63,6 @@ export const SortableList = <T,>(props: {
   return (
     <ul
       className={className}
-      ref={containerRef}
       onMouseLeave={handleMourLeave}
       onMouseUp={handleMouseUp}
     >
@@ -77,12 +75,8 @@ export const SortableList = <T,>(props: {
           key={getKey(item)}
           onMouseEnter={() => handleMouseEnter(i)}
         >
-          <div className={styles.grip}>
-            <span>::</span>
-            <div
-              className={styles.gripHandle}
-              onMouseDown={() => handleMouseDown(i)}
-            />
+          <div className={styles.grip} onMouseDown={() => handleMouseDown(i)}>
+            ::
           </div>
           {renderItem(item)}
         </li>
