@@ -31,61 +31,42 @@ export const SortableList = <T,>(props: {
   const handleMouseDown = useCallback((index: number) => {
     setDraggingIndex(index);
   }, []);
-  const handleMouseUp = useCallback(() => {
-    setDraggingIndex(null);
-  }, []);
-  const handleDragStart = useCallback(
-    (e: React.DragEvent<unknown>, index: number) => {
-      e.dataTransfer.dropEffect = "move";
-      e.dataTransfer.effectAllowed = "move";
-      setDraggingIndex(index);
-    },
-    [],
-  );
-  const handleDragEnter = useCallback((index: number) => {
-    setDragOverIndex(index);
-  }, []);
-  const handleDragOver = useCallback(
-    (e: React.DragEvent<unknown>, index: number) => {
-      e.preventDefault();
-      setDragOverIndex(index);
-    },
-    [],
-  );
-  const handleDrop = useCallback(
-    (e: React.DragEvent<unknown>) => {
+  const handleMouseUp = useCallback(
+    (e: React.MouseEvent<unknown>) => {
       e.stopPropagation();
       setDraggingIndex(null);
       setDragOverIndex(null);
       onSort(temporarySortedItems);
     },
-    [temporarySortedItems, onSort],
+    [onSort, temporarySortedItems],
   );
-  useEffect(() => {
-    const handleDragOver = (e: DragEvent) => {
-      e.preventDefault();
-      if (containerRef.current?.contains(e.target as Node)) {
-        return;
+  const handleMouseEnter = useCallback(
+    (index: number) => {
+      if (draggingIndex != null) {
+        setDragOverIndex(index);
       }
-      setDragOverIndex(null);
-    };
-    const handleDragEnd = () => {
+    },
+    [draggingIndex],
+  );
+  const handleMourLeave = useCallback(() => {
+    setDragOverIndex(null);
+  }, []);
+  useEffect(() => {
+    const handleMouseUp = () => {
       setDraggingIndex(null);
       setDragOverIndex(null);
     };
-    window.addEventListener("dragover", handleDragOver);
-    window.addEventListener("dragend", handleDragEnd);
+    window.addEventListener("mouseup", handleMouseUp);
     return () => {
-      window.removeEventListener("dragover", handleDragOver);
-      window.removeEventListener("dragend", handleDragEnd);
+      window.removeEventListener("mouseup", handleMouseUp);
     };
   }, []);
   return (
     <ul
       className={className}
       ref={containerRef}
-      onDrop={handleDrop}
-      onDragOver={(e) => e.preventDefault()}
+      onMouseLeave={handleMourLeave}
+      onMouseUp={handleMouseUp}
     >
       {temporarySortedItems.map((item, i) => (
         <li
@@ -94,17 +75,13 @@ export const SortableList = <T,>(props: {
             i === (dragOverIndex ?? draggingIndex) ? styles.itemDragging : null,
           )}
           key={getKey(item)}
-          onDragEnter={() => handleDragEnter(i)}
-          onDragOver={(e) => handleDragOver(e, i)}
+          onMouseEnter={() => handleMouseEnter(i)}
         >
           <div className={styles.grip}>
             <span>::</span>
             <div
               className={styles.gripHandle}
-              draggable
               onMouseDown={() => handleMouseDown(i)}
-              onMouseUp={handleMouseUp}
-              onDragStart={(e) => handleDragStart(e, i)}
             />
           </div>
           {renderItem(item)}
