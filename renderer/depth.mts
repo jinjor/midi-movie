@@ -4,6 +4,7 @@ import {
   ModulePropsType,
   Note,
   Size,
+  TrackOptions,
   UpdateOptions,
 } from "@/model/types";
 import {
@@ -97,20 +98,20 @@ function calculateNoteForLandscape({
   colorByTrack,
   depth,
   reverseDepth,
-  numberOfTracks,
+  tracks,
 }: Omit<CustomProps, "vertical"> & {
   size: Size;
   note: Note;
   elapsedSec: number;
-  numberOfTracks: number;
+  tracks: TrackOptions[];
 }) {
-  const maxTrackIndex = numberOfTracks - 1;
+  const maxTrackIndex = tracks.length - 1;
   const shallowestScale = 1;
   const deepestScale = shallowestScale / depth;
   const scale = putInRange(
     shallowestScale,
     deepestScale,
-    note.trackIndex / maxTrackIndex,
+    tracks[note.trackIndex].order / maxTrackIndex,
     !!reverseDepth,
   );
   const height = size.height * scale;
@@ -122,7 +123,7 @@ function calculateNoteForLandscape({
   const fullHeightPerNote = height / (maxNote - minNote + 1);
   const widthPerSec = size.width / scaledTimeRangeSec;
   const hue = colorByTrack
-    ? putInRange(minHue, maxHue, note.trackIndex / maxTrackIndex)
+    ? putInRange(minHue, maxHue, tracks[note.trackIndex].order / maxTrackIndex)
     : putInRange(minHue, maxHue, ratio(minNote, maxNote, note.noteNumber));
   const lightness = calcEnvelope({
     base: baseLightness,
@@ -175,7 +176,7 @@ function calculateNote({
   size: Size;
   note: Note;
   elapsedSec: number;
-  numberOfTracks: number;
+  tracks: TrackOptions[];
 }) {
   const { line, ...rest } = calculateNoteForLandscape({
     size: vertical ? flipSize(size) : size,
@@ -186,14 +187,14 @@ function calculateNote({
 
 export function init(
   svg: SVGSVGElement,
-  { notes, customProps }: InitOptions<CustomProps>,
+  { notes, customProps, tracks }: InitOptions<CustomProps>,
 ) {
   const bar = createSvgElement("line");
   setAttributes(bar, {
     id: "bar",
   });
   svg.appendChild(bar);
-  notes.sort((a, b) => b.trackIndex - a.trackIndex);
+  notes.sort((a, b) => tracks[b.trackIndex].order - tracks[a.trackIndex].order);
   if (customProps.reverseDepth) {
     notes.reverse();
   }
@@ -240,7 +241,7 @@ export function update(
       size,
       note,
       elapsedSec,
-      numberOfTracks: tracks.length,
+      tracks,
       ...customProps,
     });
     if (playing && ended) {
