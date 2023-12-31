@@ -15,6 +15,7 @@ import {
 } from "./util/svg.mts";
 import { calcEnvelope } from "./util/envelope.mts";
 import {
+  lineCap,
   maxHue,
   maxNote,
   minHue,
@@ -70,6 +71,7 @@ export const config = {
       step: 1,
       defaultValue: 10,
     },
+    lineCap(0),
     {
       id: "bidirectional",
       name: "Bidirectional",
@@ -133,6 +135,7 @@ function calculatePlaceholder({
   maxHue,
   hueByTrack,
   thickness,
+  lineCap,
   positions,
 }: CustomProps & {
   trackIndex: number;
@@ -169,13 +172,13 @@ function calculatePlaceholder({
   return {
     cx: circleX,
     cy: circleY,
-    r: circleRadius - 1,
+    rx: lineCap ? circleRadius - 1 : circleRadius,
+    ry: lineCap ? circleRadius - 1 : 0.0001,
     stroke:
       outOfNoteRange || !tracks[trackIndex].enabled
         ? "transparent"
         : `hsl(${hue}, ${saturation}%, 50%)`,
     strokeWidth: 1,
-    fill: "transparent",
   };
 }
 
@@ -191,6 +194,7 @@ function calculateNote({
   hueByTrack,
   thickness,
   barSustain,
+  lineCap,
   bidirectional,
   tracks,
   positions,
@@ -231,7 +235,10 @@ function calculateNote({
       fromSec: note.fromSec,
       toSec: note.toSec,
       elapsedSec,
-    }) * trackHeight;
+    }) *
+    (lineCap
+      ? trackHeight - (bidirectional ? barWidth : barWidth / 2)
+      : trackHeight);
   const x = putInRange(minX, maxX, ratio(minNote, maxNote, note.noteNumber));
   const y = putInRange(
     minY,
@@ -251,7 +258,7 @@ function calculateNote({
         ? "transparent"
         : `hsl(${hue}, ${saturation}%, 50%)`,
     "stroke-width": barWidth,
-    "stroke-linecap": "round",
+    "stroke-linecap": lineCap ? "round" : "butt",
   };
   return {
     line,
@@ -270,8 +277,8 @@ export function init(
       class: "placeholder",
     });
     for (let j = 0; j < 128; j++) {
-      const circle = createSvgElement("circle");
-      g.appendChild(circle);
+      const ellipse = createSvgElement("ellipse");
+      g.appendChild(ellipse);
     }
     svg.appendChild(g);
   }
@@ -308,17 +315,17 @@ export function update(
     ...customProps,
   });
   for (let trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
-    const circles = placeholders[trackIndex]
+    const ellipses = placeholders[trackIndex]
       .childNodes as NodeListOf<SVGCircleElement>;
     for (let noteNumber = 0; noteNumber < 128; noteNumber++) {
-      const circlePatch = calculatePlaceholder({
+      const ellipsePatch = calculatePlaceholder({
         positions,
         noteNumber,
         trackIndex,
         tracks,
         ...customProps,
       });
-      setAttributes(circles[noteNumber], circlePatch);
+      setAttributes(ellipses[noteNumber], ellipsePatch);
     }
   }
   for (const [index, note] of notes.entries()) {
