@@ -54,7 +54,7 @@ export const config = {
       id: "deepestTimeRange",
       name: "Deepest Time Range (sec)",
       type: "number",
-      min: 0,
+      min: 1,
       max: 5,
       step: 0.1,
       defaultValue: 3,
