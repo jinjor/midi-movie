@@ -11,7 +11,7 @@ import {
   PlayingState,
   Size,
 } from "@/domain/types";
-import { useMidiWithSettings } from "@/usecase/midiSettings";
+import { useMidiWithSettings } from "@/usecase/midi";
 import { useRenderer } from "@/usecase/renderer";
 import { RendererModule } from "@/domain/render";
 import { useAudio } from "@/usecase/audio";

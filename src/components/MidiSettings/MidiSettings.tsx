@@ -5,10 +5,7 @@ import { MidiData, MidiSpecificSettings, Track } from "@/domain/types";
 import { SortableList } from "@/ui/SortableList";
 import { ControlLabel } from "@/ui/ControlLabel";
 import { InputSlider } from "@/ui/InputSlider";
-import {
-  useMidiSettingsSetters,
-  useMidiWithSettings,
-} from "@/usecase/midiSettings";
+import { useMidiSettingsSetters, useMidiWithSettings } from "@/usecase/midi";
 
 export const MidiSettings = () => {
   useCounter("MidiSettings");
