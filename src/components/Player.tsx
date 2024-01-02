@@ -8,10 +8,7 @@ import {
   imageSizeAtom,
   imageUrlAtom,
   volumeAtom,
-  rendererAtom,
   playingStateAtom,
-  selectedRendererAtom,
-  allRendererPropsAtom,
 } from "@/usecase/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 import { usePlayingTime } from "@/usecase/usePlayingTime";
@@ -22,6 +19,8 @@ import {
   Size,
 } from "@/domain/types";
 import { useMidiWithSettings } from "@/usecase/midiSettings";
+import { useRenderer } from "@/usecase/renderer";
+import { RendererModule } from "@/domain/render";
 
 const noop = () => {};
 
@@ -31,12 +30,13 @@ export const Player = () => {
   const imageUrl = useAtomValue(imageUrlAtom);
   const size = useAtomValue(imageSizeAtom);
   const midi = useMidiWithSettings();
+  const { renderer, customProps } = useRenderer();
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
 
   return (
     <div style={{ width: size.width, marginLeft: "auto", marginRight: "auto" }}>
       <Display onMount={setDisplayApi} size={size} imageUrl={imageUrl} />
-      {midi == null || displayApi == null ? (
+      {midi == null || displayApi == null || renderer.module == null ? (
         <>
           <SmartSeekBar
             playingState={null}
@@ -58,6 +58,8 @@ export const Player = () => {
         <PlayerInner
           midiData={midi.midiData}
           midiSettings={midi.settings}
+          rendererModule={renderer.module}
+          customProps={customProps}
           size={size}
           displayApi={displayApi}
         />
@@ -69,20 +71,25 @@ export const Player = () => {
 const PlayerInner = (props: {
   midiData: MidiData;
   midiSettings: MidiSpecificSettings;
+  rendererModule: RendererModule;
+  customProps: Record<string, number>;
   size: Size;
   displayApi: DisplayApi;
 }) => {
   useCounter("PlayerInner");
-  const { midiData, midiSettings, size, displayApi } = props;
+  const {
+    midiData,
+    midiSettings,
+    rendererModule,
+    customProps,
+    size,
+    displayApi,
+  } = props;
 
   const audioBuffer = useAtomValue(audioBufferAtom);
   const volume = useAtomValue(volumeAtom);
-  const renderer = useAtomValue(rendererAtom);
-  const selectedRenderer = useAtomValue(selectedRendererAtom);
-  const allRendererProps = useAtomValue(allRendererPropsAtom);
+
   const [playingState, setPlayingState] = useAtom(playingStateAtom);
-  const customProps = allRendererProps[selectedRenderer];
-  const rendererModule = renderer.module;
   const trackProps = midiSettings.tracks;
 
   const mutables = {
@@ -129,7 +136,7 @@ const PlayerInner = (props: {
         minNote,
         maxNote,
         trackProps,
-        customProps = {},
+        customProps,
         rendererModule,
         midiOffsetInSec,
         volume,
@@ -139,7 +146,7 @@ const PlayerInner = (props: {
         offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
       if (rendererModule && prevModule !== rendererModule) {
         container.innerHTML = "";
-        rendererModule?.init(container, {
+        rendererModule.init(container, {
           size,
           notes: midiData.notes,
           minNote,
@@ -148,14 +155,14 @@ const PlayerInner = (props: {
           customProps,
         });
       }
-      rendererModule?.update(container, {
+      rendererModule.update(container, {
         notes,
         size,
         minNote,
         maxNote,
         tracks: trackProps,
         elapsedSec,
-        customProps: customProps,
+        customProps,
         playing: true,
       });
       prevModule = rendererModule;
@@ -183,7 +190,7 @@ const PlayerInner = (props: {
     }
   };
   useEffect(() => {
-    if (playingState != null || rendererModule == null) {
+    if (playingState != null) {
       return;
     }
     const notes = midiData.notes;
@@ -197,7 +204,7 @@ const PlayerInner = (props: {
       maxNote: midiSettings.maxNote,
       notes: midiData.notes,
       tracks: trackProps,
-      customProps: customProps ?? {},
+      customProps,
     });
     rendererModule.update(container, {
       notes,
@@ -206,7 +213,7 @@ const PlayerInner = (props: {
       maxNote: midiSettings.maxNote,
       tracks: trackProps,
       elapsedSec,
-      customProps: customProps ?? {},
+      customProps,
       playing: false,
     });
   }, [
