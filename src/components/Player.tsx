@@ -14,7 +14,6 @@ import {
   playingStateAtom,
   selectedRendererAtom,
   allRendererPropsAtom,
-  selectedMidiFileAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 import { usePlayingTime } from "@/model/usePlayingTime";
@@ -28,13 +27,12 @@ export const Player = () => {
   const imageUrl = useAtomValue(imageUrlAtom);
   const size = useAtomValue(imageSizeAtom);
   const midiData = useAtomValue(midiDataAtom);
-  const selectedMidiFile = useAtomValue(selectedMidiFileAtom);
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
 
   return (
     <div style={{ width: size.width, marginLeft: "auto", marginRight: "auto" }}>
       <Display onMount={setDisplayApi} size={size} imageUrl={imageUrl} />
-      {selectedMidiFile == null || midiData == null || displayApi == null ? (
+      {midiData == null || displayApi == null ? (
         <>
           <SmartSeekBar
             playingState={null}
@@ -53,19 +51,13 @@ export const Player = () => {
           />
         </>
       ) : (
-        <PlayerInner
-          midiData={midiData}
-          selectedMidiFile={selectedMidiFile}
-          size={size}
-          displayApi={displayApi}
-        />
+        <PlayerInner midiData={midiData} size={size} displayApi={displayApi} />
       )}
     </div>
   );
 };
 
 const PlayerInner = (props: {
-  selectedMidiFile: string;
   midiData: MidiData;
   size: Size;
   displayApi: DisplayApi;
@@ -82,18 +74,18 @@ const PlayerInner = (props: {
   const customProps = allRendererProps[selectedRenderer];
   const rendererModule = renderer.module;
 
-  const { selectedMidiFile, midiData, size, displayApi } = props;
+  const { midiData, size, displayApi } = props;
 
   const midiSettings = useMemo(() => {
     return (
-      midiSpecificProps[selectedMidiFile] ?? {
+      midiSpecificProps[midiData.fileName] ?? {
         minNote: 0,
         maxNote: 127,
         midiOffset: 0,
         tracks: [],
       }
     );
-  }, [midiSpecificProps, selectedMidiFile]);
+  }, [midiSpecificProps, midiData]);
 
   const trackProps = useMemo(() => {
     const trackProps = midiSettings.tracks;

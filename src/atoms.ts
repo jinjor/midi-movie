@@ -31,7 +31,6 @@ export const selectedRendererAtom = atomWithStorage(
 );
 export const midiSpecificPropsAtom = atomWithStorage("midiSpecificProps", {});
 export const allRendererPropsAtom = atomWithStorage("allRendererProps", {});
-export const selectedMidiFileAtom = atom<string | null>(null);
 export const imageUrlAtom = atom<string | null>(null);
 export const imageSizeAtom = atom({
   width: 512,

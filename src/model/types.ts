@@ -39,6 +39,7 @@ export type StoredFile = {
   data: ArrayBuffer;
 };
 export type MidiData = {
+  fileName: string;
   tracks: Track[];
   notes: Note[];
   events: Event[];

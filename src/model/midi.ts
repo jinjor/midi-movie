@@ -1,7 +1,7 @@
 import * as midiManager from "midi-file";
 import { MidiData, Note, Track, Event } from "./types";
 
-export function parseMidiData(buffer: ArrayBuffer): MidiData {
+export function parseMidiData(buffer: ArrayBuffer): Omit<MidiData, "fileName"> {
   const parsed = midiManager.parseMidi(new Uint8Array(buffer));
   const tracks = collectTracks(parsed);
   const events = collectEvents(parsed);

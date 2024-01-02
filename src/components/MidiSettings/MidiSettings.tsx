@@ -1,11 +1,7 @@
 import styles from "./MidiSettings.module.css";
 import { useCounter } from "@/counter";
 import { useAtom, useAtomValue } from "jotai";
-import {
-  midiSpecificPropsAtom,
-  midiDataAtom,
-  selectedMidiFileAtom,
-} from "@/atoms";
+import { midiSpecificPropsAtom, midiDataAtom } from "@/atoms";
 import { useCallback } from "react";
 import { Track } from "@/model/types";
 import { SortableList } from "@/ui/SortableList";
@@ -15,96 +11,95 @@ import { InputSlider } from "@/ui/InputSlider";
 export const MidiSettings = () => {
   useCounter("MidiSettings");
   const midiData = useAtomValue(midiDataAtom);
-  const selectedMidiFile = useAtomValue(selectedMidiFileAtom);
   const [midiSpecificProps, setMidiSpecificProps] = useAtom(
     midiSpecificPropsAtom,
   );
 
   const handleChangeTrackProps = useCallback(
     (trackProps: { order: number; enabled: boolean }[]) => {
-      if (selectedMidiFile == null) {
+      if (midiData == null) {
         return;
       }
-      const settings = midiSpecificProps[selectedMidiFile] ?? {
+      const settings = midiSpecificProps[midiData.fileName] ?? {
         minNote: 0,
         maxNote: 127,
         tracks: [],
       };
       setMidiSpecificProps({
         ...midiSpecificProps,
-        [selectedMidiFile]: {
+        [midiData.fileName]: {
           ...settings,
           tracks: trackProps,
         },
       });
     },
-    [midiSpecificProps, selectedMidiFile, setMidiSpecificProps],
+    [midiSpecificProps, midiData, setMidiSpecificProps],
   );
   const handleMidiOffsetInSecChange = useCallback(
     (midiOffsetInSec: number) => {
-      if (selectedMidiFile == null) {
+      if (midiData == null) {
         return;
       }
-      const settings = midiSpecificProps[selectedMidiFile] ?? {
+      const settings = midiSpecificProps[midiData.fileName] ?? {
         minNote: 0,
         maxNote: 127,
         tracks: [],
       };
       setMidiSpecificProps({
         ...midiSpecificProps,
-        [selectedMidiFile]: {
+        [midiData.fileName]: {
           ...settings,
           midiOffset: midiOffsetInSec,
         },
       });
     },
-    [midiSpecificProps, selectedMidiFile, setMidiSpecificProps],
+    [midiSpecificProps, midiData, setMidiSpecificProps],
   );
   const handleMinNoteChange = useCallback(
     (minNote: number) => {
-      if (selectedMidiFile == null) {
+      if (midiData == null) {
         return;
       }
-      const settings = midiSpecificProps[selectedMidiFile] ?? {
+      const settings = midiSpecificProps[midiData.fileName] ?? {
         minNote: 0,
         maxNote: 127,
         tracks: [],
       };
       setMidiSpecificProps({
         ...midiSpecificProps,
-        [selectedMidiFile]: {
+        [midiData.fileName]: {
           ...settings,
           minNote,
         },
       });
     },
-    [midiSpecificProps, selectedMidiFile, setMidiSpecificProps],
+    [midiSpecificProps, midiData, setMidiSpecificProps],
   );
   const handleMaxNoteChange = useCallback(
     (maxNote: number) => {
-      if (selectedMidiFile == null) {
+      if (midiData == null) {
         return;
       }
-      const settings = midiSpecificProps[selectedMidiFile] ?? {
+      const settings = midiSpecificProps[midiData.fileName] ?? {
         minNote: 0,
         maxNote: 127,
         tracks: [],
       };
       setMidiSpecificProps({
         ...midiSpecificProps,
-        [selectedMidiFile]: {
+        [midiData.fileName]: {
           ...settings,
           maxNote,
         },
       });
     },
-    [midiSpecificProps, selectedMidiFile, setMidiSpecificProps],
+    [midiSpecificProps, midiData, setMidiSpecificProps],
   );
 
-  if (!midiData || !selectedMidiFile) {
+  if (midiData == null) {
     return null;
   }
-  const settings = midiSpecificProps[selectedMidiFile] ?? {
+  const settings = midiSpecificProps[midiData.fileName] ?? {
     minNote: 0,
     maxNote: 127,
     midiOffset: 0,
