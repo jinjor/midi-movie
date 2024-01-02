@@ -2,8 +2,8 @@ import styles from "./MidiSettings.module.css";
 import { useCounter } from "@/counter";
 import { useAtom, useAtomValue } from "jotai";
 import { midiSpecificPropsAtom, midiDataAtom } from "@/atoms";
-import { useCallback } from "react";
-import { Track } from "@/model/types";
+import { useCallback, useMemo } from "react";
+import { MidiData, MidiSpecificSettings, Track } from "@/model/types";
 import { SortableList } from "@/ui/SortableList";
 import { ControlLabel } from "@/ui/ControlLabel";
 import { InputSlider } from "@/ui/InputSlider";
@@ -15,87 +15,18 @@ export const MidiSettings = () => {
     midiSpecificPropsAtom,
   );
 
-  const handleChangeTrackProps = useCallback(
-    (trackProps: { order: number; enabled: boolean }[]) => {
+  const handleChangeMidiSettings = useCallback(
+    (newSettings: MidiSpecificSettings) => {
       if (midiData == null) {
         return;
       }
-      const settings = midiSpecificProps[midiData.fileName] ?? {
-        minNote: 0,
-        maxNote: 127,
-        tracks: [],
-      };
       setMidiSpecificProps({
         ...midiSpecificProps,
-        [midiData.fileName]: {
-          ...settings,
-          tracks: trackProps,
-        },
+        [midiData.fileName]: newSettings,
       });
     },
     [midiSpecificProps, midiData, setMidiSpecificProps],
   );
-  const handleMidiOffsetInSecChange = useCallback(
-    (midiOffsetInSec: number) => {
-      if (midiData == null) {
-        return;
-      }
-      const settings = midiSpecificProps[midiData.fileName] ?? {
-        minNote: 0,
-        maxNote: 127,
-        tracks: [],
-      };
-      setMidiSpecificProps({
-        ...midiSpecificProps,
-        [midiData.fileName]: {
-          ...settings,
-          midiOffset: midiOffsetInSec,
-        },
-      });
-    },
-    [midiSpecificProps, midiData, setMidiSpecificProps],
-  );
-  const handleMinNoteChange = useCallback(
-    (minNote: number) => {
-      if (midiData == null) {
-        return;
-      }
-      const settings = midiSpecificProps[midiData.fileName] ?? {
-        minNote: 0,
-        maxNote: 127,
-        tracks: [],
-      };
-      setMidiSpecificProps({
-        ...midiSpecificProps,
-        [midiData.fileName]: {
-          ...settings,
-          minNote,
-        },
-      });
-    },
-    [midiSpecificProps, midiData, setMidiSpecificProps],
-  );
-  const handleMaxNoteChange = useCallback(
-    (maxNote: number) => {
-      if (midiData == null) {
-        return;
-      }
-      const settings = midiSpecificProps[midiData.fileName] ?? {
-        minNote: 0,
-        maxNote: 127,
-        tracks: [],
-      };
-      setMidiSpecificProps({
-        ...midiSpecificProps,
-        [midiData.fileName]: {
-          ...settings,
-          maxNote,
-        },
-      });
-    },
-    [midiSpecificProps, midiData, setMidiSpecificProps],
-  );
-
   if (midiData == null) {
     return null;
   }
@@ -105,58 +36,55 @@ export const MidiSettings = () => {
     midiOffset: 0,
     tracks: [],
   };
-  const { minNote, maxNote, midiOffset, tracks: trackProps } = settings;
-  for (let i = trackProps.length; i < midiData.tracks.length; i++) {
-    trackProps.push({
-      order: i,
-      enabled: true,
-    });
-  }
-
-  const sortedTracks = [...midiData.tracks];
-  sortedTracks.sort((a, b) => {
-    return trackProps[a.number - 1].order - trackProps[b.number - 1].order;
-  });
 
   return (
     <div className={styles.settings}>
       <MidiSpecificParams
-        minNote={minNote}
-        maxNote={maxNote}
-        midiOffsetInSec={midiOffset}
-        onMinNoteChange={handleMinNoteChange}
-        onMaxNoteChange={handleMaxNoteChange}
-        onMidiOffsetInSecChange={handleMidiOffsetInSecChange}
+        settings={settings}
+        onChangeMidiSettings={handleChangeMidiSettings}
       />
       <TrackList
-        trackProps={trackProps}
-        sortedTracks={sortedTracks}
-        onChangeTrackProps={handleChangeTrackProps}
+        midiData={midiData}
+        settings={settings}
+        onChangeMidiSettings={handleChangeMidiSettings}
       />
     </div>
   );
 };
 
 const MidiSpecificParams = (props: {
-  midiOffsetInSec: number;
-  minNote: number;
-  maxNote: number;
-  onMinNoteChange: (minNote: number) => void;
-  onMaxNoteChange: (maxNote: number) => void;
-  onMidiOffsetInSecChange: (midiOffsetInSec: number) => void;
+  settings: MidiSpecificSettings;
+  onChangeMidiSettings: (settings: MidiSpecificSettings) => void;
 }) => {
   useCounter("MidiSpecificParams");
-  const {
-    midiOffsetInSec,
-    minNote,
-    maxNote,
-    onMinNoteChange,
-    onMaxNoteChange,
-    onMidiOffsetInSecChange,
-  } = props;
-  const handleMidiOffsetChange = (midiOffsetInMilliSec: number) => {
-    onMidiOffsetInSecChange(midiOffsetInMilliSec / 1000);
-  };
+  const { settings, onChangeMidiSettings } = props;
+  const handleMidiOffsetChange = useCallback(
+    (midiOffsetInMilliSec: number) => {
+      onChangeMidiSettings({
+        ...settings,
+        midiOffset: midiOffsetInMilliSec / 1000,
+      });
+    },
+    [settings, onChangeMidiSettings],
+  );
+  const handleMinNoteChange = useCallback(
+    (minNote: number) => {
+      onChangeMidiSettings({
+        ...settings,
+        minNote,
+      });
+    },
+    [settings, onChangeMidiSettings],
+  );
+  const handleMaxNoteChange = useCallback(
+    (maxNote: number) => {
+      onChangeMidiSettings({
+        ...settings,
+        maxNote,
+      });
+    },
+    [settings, onChangeMidiSettings],
+  );
   return (
     <div className={styles.settings}>
       <ControlLabel className={styles.settingsParam} text="Midi Offset(ms)">
@@ -164,7 +92,7 @@ const MidiSpecificParams = (props: {
           className={styles.inputSlider}
           min={-60000}
           max={60000}
-          defaultValue={midiOffsetInSec * 1000}
+          defaultValue={settings.midiOffset * 1000}
           onChange={handleMidiOffsetChange}
         />
       </ControlLabel>
@@ -173,8 +101,8 @@ const MidiSpecificParams = (props: {
           className={styles.inputSlider}
           min={0}
           max={127}
-          defaultValue={minNote}
-          onChange={onMinNoteChange}
+          defaultValue={settings.minNote}
+          onChange={handleMinNoteChange}
         />
       </ControlLabel>
       <ControlLabel className={styles.settingsParam} text="Max Note">
@@ -182,8 +110,8 @@ const MidiSpecificParams = (props: {
           className={styles.inputSlider}
           min={0}
           max={127}
-          defaultValue={maxNote}
-          onChange={onMaxNoteChange}
+          defaultValue={settings.maxNote}
+          onChange={handleMaxNoteChange}
         />
       </ControlLabel>
     </div>
@@ -191,45 +119,70 @@ const MidiSpecificParams = (props: {
 };
 
 const TrackList = (props: {
-  trackProps: {
-    order: number;
-    enabled: boolean;
-  }[];
-  sortedTracks: Track[];
-  onChangeTrackProps: (
-    trackProps: {
-      order: number;
-      enabled: boolean;
-    }[],
-  ) => void;
+  midiData: MidiData;
+  settings: MidiSpecificSettings;
+  onChangeMidiSettings: (settings: MidiSpecificSettings) => void;
 }) => {
   useCounter("TrackList");
-  const { trackProps, sortedTracks, onChangeTrackProps } = props;
-  const setEnabled = (trackNumber: number, enabled: boolean) => {
-    onChangeTrackProps(
-      sortedTracks.map((_, i) => {
-        const props = trackProps[i] ?? {
-          order: i,
-          enabled: true,
-        };
-        return {
-          ...props,
-          enabled: i === trackNumber - 1 ? enabled : props.enabled,
-        };
-      }),
-    );
-  };
+  const { midiData, settings, onChangeMidiSettings } = props;
+
+  const handleChangeTrackProps = useCallback(
+    (trackProps: { order: number; enabled: boolean }[]) => {
+      onChangeMidiSettings({
+        ...settings,
+        tracks: trackProps,
+      });
+    },
+    [settings, onChangeMidiSettings],
+  );
+
+  const trackProps = useMemo(() => {
+    const trackProps = [...settings.tracks];
+    for (let i = trackProps.length; i < midiData.tracks.length; i++) {
+      trackProps.push({
+        order: i,
+        enabled: true,
+      });
+    }
+    return trackProps;
+  }, [settings, midiData]);
+
+  const sortedTracks = useMemo(() => {
+    const sortedTracks = [...midiData.tracks];
+    sortedTracks.sort((a, b) => {
+      return trackProps[a.number - 1].order - trackProps[b.number - 1].order;
+    });
+    return sortedTracks;
+  }, [midiData, trackProps]);
+
+  const setEnabled = useCallback(
+    (trackNumber: number, enabled: boolean) => {
+      handleChangeTrackProps(
+        sortedTracks.map((_, i) => {
+          const props = trackProps[i] ?? {
+            order: i,
+            enabled: true,
+          };
+          return {
+            ...props,
+            enabled: i === trackNumber - 1 ? enabled : props.enabled,
+          };
+        }),
+      );
+    },
+    [sortedTracks, trackProps, handleChangeTrackProps],
+  );
 
   const handleSort = useCallback(
     (tracks: Track[]) => {
-      onChangeTrackProps(
+      handleChangeTrackProps(
         trackProps.map((props, i) => ({
           ...props,
           order: tracks.findIndex((track) => track.number === i + 1),
         })),
       );
     },
-    [trackProps, onChangeTrackProps],
+    [trackProps, handleChangeTrackProps],
   );
   return (
     <SortableList<Track>
