@@ -4,7 +4,6 @@ import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
 import { useAtom, useAtomValue } from "jotai";
 import {
-  audioBufferAtom,
   imageSizeAtom,
   imageUrlAtom,
   volumeAtom,
@@ -21,6 +20,7 @@ import {
 import { useMidiWithSettings } from "@/usecase/midiSettings";
 import { useRenderer } from "@/usecase/renderer";
 import { RendererModule } from "@/domain/render";
+import { useAudio } from "@/usecase/audio";
 
 const noop = () => {};
 
@@ -86,7 +86,7 @@ const PlayerInner = (props: {
     displayApi,
   } = props;
 
-  const audioBuffer = useAtomValue(audioBufferAtom);
+  const { playAudio, pauseAudio, audioDuration } = useAudio();
   const volume = useAtomValue(volumeAtom);
 
   const [playingState, setPlayingState] = useAtom(playingStateAtom);
@@ -105,27 +105,10 @@ const PlayerInner = (props: {
   const mutablesRef = useRef(mutables);
   mutablesRef.current = mutables;
 
-  const [audioBufferSource, setAudioBufferSource] =
-    useState<AudioBufferSourceNode | null>(null);
-
   const [offsetInSec, setOffsetInSec] = useState(0);
 
   const handlePlay = () => {
-    const ctx = new AudioContext();
-    const source = ctx.createBufferSource();
-    source.buffer = audioBuffer;
-    const gain = ctx.createGain();
-    gain.gain.value = volume;
-    if (audioBuffer) {
-      source.connect(gain).connect(ctx.destination);
-      const offset = offsetInSec;
-      if (offset > 0) {
-        source.start(0, offset);
-      } else {
-        source.start(-offset);
-      }
-      setAudioBufferSource(source);
-    }
+    const { setVolume } = playAudio(volume, offsetInSec);
     const notes = midiData.notes;
     const startTime = performance.now();
     let prevModule = rendererModule;
@@ -141,7 +124,7 @@ const PlayerInner = (props: {
         midiOffsetInSec,
         volume,
       } = mutablesRef.current;
-      gain.gain.value = volume;
+      setVolume(volume);
       const elapsedSec =
         offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
       if (rendererModule && prevModule !== rendererModule) {
@@ -177,10 +160,7 @@ const PlayerInner = (props: {
     setOffsetInSec(0);
   };
   const handlePause = () => {
-    if (audioBufferSource) {
-      audioBufferSource.stop();
-      setAudioBufferSource(null);
-    }
+    pauseAudio();
     if (playingState) {
       clearInterval(playingState.timer);
       setOffsetInSec(
@@ -235,7 +215,7 @@ const PlayerInner = (props: {
       <SmartSeekBar
         playingState={playingState}
         offsetInSec={offsetInSec}
-        duration={Math.max(audioBuffer?.duration ?? 0, midiData.endSec ?? 0)}
+        duration={Math.max(audioDuration ?? 0, midiData.endSec ?? 0)}
         onPlay={handlePlay}
         onPause={handlePause}
         onChangeOffset={setOffsetInSec}
