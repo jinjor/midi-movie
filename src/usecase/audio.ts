@@ -1,5 +1,5 @@
-import { useAtomValue } from "jotai";
-import { audioBufferAtom } from "./atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { audioBufferAtom, volumeAtom } from "./atoms";
 import { useCallback, useState } from "react";
 
 export const useAudio = () => {
@@ -44,5 +44,13 @@ export const useAudio = () => {
     playAudio,
     pauseAudio,
     audioDuration: audioBuffer?.duration ?? null,
+  };
+};
+
+export const useAudioSettings = () => {
+  const [volume, setVolume] = useAtom(volumeAtom);
+  return {
+    volume,
+    setVolume,
   };
 };

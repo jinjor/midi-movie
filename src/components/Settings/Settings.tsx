@@ -1,85 +1,21 @@
 import { useCounter } from "@/counter";
-import { useAtom } from "jotai";
-import {
-  allRendererPropsAtom,
-  opacityAtom,
-  rendererAtom,
-  selectedRendererAtom,
-  volumeAtom,
-} from "@/usecase/atoms";
-import { useEffect } from "react";
-import {
-  RendererState,
-  importRendererModule,
-  renderers,
-} from "@/domain/render";
+import { RendererState, renderers } from "@/domain/render";
 import { Select } from "@/ui/Select";
 import styles from "./Settings.module.css";
 import { ControlLabel } from "@/ui/ControlLabel";
 import { InputSlider } from "@/ui/InputSlider";
+import { useRenderer } from "@/usecase/renderer";
+import { useAudioSettings } from "@/usecase/audio";
+import { useImageSettings } from "@/usecase/image";
 
 export const Settings = () => {
   useCounter("Settings");
 
-  const [opacity, setOpacity] = useAtom(opacityAtom);
-  const [renderer, setRenderer] = useAtom(rendererAtom);
-  const [selectedRenderer, setSelectedRenderer] = useAtom(selectedRendererAtom);
-  const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
+  const { renderer, selectedRenderer, props, selectRenderer, setProp } =
+    useRenderer(true);
+  const { volume, setVolume } = useAudioSettings();
+  const { opacity, setOpacity } = useImageSettings();
 
-  const [volume, setVolume] = useAtom(volumeAtom);
-  useEffect(() => {
-    if (renderer.type !== "Loading") {
-      return;
-    }
-    const info = renderers.find((r) => r.name === selectedRenderer);
-    if (info == null) {
-      console.error(`Renderer ${selectedRenderer} not found`);
-      return;
-    }
-    void (async () => {
-      try {
-        const module = await importRendererModule(info.url);
-        const props = { ...allRendererProps[selectedRenderer] };
-        for (const prop of module.config.props) {
-          props[prop.id] = props[prop.id] ?? prop.defaultValue;
-        }
-        setRenderer({ type: "Ready", module });
-        setAllRendererProps({ ...allRendererProps, [selectedRenderer]: props });
-      } catch (e) {
-        console.error(e);
-        setRenderer({ type: "Error" });
-      }
-    })();
-  }, [
-    allRendererProps,
-    renderer,
-    selectedRenderer,
-    setAllRendererProps,
-    setRenderer,
-  ]);
-
-  const handleVolumeChange = (volume: number) => {
-    setVolume(volume);
-  };
-  const handleOpacityChange = (opacity: number) => {
-    setOpacity(opacity);
-  };
-  const handleSelectRenderer = (name: string) => {
-    setSelectedRenderer(name);
-    setRenderer({ type: "Loading" });
-  };
-  const handleCustomPropChange = (key: string, value: number) => {
-    if (renderer.type !== "Ready") {
-      return;
-    }
-    setAllRendererProps({
-      ...allRendererProps,
-      [selectedRenderer]: {
-        ...allRendererProps[selectedRenderer],
-        [key]: value,
-      },
-    });
-  };
   return (
     <div className={styles.renderingSettings}>
       <ControlLabel text="Volume">
@@ -89,7 +25,7 @@ export const Settings = () => {
           max={1}
           step={0.1}
           defaultValue={volume}
-          onChange={handleVolumeChange}
+          onChange={setVolume}
         />
       </ControlLabel>
       <ControlLabel text="Overlay Opacity">
@@ -99,13 +35,13 @@ export const Settings = () => {
           max={1}
           step={0.1}
           defaultValue={opacity}
-          onChange={handleOpacityChange}
+          onChange={setOpacity}
         />
       </ControlLabel>
       <ControlLabel text="Renderer">
         <div>
           <Select
-            onChange={handleSelectRenderer}
+            onChange={selectRenderer}
             value={selectedRenderer}
             options={renderers.map((r) => r.name)}
           />
@@ -113,8 +49,8 @@ export const Settings = () => {
       </ControlLabel>
       <RendererConfig
         renderer={renderer}
-        onCustomPropChange={handleCustomPropChange}
-        props={allRendererProps[selectedRenderer]}
+        onCustomPropChange={setProp}
+        props={props}
       />
     </div>
   );

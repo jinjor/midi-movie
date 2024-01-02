@@ -25,7 +25,7 @@ export const Player = () => {
   const imageUrl = useAtomValue(imageUrlAtom);
   const size = useAtomValue(imageSizeAtom);
   const midi = useMidiWithSettings();
-  const { renderer, customProps } = useRenderer();
+  const { renderer, props: customProps } = useRenderer();
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
 
   return (
