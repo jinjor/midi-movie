@@ -1,7 +1,7 @@
 import styles from "./PlayerControl.module.css";
 import { formatTime } from "../../util";
 import { PlayingState } from "@/domain/types";
-import { usePlayingTime } from "@/usecase/usePlayingTime";
+import { usePlayingTime } from "@/usecase/player";
 
 type Props = {
   onPlay: () => void;

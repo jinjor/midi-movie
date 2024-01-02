@@ -1,16 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
-import { useAtom, useAtomValue } from "jotai";
-import {
-  imageSizeAtom,
-  imageUrlAtom,
-  volumeAtom,
-  playingStateAtom,
-} from "@/usecase/atoms";
+import { useAtomValue } from "jotai";
+import { imageSizeAtom, imageUrlAtom, volumeAtom } from "@/usecase/atoms";
 import { SeekBar } from "@/ui/SeekBar";
-import { usePlayingTime } from "@/usecase/usePlayingTime";
 import {
   MidiData,
   MidiSpecificSettings,
@@ -21,6 +15,7 @@ import { useMidiWithSettings } from "@/usecase/midiSettings";
 import { useRenderer } from "@/usecase/renderer";
 import { RendererModule } from "@/domain/render";
 import { useAudio } from "@/usecase/audio";
+import { usePlayer, usePlayingTime } from "@/usecase/player";
 
 const noop = () => {};
 
@@ -89,7 +84,13 @@ const PlayerInner = (props: {
   const { playAudio, pauseAudio, audioDuration } = useAudio();
   const volume = useAtomValue(volumeAtom);
 
-  const [playingState, setPlayingState] = useAtom(playingStateAtom);
+  const {
+    playingState,
+    startPlaying,
+    pausePlaying,
+    offsetInSec,
+    setOffsetInSec,
+  } = usePlayer();
   const trackProps = midiSettings.tracks;
 
   const mutables = {
@@ -105,14 +106,11 @@ const PlayerInner = (props: {
   const mutablesRef = useRef(mutables);
   mutablesRef.current = mutables;
 
-  const [offsetInSec, setOffsetInSec] = useState(0);
-
-  const handlePlay = () => {
+  const handlePlay = useCallback(() => {
     const { setVolume } = playAudio(volume, offsetInSec);
     const notes = midiData.notes;
-    const startTime = performance.now();
     let prevModule = rendererModule;
-    const timer = window.setInterval(() => {
+    startPlaying((currentTimeInSec) => {
       const container = displayApi.getContainer();
       const {
         size,
@@ -125,8 +123,7 @@ const PlayerInner = (props: {
         volume,
       } = mutablesRef.current;
       setVolume(volume);
-      const elapsedSec =
-        offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
+      const elapsedSec = currentTimeInSec + midiOffsetInSec;
       if (rendererModule && prevModule !== rendererModule) {
         container.innerHTML = "";
         rendererModule.init(container, {
@@ -149,26 +146,27 @@ const PlayerInner = (props: {
         playing: true,
       });
       prevModule = rendererModule;
-    }, 1000 / 60);
-    setPlayingState({
-      startTime,
-      timer,
     });
-  };
-  const handleReturn = () => {
+  }, [
+    playAudio,
+    startPlaying,
+    offsetInSec,
+    midiData.notes,
+    displayApi,
+    rendererModule,
+    volume,
+  ]);
+
+  const handlePause = useCallback(() => {
+    pauseAudio();
+    pausePlaying();
+  }, [pauseAudio, pausePlaying]);
+
+  const handleReturn = useCallback(() => {
     handlePause();
     setOffsetInSec(0);
-  };
-  const handlePause = () => {
-    pauseAudio();
-    if (playingState) {
-      clearInterval(playingState.timer);
-      setOffsetInSec(
-        offsetInSec + (performance.now() - playingState.startTime) / 1000,
-      );
-      setPlayingState(null);
-    }
-  };
+  }, [handlePause, setOffsetInSec]);
+
   useEffect(() => {
     if (playingState != null) {
       return;
