@@ -1,44 +1,20 @@
 import { useCounter } from "@/counter";
 import { RendererState, renderers } from "@/domain/render";
 import { Select } from "@/ui/Select";
-import styles from "./Settings.module.css";
+import styles from "./RendererSettings.module.css";
 import { ControlLabel } from "@/ui/ControlLabel";
 import { InputSlider } from "@/ui/InputSlider";
 import { useRenderer } from "@/usecase/renderer";
-import { useAudioSettings } from "@/usecase/audio";
-import { useImageSettings } from "@/usecase/image";
 
-export const Settings = () => {
-  useCounter("Settings");
+export const RendererSettings = () => {
+  useCounter("RendererSettings");
 
   const { renderer, selectedRenderer, props, selectRenderer, setProp } =
     useRenderer(true);
-  const { volume, setVolume } = useAudioSettings();
-  const { opacity, setOpacity } = useImageSettings();
 
   return (
-    <div className={styles.renderingSettings}>
-      <ControlLabel text="Volume">
-        <InputSlider
-          className={styles.inputSlider}
-          min={0}
-          max={1}
-          step={0.1}
-          defaultValue={volume}
-          onChange={setVolume}
-        />
-      </ControlLabel>
-      <ControlLabel text="Overlay Opacity">
-        <InputSlider
-          className={styles.inputSlider}
-          min={0}
-          max={1}
-          step={0.1}
-          defaultValue={opacity}
-          onChange={setOpacity}
-        />
-      </ControlLabel>
-      <ControlLabel text="Renderer">
+    <div className={styles.settings}>
+      <ControlLabel text="Renderer" className={styles.settingsParam}>
         <div>
           <Select
             onChange={selectRenderer}
@@ -71,7 +47,11 @@ const RendererConfig = ({
     <>
       {renderer.module.config.props.map((p) => {
         return (
-          <ControlLabel key={p.id} text={p.name}>
+          <ControlLabel
+            key={p.id}
+            text={p.name}
+            className={styles.settingsParam}
+          >
             {p.type === "number" ? (
               <InputSlider
                 className={styles.inputSlider}

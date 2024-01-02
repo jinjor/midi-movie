@@ -19,6 +19,11 @@
   padding: 15px 20px;
   background-color: var(--color-bg-foreground);
 }
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .files {
   display: flex;
   gap: 30px;
