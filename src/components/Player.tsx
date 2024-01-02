@@ -18,15 +18,61 @@ import {
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 import { usePlayingTime } from "@/model/usePlayingTime";
-import { PlayingState } from "@/model/types";
+import { MidiData, PlayingState, Size } from "@/model/types";
+
+const noop = () => {};
 
 export const Player = () => {
   useCounter("Player");
-  const midiSpecificProps = useAtomValue(midiSpecificPropsAtom);
+
   const imageUrl = useAtomValue(imageUrlAtom);
   const size = useAtomValue(imageSizeAtom);
   const midiData = useAtomValue(midiDataAtom);
   const selectedMidiFile = useAtomValue(selectedMidiFileAtom);
+  const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
+
+  return (
+    <div style={{ width: size.width, marginLeft: "auto", marginRight: "auto" }}>
+      <Display onMount={setDisplayApi} size={size} imageUrl={imageUrl} />
+      {selectedMidiFile == null || midiData == null || displayApi == null ? (
+        <>
+          <SmartSeekBar
+            playingState={null}
+            offsetInSec={0}
+            duration={0}
+            onPlay={noop}
+            onPause={noop}
+            onChangeOffset={noop}
+          />
+          <PlayerControl
+            playingState={null}
+            onPlay={noop}
+            onPause={noop}
+            onReturn={noop}
+            offsetInSec={0}
+          />
+        </>
+      ) : (
+        <PlayerInner
+          midiData={midiData}
+          selectedMidiFile={selectedMidiFile}
+          size={size}
+          displayApi={displayApi}
+        />
+      )}
+    </div>
+  );
+};
+
+const PlayerInner = (props: {
+  selectedMidiFile: string;
+  midiData: MidiData;
+  size: Size;
+  displayApi: DisplayApi;
+}) => {
+  useCounter("PlayerInner");
+
+  const midiSpecificProps = useAtomValue(midiSpecificPropsAtom);
   const audioBuffer = useAtomValue(audioBufferAtom);
   const volume = useAtomValue(volumeAtom);
   const renderer = useAtomValue(rendererAtom);
@@ -36,21 +82,22 @@ export const Player = () => {
   const customProps = allRendererProps[selectedRenderer];
   const rendererModule = renderer.module;
 
+  const { selectedMidiFile, midiData, size, displayApi } = props;
+
   const midiSettings = useMemo(() => {
-    const defaultSettings = {
-      minNote: 0,
-      maxNote: 127,
-      midiOffset: 0,
-      tracks: [],
-    };
-    return selectedMidiFile != null
-      ? midiSpecificProps[selectedMidiFile] ?? defaultSettings
-      : defaultSettings;
+    return (
+      midiSpecificProps[selectedMidiFile] ?? {
+        minNote: 0,
+        maxNote: 127,
+        midiOffset: 0,
+        tracks: [],
+      }
+    );
   }, [midiSpecificProps, selectedMidiFile]);
 
   const trackProps = useMemo(() => {
     const trackProps = midiSettings.tracks;
-    for (let i = trackProps.length; i < (midiData?.tracks?.length ?? 0); i++) {
+    for (let i = trackProps.length; i < midiData.tracks.length; i++) {
       trackProps.push({
         order: i,
         enabled: true,
@@ -72,16 +119,12 @@ export const Player = () => {
   const mutablesRef = useRef(mutables);
   mutablesRef.current = mutables;
 
-  const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
   const [audioBufferSource, setAudioBufferSource] =
     useState<AudioBufferSourceNode | null>(null);
 
   const [offsetInSec, setOffsetInSec] = useState(0);
 
   const handlePlay = () => {
-    if (midiData == null) {
-      return;
-    }
     const ctx = new AudioContext();
     const source = ctx.createBufferSource();
     source.buffer = audioBuffer;
@@ -101,8 +144,7 @@ export const Player = () => {
     const startTime = performance.now();
     let prevModule = rendererModule;
     const timer = window.setInterval(() => {
-      const display = displayApi!;
-      const container = display.getContainer();
+      const container = displayApi.getContainer();
       const {
         size,
         minNote,
@@ -162,12 +204,7 @@ export const Player = () => {
     }
   };
   useEffect(() => {
-    if (
-      playingState != null ||
-      displayApi == null ||
-      midiData == null ||
-      rendererModule == null
-    ) {
+    if (playingState != null || rendererModule == null) {
       return;
     }
     const notes = midiData.notes;
@@ -208,12 +245,11 @@ export const Player = () => {
   ]);
 
   return (
-    <div style={{ width: size.width, marginLeft: "auto", marginRight: "auto" }}>
-      <Display onMount={setDisplayApi} size={size} imageUrl={imageUrl} />
+    <>
       <SmartSeekBar
         playingState={playingState}
         offsetInSec={offsetInSec}
-        duration={Math.max(audioBuffer?.duration ?? 0, midiData?.endSec ?? 0)}
+        duration={Math.max(audioBuffer?.duration ?? 0, midiData.endSec ?? 0)}
         onPlay={handlePlay}
         onPause={handlePause}
         onChangeOffset={setOffsetInSec}
@@ -225,7 +261,7 @@ export const Player = () => {
         onReturn={handleReturn}
         offsetInSec={offsetInSec}
       />
-    </div>
+    </>
   );
 };
 
