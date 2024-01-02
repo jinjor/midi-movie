@@ -26,8 +26,8 @@ const root = window.location.origin;
 const ext = import.meta.env.DEV ? ".mts" : ".mjs";
 export const renderers: (RendererInfo & { name: string })[] = [
   {
-    name: "Default",
-    url: `${root}/renderer/default${ext}`,
+    name: "Pianoroll",
+    url: `${root}/renderer/pianoroll${ext}`,
   },
   {
     name: "Bubble",
@@ -36,10 +36,6 @@ export const renderers: (RendererInfo & { name: string })[] = [
   {
     name: "Arch",
     url: `${root}/renderer/arch${ext}`,
-  },
-  {
-    name: "Depth",
-    url: `${root}/renderer/depth${ext}`,
   },
   {
     name: "Layer",

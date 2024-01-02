@@ -4,6 +4,7 @@ import {
   ModulePropsType,
   Note,
   Size,
+  TrackOptions,
   UpdateOptions,
 } from "@/model/types";
 import {
@@ -19,6 +20,8 @@ import {
   activeThickness,
   baseLightness,
   baseThickness,
+  colorByTrack,
+  depth,
   lineCap,
   maxHue,
   maxNote,
@@ -26,6 +29,7 @@ import {
   minNote,
   peakLightness,
   peakThickness,
+  reverseDepth,
   saturation,
   timeRangeSec,
   vertical,
@@ -43,11 +47,32 @@ export const config = {
     baseLightness(30),
     peakLightness(100),
     activeLightness(80),
-    baseThickness(0.4),
-    peakThickness(1),
-    activeThickness(0.6),
+    baseThickness(0.8),
+    peakThickness(0.8),
+    activeThickness(0.8),
     vertical(0),
     lineCap(0),
+    colorByTrack(1),
+    depth(0.2),
+    {
+      id: "deepestTimeRange",
+      name: "Deepest Time Range (sec)",
+      type: "number",
+      min: 0,
+      max: 5,
+      step: 0.1,
+      defaultValue: 3,
+    },
+    {
+      id: "deepestHeight",
+      name: "Deepest Height",
+      type: "number",
+      min: 0,
+      max: 1,
+      step: 0.1,
+      defaultValue: 0.9,
+    },
+    reverseDepth(0),
   ],
 } as const satisfies ModuleConfig;
 
@@ -88,20 +113,50 @@ function calculateNoteForLandscape({
   peakThickness,
   activeThickness,
   lineCap,
+  colorByTrack,
+  depth,
+  deepestTimeRange: deepestTimeRangeRatio,
+  deepestHeight: deepestHeightRatio,
+  reverseDepth,
+  tracks,
 }: Omit<CustomProps, "vertical"> & {
   size: Size;
   note: Note;
   elapsedSec: number;
+  tracks: TrackOptions[];
 }) {
+  const maxTrackIndex = tracks.length - 1;
+  const shallowestHeight = 1;
+  const deepestHeight = putInRange(shallowestHeight, deepestHeightRatio, depth);
+  const height =
+    putInRange(
+      shallowestHeight,
+      deepestHeight,
+      tracks[note.trackIndex].order / maxTrackIndex,
+      !!reverseDepth,
+    ) * size.height;
+  const bottom = size.height / 2 + height / 2;
+  const shallowestTimeRange = 1;
+  const deepestTimeRange = putInRange(
+    shallowestTimeRange,
+    deepestTimeRangeRatio,
+    depth,
+  );
+  const scaledTimeRangeSec =
+    putInRange(
+      shallowestTimeRange,
+      deepestTimeRange,
+      tracks[note.trackIndex].order / maxTrackIndex,
+      !!reverseDepth,
+    ) * timeRangeSec;
+
   const decaySec = 0.2;
   const releaseSec = 0.4;
-  const fullHeightPerNote = size.height / (maxNote - minNote + 1);
-  const widthPerSec = size.width / timeRangeSec;
-  const hue = putInRange(
-    minHue,
-    maxHue,
-    ratio(minNote, maxNote, note.noteNumber),
-  );
+  const fullHeightPerNote = height / (maxNote - minNote + 1);
+  const widthPerSec = size.width / scaledTimeRangeSec;
+  const hue = colorByTrack
+    ? putInRange(minHue, maxHue, tracks[note.trackIndex].order / maxTrackIndex)
+    : putInRange(minHue, maxHue, ratio(minNote, maxNote, note.noteNumber));
   const lightness = calcEnvelope({
     base: baseLightness,
     peak: peakLightness,
@@ -122,17 +177,20 @@ function calculateNoteForLandscape({
     toSec: note.toSec,
     elapsedSec,
   });
-  const x1 = (note.fromSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
-  const x2 = (note.toSec - elapsedSec + timeRangeSec / 2) * widthPerSec;
-  const y = size.height - (note.noteNumber - minNote) * fullHeightPerNote;
+  const x1 = (note.fromSec - elapsedSec + scaledTimeRangeSec / 2) * widthPerSec;
+  const x2 = (note.toSec - elapsedSec + scaledTimeRangeSec / 2) * widthPerSec;
+  const y = bottom - (note.noteNumber - minNote) * fullHeightPerNote;
   const strokeWidth = fullHeightPerNote * thickness;
+  const hidden = note.noteNumber < minNote || note.noteNumber > maxNote;
   const line = {
     x1,
     x2,
     y1: y,
     y2: y,
     "stroke-width": strokeWidth,
-    stroke: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+    stroke: hidden
+      ? "transparent"
+      : `hsl(${hue}, ${saturation}%, ${lightness}%)`,
     "stroke-linecap": lineCap ? "round" : "butt",
   };
   return {
@@ -146,7 +204,12 @@ function calculateNote({
   size,
   vertical,
   ...restParams
-}: CustomProps & { size: Size; note: Note; elapsedSec: number }) {
+}: CustomProps & {
+  size: Size;
+  note: Note;
+  elapsedSec: number;
+  tracks: TrackOptions[];
+}) {
   const { line, ...rest } = calculateNoteForLandscape({
     size: vertical ? flipSize(size) : size,
     ...restParams,
@@ -154,17 +217,25 @@ function calculateNote({
   return { line: vertical ? flipLine(line, size) : line, ...rest };
 }
 
-export function init(svg: SVGSVGElement, { notes }: InitOptions<CustomProps>) {
+export function init(
+  svg: SVGSVGElement,
+  { notes, customProps, tracks }: InitOptions<CustomProps>,
+) {
   const bar = createSvgElement("line");
   setAttributes(bar, {
     id: "bar",
   });
   svg.appendChild(bar);
-  for (const _note of notes) {
+  notes.sort((a, b) => tracks[b.trackIndex].order - tracks[a.trackIndex].order);
+  if (customProps.reverseDepth) {
+    notes.reverse();
+  }
+  for (const note of notes) {
     const g = createSvgElement("g");
     const line = createSvgElement("line");
     g.appendChild(line);
     setAttributes(g, {
+      id: `note-${note.index}`,
       class: "note",
     });
     svg.appendChild(g);
@@ -186,9 +257,10 @@ export function update(
   const barPatch = calculateBar({ size, ...customProps });
   setAttributes(bar, barPatch);
 
-  const groups = svg.querySelectorAll(".note");
-  for (const [index, note] of notes.entries()) {
-    const group = groups[index] as SVGGElement;
+  for (const note of notes) {
+    const group = document.getElementById(
+      `note-${note.index}`,
+    ) as unknown as SVGGElement;
     const line = group.children[0] as SVGLineElement;
     if (playing && getStyle(group, "display") === "none") {
       continue;
@@ -201,6 +273,7 @@ export function update(
       size,
       note,
       elapsedSec,
+      tracks,
       ...customProps,
     });
     if (playing && ended) {

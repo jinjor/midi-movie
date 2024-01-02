@@ -271,9 +271,9 @@ export const depth = ((defaultValue: number) =>
     id: "depth",
     name: "Depth",
     type: "number",
-    min: 1,
-    max: 5,
-    step: 0.5,
+    min: 0,
+    max: 1,
+    step: 0.1,
     defaultValue,
   }) as const) satisfies ModulePropDefCreator;
 
