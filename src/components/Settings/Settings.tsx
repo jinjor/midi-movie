@@ -6,9 +6,13 @@ import {
   rendererAtom,
   selectedRendererAtom,
   volumeAtom,
-} from "@/atoms";
+} from "@/usecase/atoms";
 import { useEffect } from "react";
-import { RendererState, importRendererModule, renderers } from "@/model/render";
+import {
+  RendererState,
+  importRendererModule,
+  renderers,
+} from "@/domain/render";
 import { Select } from "@/ui/Select";
 import styles from "./Settings.module.css";
 import { ControlLabel } from "@/ui/ControlLabel";

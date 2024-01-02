@@ -1,11 +1,11 @@
 import { FileInput } from "@/ui/FileInput";
-import { parseMidiData } from "@/model/midi";
+import { parseMidiData } from "@/domain/midi";
 import { useCounter } from "@/counter";
 import { useAtom } from "jotai";
-import { midiDataAtom } from "@/atoms";
+import { midiDataAtom } from "@/usecase/atoms";
 import { formatTime } from "@/util";
 import { useEffect } from "react";
-import { useFileStorage } from "@/storage/fileStorage";
+import { useFileStorage } from "@/repository/fileStorage";
 
 export const MidiLoader = () => {
   useCounter("MidiLoader");

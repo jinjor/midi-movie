@@ -1,10 +1,10 @@
 import { FileInput } from "@/ui/FileInput";
-import { Image } from "@/model/types";
+import { Image } from "@/domain/types";
 import { useCounter } from "@/counter";
 import { useAtom } from "jotai";
-import { imageUrlAtom, imageSizeAtom } from "@/atoms";
+import { imageUrlAtom, imageSizeAtom } from "@/usecase/atoms";
 import { useEffect, useState } from "react";
-import { useFileStorage } from "@/storage/fileStorage";
+import { useFileStorage } from "@/repository/fileStorage";
 
 export const ImageLoader = () => {
   useCounter("ImageLoader");

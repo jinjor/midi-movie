@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { StoredFile } from "../model/types";
+import { StoredFile } from "../domain/types";
 import { number, object, string, parse } from "valibot";
-import { arrayBufferToBase64, base64ToArrayBuffer } from "../model/base64";
+import { arrayBufferToBase64, base64ToArrayBuffer } from "../domain/base64";
 
 const dbName = "midi-movie";
 const storeName = "files";

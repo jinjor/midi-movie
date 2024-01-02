@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PlayingState } from "./types";
+import { PlayingState } from "../domain/types";
 
 export const usePlayingTime = (
   playingState: PlayingState | null,

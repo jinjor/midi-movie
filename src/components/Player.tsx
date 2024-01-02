@@ -12,16 +12,16 @@ import {
   playingStateAtom,
   selectedRendererAtom,
   allRendererPropsAtom,
-} from "@/atoms";
+} from "@/usecase/atoms";
 import { SeekBar } from "@/ui/SeekBar";
-import { usePlayingTime } from "@/model/usePlayingTime";
+import { usePlayingTime } from "@/usecase/usePlayingTime";
 import {
   MidiData,
   MidiSpecificSettings,
   PlayingState,
   Size,
-} from "@/model/types";
-import { useMidiWithSettings } from "@/model/useMidiWithSettings";
+} from "@/domain/types";
+import { useMidiWithSettings } from "@/usecase/useMidiWithSettings";
 
 const noop = () => {};
 

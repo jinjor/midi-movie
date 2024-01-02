@@ -5,7 +5,7 @@ import {
   Note,
   Size,
   UpdateOptions,
-} from "@/model/types";
+} from "@/domain/types";
 import {
   setAttributes,
   getStyle,
