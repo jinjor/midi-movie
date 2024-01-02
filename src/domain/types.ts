@@ -53,8 +53,10 @@ export type TrackOptions = {
   enabled: boolean;
   order: number;
 };
-export type MidiSpecificSettings = {
+export type MidiSpecificSettings = MidiSpecificOptions & {
   midiOffset: number;
+};
+export type MidiSpecificOptions = {
   minNote: number;
   maxNote: number;
   tracks: TrackOptions[];
@@ -62,11 +64,8 @@ export type MidiSpecificSettings = {
 export type InitOptions<T> = {
   size: Size;
   notes: Note[];
-  minNote: number;
-  maxNote: number;
-  tracks: TrackOptions[];
   customProps: T;
-};
+} & MidiSpecificOptions;
 export type UpdateOptions<T> = {
   size: Size;
   notes: Note[];

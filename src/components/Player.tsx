@@ -83,6 +83,7 @@ const PlayerInner = (props: {
 
   const { playAudio, pauseAudio, audioDuration } = useAudio();
   const volume = useAtomValue(volumeAtom);
+  const notes = midiData.notes;
 
   const {
     playingState,
@@ -91,16 +92,12 @@ const PlayerInner = (props: {
     offsetInSec,
     setOffsetInSec,
   } = usePlayer();
-  const trackProps = midiSettings.tracks;
 
   const mutables = {
     size,
-    trackProps,
     customProps,
     rendererModule,
-    minNote: midiSettings.minNote,
-    maxNote: midiSettings.maxNote,
-    midiOffsetInSec: midiSettings.midiOffset,
+    midiSettings,
     volume,
   };
   const mutablesRef = useRef(mutables);
@@ -108,42 +105,34 @@ const PlayerInner = (props: {
 
   const handlePlay = useCallback(() => {
     const { setVolume } = playAudio(volume, offsetInSec);
-    const notes = midiData.notes;
     let prevModule = rendererModule;
     startPlaying((currentTimeInSec) => {
       const container = displayApi.getContainer();
       const {
         size,
-        minNote,
-        maxNote,
-        trackProps,
         customProps,
         rendererModule,
-        midiOffsetInSec,
+        midiSettings: { midiOffset, ...midiProps },
         volume,
       } = mutablesRef.current;
       setVolume(volume);
-      const elapsedSec = currentTimeInSec + midiOffsetInSec;
+      const elapsedSec = currentTimeInSec + midiOffset;
       if (rendererModule && prevModule !== rendererModule) {
         container.innerHTML = "";
         rendererModule.init(container, {
           size,
-          notes: midiData.notes,
-          minNote,
-          maxNote,
-          tracks: trackProps,
+          notes,
           customProps,
+          ...midiProps,
         });
       }
       rendererModule.update(container, {
         notes,
         size,
-        minNote,
-        maxNote,
-        tracks: trackProps,
         elapsedSec,
         customProps,
         playing: true,
+        ...midiProps,
       });
       prevModule = rendererModule;
     });
@@ -151,7 +140,7 @@ const PlayerInner = (props: {
     playAudio,
     startPlaying,
     offsetInSec,
-    midiData.notes,
+    notes,
     displayApi,
     rendererModule,
     volume,
@@ -171,37 +160,30 @@ const PlayerInner = (props: {
     if (playingState != null) {
       return;
     }
-    const notes = midiData.notes;
     const container = displayApi.getContainer();
-    const elapsedSec = offsetInSec + midiSettings.midiOffset;
+    const { midiOffset, ...midiOptions } = midiSettings;
+    const elapsedSec = offsetInSec + midiOffset;
 
     container.innerHTML = "";
     rendererModule.init(container, {
       size,
-      minNote: midiSettings.minNote,
-      maxNote: midiSettings.maxNote,
-      notes: midiData.notes,
-      tracks: trackProps,
+      notes,
       customProps,
+      ...midiOptions,
     });
     rendererModule.update(container, {
       notes,
       size,
-      minNote: midiSettings.minNote,
-      maxNote: midiSettings.maxNote,
-      tracks: trackProps,
       elapsedSec,
       customProps,
       playing: false,
+      ...midiOptions,
     });
   }, [
-    midiData,
+    notes,
     playingState,
     offsetInSec,
-    midiSettings.minNote,
-    midiSettings.maxNote,
-    midiSettings.midiOffset,
-    trackProps,
+    midiSettings,
     size,
     displayApi,
     rendererModule,

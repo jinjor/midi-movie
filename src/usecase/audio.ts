@@ -11,22 +11,14 @@ export const useAudio = () => {
     (volume: number, offsetInSec: number) => {
       const ctx = new AudioContext();
       const gain = ctx.createGain();
-      gain.gain.value = volume;
-      const setVolume = useCallback(
-        (volume: number) => {
-          gain.gain.value = volume;
-        },
-        [gain],
-      );
-      if (audioBufferSource == null) {
-        return {
-          setVolume,
-        };
-      }
-      const source = ctx.createBufferSource();
-      source.buffer = audioBuffer;
+      const setVolume = (volume: number) => {
+        gain.gain.value = volume;
+      };
+      setVolume(volume);
 
-      if (audioBuffer) {
+      if (audioBuffer && !audioBufferSource) {
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuffer;
         source.connect(gain).connect(ctx.destination);
         const offset = offsetInSec;
         if (offset > 0) {
@@ -36,7 +28,6 @@ export const useAudio = () => {
         }
         setAudioBufferSource(source);
       }
-      audioBufferSource.start();
       return {
         setVolume,
       };

@@ -6,9 +6,10 @@ import { PlayingState } from "@/domain/types";
 export const usePlayer = () => {
   const [playingState, setPlayingState] = useAtom(playingStateAtom);
   const [offsetInSec, setOffsetInSec] = useState(0);
-  const startTime = performance.now();
+
   const startPlaying = useCallback(
     (update: (currentTimeInSec: number) => void) => {
+      const startTime = performance.now();
       const timer = window.setInterval(() => {
         const currentTimeInSec =
           offsetInSec + (performance.now() - startTime) / 1000;
@@ -19,7 +20,7 @@ export const usePlayer = () => {
         timer,
       });
     },
-    [setPlayingState, startTime, offsetInSec],
+    [setPlayingState, offsetInSec],
   );
   const pausePlaying = useCallback(() => {
     if (playingState) {
