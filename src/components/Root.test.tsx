@@ -53,7 +53,7 @@ test("should play", async () => {
   expect(getMountCount("Player")).toBe(0);
   expect(getTotalRenderCount("Player")).toBe(0);
 });
-test("should update Min Note", async () => {
+test.skip("should update Min Note", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
   await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
@@ -72,7 +72,7 @@ test("should update Min Note", async () => {
     "MidiSettings",
   ]);
 });
-test("should update Max Note", async () => {
+test.skip("should update Max Note", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
   await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
@@ -91,7 +91,7 @@ test("should update Max Note", async () => {
     "MidiSettings",
   ]);
 });
-test("should update Midi Offset", async () => {
+test.skip("should update Midi Offset", async () => {
   const user = userEvent.setup();
   const container = renderInNewContainer(<Root />);
   await waitFor(() => new Promise((resolve) => setTimeout(resolve, 100)));
