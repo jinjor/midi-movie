@@ -47,13 +47,31 @@ export const config = {
     baseLightness(30),
     peakLightness(100),
     activeLightness(80),
-    baseThickness(0.4),
-    peakThickness(1),
-    activeThickness(0.6),
+    baseThickness(0.8),
+    peakThickness(0.8),
+    activeThickness(0.8),
     vertical(0),
     lineCap(0),
     colorByTrack(1),
-    depth(2),
+    depth(0.2),
+    {
+      id: "deepestTimeRange",
+      name: "Deepest Time Range (sec)",
+      type: "number",
+      min: 0,
+      max: 5,
+      step: 0.1,
+      defaultValue: 3,
+    },
+    {
+      id: "deepestHeight",
+      name: "Deepest Height",
+      type: "number",
+      min: 0,
+      max: 1,
+      step: 0.1,
+      defaultValue: 0.9,
+    },
     reverseDepth(0),
   ],
 } as const satisfies ModuleConfig;
@@ -97,6 +115,8 @@ function calculateNoteForLandscape({
   lineCap,
   colorByTrack,
   depth,
+  deepestTimeRange: deepestTimeRangeRatio,
+  deepestHeight: deepestHeightRatio,
   reverseDepth,
   tracks,
 }: Omit<CustomProps, "vertical"> & {
@@ -106,17 +126,29 @@ function calculateNoteForLandscape({
   tracks: TrackOptions[];
 }) {
   const maxTrackIndex = tracks.length - 1;
-  const shallowestScale = 1;
-  const deepestScale = shallowestScale / depth;
-  const scale = putInRange(
-    shallowestScale,
-    deepestScale,
-    tracks[note.trackIndex].order / maxTrackIndex,
-    !!reverseDepth,
-  );
-  const height = size.height * scale;
+  const shallowestHeight = 1;
+  const deepestHeight = putInRange(shallowestHeight, deepestHeightRatio, depth);
+  const height =
+    putInRange(
+      shallowestHeight,
+      deepestHeight,
+      tracks[note.trackIndex].order / maxTrackIndex,
+      !!reverseDepth,
+    ) * size.height;
   const bottom = size.height / 2 + height / 2;
-  const scaledTimeRangeSec = timeRangeSec / scale;
+  const shallowestTimeRange = 1;
+  const deepestTimeRange = putInRange(
+    shallowestTimeRange,
+    deepestTimeRangeRatio,
+    depth,
+  );
+  const scaledTimeRangeSec =
+    putInRange(
+      shallowestTimeRange,
+      deepestTimeRange,
+      tracks[note.trackIndex].order / maxTrackIndex,
+      !!reverseDepth,
+    ) * timeRangeSec;
 
   const decaySec = 0.2;
   const releaseSec = 0.4;
