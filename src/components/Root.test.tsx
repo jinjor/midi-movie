@@ -165,7 +165,7 @@ test("should load Image file", async () => {
     type: "image/png",
   });
   const container = renderInNewContainer(<Root />);
-  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 500)));
+  await waitFor(() => new Promise((resolve) => setTimeout(resolve, 800)));
   resetCount();
   const input = container.getByLabelText(/Image/i);
   fireEvent.change(input, {
