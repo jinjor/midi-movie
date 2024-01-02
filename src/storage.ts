@@ -12,18 +12,22 @@ import {
 const namespace = "MidiMovie.";
 
 const schemas = {
-  midiOffset: number(),
   opacity: number(),
   volume: number(),
   selectedRenderer: string(),
-  allTrackProps: record(
+  midiSpecificProps: record(
     string(),
-    array(
-      object({
-        order: number(),
-        enabled: boolean(),
-      }),
-    ),
+    object({
+      midiOffset: number(),
+      minNote: number(),
+      maxNote: number(),
+      tracks: array(
+        object({
+          order: number(),
+          enabled: boolean(),
+        }),
+      ),
+    }),
   ),
   allRendererProps: record(string(), record(string(), number())),
 };

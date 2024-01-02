@@ -9,14 +9,14 @@
 }
 .body {
   display: grid;
-  grid-template-columns: minmax(min-content, 1fr) 400px 250px;
+  grid-template-columns: minmax(min-content, 1fr) 350px 350px;
   gap: 2px;
 }
 .body > * {
   overflow-y: scroll;
 }
 .pane {
-  padding: 15px 30px;
+  padding: 15px 20px;
   background-color: var(--color-bg-foreground);
 }
 .files {

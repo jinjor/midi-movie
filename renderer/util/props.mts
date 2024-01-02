@@ -16,22 +16,6 @@ export const makeNote = (<ID extends string>(defs: {
   } as const;
 }) satisfies ModulePropDefCreator;
 
-export const minNote = (defaultValue: number) => {
-  return makeNote({
-    id: "minNote",
-    name: "Min Note",
-    defaultValue,
-  });
-};
-
-export const maxNote = (defaultValue: number) => {
-  return makeNote({
-    id: "maxNote",
-    name: "Max Note",
-    defaultValue,
-  });
-};
-
 export const timeRangeSec = ((defaultValue: number) => {
   return {
     id: "timeRangeSec",

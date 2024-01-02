@@ -20,9 +20,7 @@ import {
   beforeLightness,
   beforeThickness,
   maxHue,
-  maxNote,
   minHue,
-  minNote,
   peakLightness,
   peakThickness,
   saturation,
@@ -33,8 +31,6 @@ import { putInRange, ratio } from "./util/calc.mts";
 
 export const config = {
   props: [
-    minNote(0),
-    maxNote(127),
     timeRangeSec(6),
     minHue(0),
     maxHue(240),
@@ -94,6 +90,8 @@ function calculateNoteForLandscape({
   peakThickness,
   afterThickness,
 }: Omit<CustomProps, "vertical"> & {
+  minNote: number;
+  maxNote: number;
   size: Size;
   note: Note;
   elapsedSec: number;
@@ -177,6 +175,8 @@ function calculateNote({
   size: Size;
   note: Note;
   elapsedSec: number;
+  minNote: number;
+  maxNote: number;
 }) {
   const { circle, line, ...rest } = calculateNoteForLandscape({
     size: vertical ? flipSize(size) : size,
@@ -213,6 +213,8 @@ export function update(
   {
     notes,
     size,
+    minNote,
+    maxNote,
     tracks,
     elapsedSec,
     customProps,
@@ -240,6 +242,8 @@ export function update(
       size,
       note,
       elapsedSec,
+      minNote,
+      maxNote,
       ...customProps,
     });
     if (playing && ended) {

@@ -16,3 +16,20 @@
   gap: 5px;
   font-size: var(--font-size-control);
 }
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.settingsParam {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  justify-items: start;
+}
+
+.inputSlider {
+  width: 100%;
+}

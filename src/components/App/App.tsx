@@ -7,7 +7,7 @@ import { cx } from "../../util";
 import { useCounter } from "@/counter";
 import { AudioLoader } from "../AudioLoader";
 import { ImageLoader } from "../ImageLoader";
-import { Tracks } from "../Tracks";
+import { MidiSettings } from "../MidiSettings";
 import { ControlLabel } from "@/ui/ControlLabel";
 
 export const App = () => {
@@ -33,7 +33,7 @@ export const App = () => {
           <Settings />
         </div>
         <div className={cx(styles.pane)}>
-          <Tracks />
+          <MidiSettings />
         </div>
       </div>
     </div>

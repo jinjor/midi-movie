@@ -7,7 +7,7 @@ import {
   audioBufferAtom,
   imageSizeAtom,
   imageUrlAtom,
-  midiOffsetAtom,
+  midiSpecificPropsAtom,
   midiDataAtom,
   volumeAtom,
   rendererAtom,
@@ -15,7 +15,6 @@ import {
   selectedRendererAtom,
   allRendererPropsAtom,
   selectedMidiFileAtom,
-  allTrackPropsAtom,
 } from "@/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 import { usePlayingTime } from "@/model/usePlayingTime";
@@ -23,12 +22,11 @@ import { PlayingState } from "@/model/types";
 
 export const Player = () => {
   useCounter("Player");
-  const midiOffsetInSec = useAtomValue(midiOffsetAtom);
+  const midiSpecificProps = useAtomValue(midiSpecificPropsAtom);
   const imageUrl = useAtomValue(imageUrlAtom);
   const size = useAtomValue(imageSizeAtom);
   const midiData = useAtomValue(midiDataAtom);
   const selectedMidiFile = useAtomValue(selectedMidiFileAtom);
-  const allTrackProps = useAtomValue(allTrackPropsAtom);
   const audioBuffer = useAtomValue(audioBufferAtom);
   const volume = useAtomValue(volumeAtom);
   const renderer = useAtomValue(rendererAtom);
@@ -38,9 +36,20 @@ export const Player = () => {
   const customProps = allRendererProps[selectedRenderer];
   const rendererModule = renderer.module;
 
+  const midiSettings = useMemo(() => {
+    const defaultSettings = {
+      minNote: 0,
+      maxNote: 127,
+      midiOffset: 0,
+      tracks: [],
+    };
+    return selectedMidiFile != null
+      ? midiSpecificProps[selectedMidiFile] ?? defaultSettings
+      : defaultSettings;
+  }, [midiSpecificProps, selectedMidiFile]);
+
   const trackProps = useMemo(() => {
-    const trackProps =
-      selectedMidiFile != null ? allTrackProps[selectedMidiFile] ?? [] : [];
+    const trackProps = midiSettings.tracks;
     for (let i = trackProps.length; i < (midiData?.tracks?.length ?? 0); i++) {
       trackProps.push({
         order: i,
@@ -48,14 +57,16 @@ export const Player = () => {
       });
     }
     return trackProps;
-  }, [allTrackProps, midiData, selectedMidiFile]);
+  }, [midiSettings, midiData]);
 
   const mutables = {
     size,
     trackProps,
     customProps,
     rendererModule,
-    midiOffsetInSec,
+    minNote: midiSettings.minNote,
+    maxNote: midiSettings.maxNote,
+    midiOffsetInSec: midiSettings.midiOffset,
     volume,
   };
   const mutablesRef = useRef(mutables);
@@ -94,6 +105,8 @@ export const Player = () => {
       const container = display.getContainer();
       const {
         size,
+        minNote,
+        maxNote,
         trackProps,
         customProps = {},
         rendererModule,
@@ -108,6 +121,8 @@ export const Player = () => {
         rendererModule?.init(container, {
           size,
           notes: midiData.notes,
+          minNote,
+          maxNote,
           tracks: trackProps,
           customProps,
         });
@@ -115,6 +130,8 @@ export const Player = () => {
       rendererModule?.update(container, {
         notes,
         size,
+        minNote,
+        maxNote,
         tracks: trackProps,
         elapsedSec,
         customProps: customProps,
@@ -155,11 +172,13 @@ export const Player = () => {
     }
     const notes = midiData.notes;
     const container = displayApi.getContainer();
-    const elapsedSec = offsetInSec + midiOffsetInSec;
+    const elapsedSec = offsetInSec + midiSettings.midiOffset;
 
     container.innerHTML = "";
     rendererModule.init(container, {
       size,
+      minNote: midiSettings.minNote,
+      maxNote: midiSettings.maxNote,
       notes: midiData.notes,
       tracks: trackProps,
       customProps: customProps ?? {},
@@ -167,6 +186,8 @@ export const Player = () => {
     rendererModule.update(container, {
       notes,
       size,
+      minNote: midiSettings.minNote,
+      maxNote: midiSettings.maxNote,
       tracks: trackProps,
       elapsedSec,
       customProps: customProps ?? {},
@@ -176,7 +197,9 @@ export const Player = () => {
     midiData,
     playingState,
     offsetInSec,
-    midiOffsetInSec,
+    midiSettings.minNote,
+    midiSettings.maxNote,
+    midiSettings.midiOffset,
     trackProps,
     size,
     displayApi,

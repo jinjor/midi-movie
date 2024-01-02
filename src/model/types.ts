@@ -55,6 +55,8 @@ export type TrackOptions = {
 export type InitOptions<T> = {
   size: Size;
   notes: Note[];
+  minNote: number;
+  maxNote: number;
   tracks: TrackOptions[];
   customProps: T;
 };
@@ -63,6 +65,8 @@ export type UpdateOptions<T> = {
   notes: Note[];
   tracks: TrackOptions[];
   elapsedSec: number;
+  minNote: number;
+  maxNote: number;
   customProps: T;
   playing: boolean;
 };

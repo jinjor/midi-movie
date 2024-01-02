@@ -17,9 +17,7 @@ import { calcEnvelope } from "./util/envelope.mts";
 import {
   lineCap,
   maxHue,
-  maxNote,
   minHue,
-  minNote,
   saturation,
   thickness,
   timeRangeSec,
@@ -28,8 +26,6 @@ import { putInRange, ratio } from "./util/calc.mts";
 
 export const config = {
   props: [
-    minNote(0),
-    maxNote(127),
     timeRangeSec(6),
     minHue(0),
     maxHue(240),
@@ -140,6 +136,8 @@ function calculatePlaceholder({
 }: CustomProps & {
   trackIndex: number;
   noteNumber: number;
+  minNote: number;
+  maxNote: number;
   tracks: TrackOptions[];
   positions: Positions;
 }) {
@@ -201,6 +199,8 @@ function calculateNote({
 }: CustomProps & {
   note: Note;
   elapsedSec: number;
+  minNote: number;
+  maxNote: number;
   tracks: TrackOptions[];
   positions: Positions;
 }) {
@@ -298,6 +298,8 @@ export function update(
   {
     notes,
     size,
+    minNote,
+    maxNote,
     tracks,
     elapsedSec,
     customProps,
@@ -322,6 +324,8 @@ export function update(
         positions,
         noteNumber,
         trackIndex,
+        minNote,
+        maxNote,
         tracks,
         ...customProps,
       });
@@ -342,6 +346,8 @@ export function update(
       positions,
       note,
       elapsedSec,
+      minNote,
+      maxNote,
       tracks,
       ...customProps,
     });
