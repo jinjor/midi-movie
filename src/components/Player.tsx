@@ -21,7 +21,7 @@ import {
   PlayingState,
   Size,
 } from "@/domain/types";
-import { useMidiWithSettings } from "@/usecase/useMidiWithSettings";
+import { useMidiWithSettings } from "@/usecase/midiSettings";
 
 const noop = () => {};
 
