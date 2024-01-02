@@ -2,7 +2,6 @@ import { useCounter } from "@/counter";
 import { useAtom } from "jotai";
 import {
   allRendererPropsAtom,
-  midiOffsetAtom,
   opacityAtom,
   rendererAtom,
   selectedRendererAtom,
@@ -22,7 +21,7 @@ export const Settings = () => {
   const [renderer, setRenderer] = useAtom(rendererAtom);
   const [selectedRenderer, setSelectedRenderer] = useAtom(selectedRendererAtom);
   const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
-  const [midiOffsetInSec, setMidiOffsetInSec] = useAtom(midiOffsetAtom);
+
   const [volume, setVolume] = useAtom(volumeAtom);
   useEffect(() => {
     if (renderer.type !== "Loading") {
@@ -54,9 +53,7 @@ export const Settings = () => {
     setAllRendererProps,
     setRenderer,
   ]);
-  const handleMidiOffsetChange = (midiOffsetInMilliSec: number) => {
-    setMidiOffsetInSec(midiOffsetInMilliSec / 1000);
-  };
+
   const handleVolumeChange = (volume: number) => {
     setVolume(volume);
   };
@@ -81,15 +78,6 @@ export const Settings = () => {
   };
   return (
     <div className={styles.renderingSettings}>
-      <ControlLabel text="Midi Offset(ms)">
-        <InputSlider
-          className={styles.inputSlider}
-          min={-60000}
-          max={60000}
-          defaultValue={midiOffsetInSec * 1000}
-          onChange={handleMidiOffsetChange}
-        />
-      </ControlLabel>
       <ControlLabel text="Volume">
         <InputSlider
           className={styles.inputSlider}

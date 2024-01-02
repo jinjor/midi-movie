@@ -7,7 +7,7 @@
 
 .renderingSettings label {
   display: grid;
-  grid-template-columns: 150px 1fr;
+  grid-template-columns: 120px 1fr;
   justify-items: start;
 }
 

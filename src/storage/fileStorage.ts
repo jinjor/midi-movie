@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { StoredFile } from "./model/types";
+import { StoredFile } from "../model/types";
 import { number, object, string, parse } from "valibot";
-import { arrayBufferToBase64, base64ToArrayBuffer } from "./model/base64";
+import { arrayBufferToBase64, base64ToArrayBuffer } from "../model/base64";
+
+const dbName = "midi-movie";
+const storeName = "files";
 
 const fileDataSchema = object({
   name: string(),
@@ -20,7 +23,7 @@ export const useFileStorage = (id: string) => {
       cb: (db: IDBDatabase) => Promise<void> | void,
       onError?: (e: unknown) => void,
     ) => {
-      const request = window.indexedDB.open("midi-movie", 1);
+      const request = window.indexedDB.open(dbName, 1);
       request.onerror = (event) => {
         console.log(event);
         setStatus("error");
@@ -36,7 +39,7 @@ export const useFileStorage = (id: string) => {
       };
       request.onupgradeneeded = () => {
         const db = request.result;
-        db.createObjectStore("files", { keyPath: "id" });
+        db.createObjectStore(storeName, { keyPath: "id" });
       };
     },
     [],
@@ -49,8 +52,8 @@ export const useFileStorage = (id: string) => {
     setStatus("loading");
     openDB((db) => {
       const request = db
-        .transaction("files", "readonly")
-        .objectStore("files")
+        .transaction(storeName, "readonly")
+        .objectStore(storeName)
         .get(id);
       request.onsuccess = (event: any) => {
         const data = event.target?.result;
@@ -72,8 +75,8 @@ export const useFileStorage = (id: string) => {
       new Promise<void>((resolve, reject) => {
         openDB((db) => {
           const req = db
-            .transaction("files", "readwrite")
-            .objectStore("files")
+            .transaction(storeName, "readwrite")
+            .objectStore(storeName)
             .put({
               ...file,
               data: arrayBufferToBase64(file.data),

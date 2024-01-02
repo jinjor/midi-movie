@@ -24,9 +24,7 @@ import {
   depth,
   lineCap,
   maxHue,
-  maxNote,
   minHue,
-  minNote,
   peakLightness,
   peakThickness,
   reverseDepth,
@@ -38,8 +36,6 @@ import { putInRange, ratio } from "./util/calc.mts";
 
 export const config = {
   props: [
-    minNote(0),
-    maxNote(127),
     timeRangeSec(6),
     minHue(0),
     maxHue(240),
@@ -58,7 +54,7 @@ export const config = {
       id: "deepestTimeRange",
       name: "Deepest Time Range (sec)",
       type: "number",
-      min: 0,
+      min: 1,
       max: 5,
       step: 0.1,
       defaultValue: 3,
@@ -123,6 +119,8 @@ function calculateNoteForLandscape({
   size: Size;
   note: Note;
   elapsedSec: number;
+  minNote: number;
+  maxNote: number;
   tracks: TrackOptions[];
 }) {
   const maxTrackIndex = tracks.length - 1;
@@ -208,6 +206,8 @@ function calculateNote({
   size: Size;
   note: Note;
   elapsedSec: number;
+  minNote: number;
+  maxNote: number;
   tracks: TrackOptions[];
 }) {
   const { line, ...rest } = calculateNoteForLandscape({
@@ -247,6 +247,8 @@ export function update(
   {
     notes,
     size,
+    minNote,
+    maxNote,
     tracks,
     elapsedSec,
     customProps,
@@ -273,6 +275,8 @@ export function update(
       size,
       note,
       elapsedSec,
+      minNote,
+      maxNote,
       tracks,
       ...customProps,
     });

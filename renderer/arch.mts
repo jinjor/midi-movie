@@ -15,9 +15,7 @@ import {
 import { calcEnvelope } from "./util/envelope.mts";
 import {
   maxHue,
-  maxNote,
   minHue,
-  minNote,
   saturation,
   thickness,
   timeRangeSec,
@@ -26,8 +24,6 @@ import { putInRange, ratio } from "./util/calc.mts";
 
 export const config = {
   props: [
-    minNote(0),
-    maxNote(127),
     timeRangeSec(6),
     minHue(0),
     maxHue(240),
@@ -136,6 +132,8 @@ function calculatePlaceholder({
   thickness,
   arch,
 }: CustomProps & {
+  minNote: number;
+  maxNote: number;
   noteNumber: number;
   arch: Arch;
 }) {
@@ -176,6 +174,8 @@ function calculateNote({
   barSustain,
   arch,
 }: CustomProps & {
+  minNote: number;
+  maxNote: number;
   note: Note;
   elapsedSec: number;
   arch: Arch;
@@ -274,6 +274,8 @@ export function update(
   {
     notes,
     size,
+    minNote,
+    maxNote,
     tracks,
     elapsedSec,
     customProps,
@@ -293,6 +295,8 @@ export function update(
     const circlePatch = calculatePlaceholder({
       arch,
       noteNumber,
+      minNote,
+      maxNote,
       ...customProps,
     });
     setAttributes(placeholders[noteNumber], circlePatch);
@@ -313,6 +317,8 @@ export function update(
       arch,
       note,
       elapsedSec,
+      minNote,
+      maxNote,
       ...customProps,
     });
     if (playing && ended) {

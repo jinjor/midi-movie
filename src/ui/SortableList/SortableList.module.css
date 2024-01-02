@@ -8,5 +8,6 @@
 .grip {
   width: 20px;
   text-align: center;
+  margin-left: -6px;
   user-select: none;
 }

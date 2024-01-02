@@ -2,29 +2,32 @@ import { FileInput } from "@/ui/FileInput";
 import { parseMidiData } from "@/model/midi";
 import { useCounter } from "@/counter";
 import { useAtom } from "jotai";
-import { midiDataAtom, selectedMidiFileAtom } from "@/atoms";
+import { midiDataAtom } from "@/atoms";
 import { formatTime } from "@/util";
 import { useEffect } from "react";
-import { useFileStorage } from "@/fileStorage";
+import { useFileStorage } from "@/storage/fileStorage";
 
 export const MidiLoader = () => {
   useCounter("MidiLoader");
   const { status, save, data: midiFile } = useFileStorage("midi");
-  const [selectedMidiFile, setSelectedMidiFile] = useAtom(selectedMidiFileAtom);
   const [midiData, setMidiData] = useAtom(midiDataAtom);
   useEffect(() => {
     if (midiFile) {
       const midiData = parseMidiData(midiFile.data);
-      setSelectedMidiFile(midiFile.name);
-      setMidiData(midiData);
+      setMidiData({
+        ...midiData,
+        fileName: midiFile.name,
+      });
     }
-  }, [midiFile, setSelectedMidiFile, setMidiData]);
+  }, [midiFile, setMidiData]);
   const handleLoadMidi = (file: File) => {
     void (async () => {
       const buffer = await file.arrayBuffer();
       const midiData = parseMidiData(buffer);
-      setSelectedMidiFile(file.name);
-      setMidiData(midiData);
+      setMidiData({
+        ...midiData,
+        fileName: file.name,
+      });
       await save({
         name: file.name,
         type: file.type,
@@ -39,9 +42,9 @@ export const MidiLoader = () => {
       onLoad={handleLoadMidi}
       extensions={[".mid", "midi"]}
     >
-      {selectedMidiFile && midiData && (
+      {midiData && (
         <>
-          <span>{selectedMidiFile}</span> |{" "}
+          <span>{midiData.fileName}</span> |{" "}
           <span>{formatTime(midiData.endSec)}</span>
         </>
       )}

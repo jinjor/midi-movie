@@ -1,7 +1,7 @@
 import { atom, createStore } from "jotai";
 import { MidiData, PlayingState } from "./model/types";
 import { RendererState } from "./model/render";
-import { StorageKey, StorageValue, get, set } from "./storage";
+import { StorageKey, StorageValue, get, set } from "./storage/storage";
 
 const subscribeFns: ((store: ReturnType<typeof createStore>) => void)[] = [];
 const atomWithStorage = <K extends StorageKey>(
@@ -23,16 +23,14 @@ export const createStoreWithStorage = () => {
   }
   return store;
 };
-export const midiOffsetAtom = atomWithStorage("midiOffset", 0);
 export const opacityAtom = atomWithStorage("opacity", 0.6);
 export const volumeAtom = atomWithStorage("volume", 1);
 export const selectedRendererAtom = atomWithStorage(
   "selectedRenderer",
   "Pianoroll",
 );
-export const allTrackPropsAtom = atomWithStorage("allTrackProps", {});
+export const midiSpecificPropsAtom = atomWithStorage("midiSpecificProps", {});
 export const allRendererPropsAtom = atomWithStorage("allRendererProps", {});
-export const selectedMidiFileAtom = atom<string | null>(null);
 export const imageUrlAtom = atom<string | null>(null);
 export const imageSizeAtom = atom({
   width: 512,
