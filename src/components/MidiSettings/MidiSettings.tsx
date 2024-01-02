@@ -1,42 +1,19 @@
 import styles from "./MidiSettings.module.css";
 import { useCounter } from "@/counter";
-import { useAtom, useAtomValue } from "jotai";
-import { midiSpecificPropsAtom, midiDataAtom } from "@/atoms";
 import { useCallback, useMemo } from "react";
 import { MidiData, MidiSpecificSettings, Track } from "@/model/types";
 import { SortableList } from "@/ui/SortableList";
 import { ControlLabel } from "@/ui/ControlLabel";
 import { InputSlider } from "@/ui/InputSlider";
+import { useMidiWithSettings } from "@/model/useMidiWithSettings";
 
 export const MidiSettings = () => {
   useCounter("MidiSettings");
-  const midiData = useAtomValue(midiDataAtom);
-  const [midiSpecificProps, setMidiSpecificProps] = useAtom(
-    midiSpecificPropsAtom,
-  );
-
-  const handleChangeMidiSettings = useCallback(
-    (newSettings: MidiSpecificSettings) => {
-      if (midiData == null) {
-        return;
-      }
-      setMidiSpecificProps({
-        ...midiSpecificProps,
-        [midiData.fileName]: newSettings,
-      });
-    },
-    [midiSpecificProps, midiData, setMidiSpecificProps],
-  );
-  if (midiData == null) {
+  const midi = useMidiWithSettings();
+  if (midi == null) {
     return null;
   }
-  const settings = midiSpecificProps[midiData.fileName] ?? {
-    minNote: 0,
-    maxNote: 127,
-    midiOffset: 0,
-    tracks: [],
-  };
-
+  const { midiData, settings, handleChangeMidiSettings } = midi;
   return (
     <div className={styles.settings}>
       <MidiSpecificParams
