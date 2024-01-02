@@ -5,7 +5,7 @@ import { useCounter } from "@/counter";
 import { audioBufferAtom } from "@/atoms";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { useFileStorage } from "@/fileStorage";
+import { useFileStorage } from "@/storage/fileStorage";
 
 export type Image = {
   imageUrl: string;

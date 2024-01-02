@@ -4,7 +4,7 @@ import { useCounter } from "@/counter";
 import { useAtom } from "jotai";
 import { imageUrlAtom, imageSizeAtom } from "@/atoms";
 import { useEffect, useState } from "react";
-import { useFileStorage } from "@/fileStorage";
+import { useFileStorage } from "@/storage/fileStorage";
 
 export const ImageLoader = () => {
   useCounter("ImageLoader");

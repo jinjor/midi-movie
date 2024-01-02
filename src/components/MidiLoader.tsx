@@ -5,7 +5,7 @@ import { useAtom } from "jotai";
 import { midiDataAtom, selectedMidiFileAtom } from "@/atoms";
 import { formatTime } from "@/util";
 import { useEffect } from "react";
-import { useFileStorage } from "@/fileStorage";
+import { useFileStorage } from "@/storage/fileStorage";
 
 export const MidiLoader = () => {
   useCounter("MidiLoader");
