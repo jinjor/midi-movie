@@ -28,7 +28,7 @@ export const opacityAtom = atomWithStorage("opacity", 0.6);
 export const volumeAtom = atomWithStorage("volume", 1);
 export const selectedRendererAtom = atomWithStorage(
   "selectedRenderer",
-  "Default",
+  "Pianoroll",
 );
 export const allTrackPropsAtom = atomWithStorage("allTrackProps", {});
 export const allRendererPropsAtom = atomWithStorage("allRendererProps", {});
