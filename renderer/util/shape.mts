@@ -1,4 +1,4 @@
-import { Size } from "@/model/types";
+import { Size } from "@/domain/types";
 
 export function flipSize({ width, height }: Size) {
   return {

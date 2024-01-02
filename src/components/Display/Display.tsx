@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
-import { Size } from "@/model/types";
+import { Size } from "@/domain/types";
 import styles from "./Display.module.css";
 import { useAtomValue } from "jotai";
-import { opacityAtom } from "@/atoms";
+import { opacityAtom } from "@/usecase/atoms";
 
 export type DisplayApi = {
   getContainer: () => SVGSVGElement;

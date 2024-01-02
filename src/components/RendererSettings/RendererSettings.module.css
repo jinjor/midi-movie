@@ -1,0 +1,16 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.settingsParam {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  justify-items: start;
+}
+
+.inputSlider {
+  width: 100%;
+}

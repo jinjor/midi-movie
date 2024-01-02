@@ -1,27 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
-import { useAtom, useAtomValue } from "jotai";
-import {
-  audioBufferAtom,
-  imageSizeAtom,
-  imageUrlAtom,
-  volumeAtom,
-  rendererAtom,
-  playingStateAtom,
-  selectedRendererAtom,
-  allRendererPropsAtom,
-} from "@/atoms";
+import { useAtomValue } from "jotai";
+import { imageSizeAtom, imageUrlAtom, volumeAtom } from "@/usecase/atoms";
 import { SeekBar } from "@/ui/SeekBar";
-import { usePlayingTime } from "@/model/usePlayingTime";
 import {
   MidiData,
   MidiSpecificSettings,
   PlayingState,
   Size,
-} from "@/model/types";
-import { useMidiWithSettings } from "@/model/useMidiWithSettings";
+} from "@/domain/types";
+import { useMidiWithSettings } from "@/usecase/midi";
+import { useRenderer } from "@/usecase/renderer";
+import { RendererModule } from "@/domain/render";
+import { useAudio } from "@/usecase/audio";
+import { usePlayer, usePlayingTime } from "@/usecase/player";
 
 const noop = () => {};
 
@@ -31,12 +25,13 @@ export const Player = () => {
   const imageUrl = useAtomValue(imageUrlAtom);
   const size = useAtomValue(imageSizeAtom);
   const midi = useMidiWithSettings();
+  const { renderer, props: customProps } = useRenderer();
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
 
   return (
     <div style={{ width: size.width, marginLeft: "auto", marginRight: "auto" }}>
       <Display onMount={setDisplayApi} size={size} imageUrl={imageUrl} />
-      {midi == null || displayApi == null ? (
+      {midi == null || displayApi == null || renderer.module == null ? (
         <>
           <SmartSeekBar
             playingState={null}
@@ -58,6 +53,8 @@ export const Player = () => {
         <PlayerInner
           midiData={midi.midiData}
           midiSettings={midi.settings}
+          rendererModule={renderer.module}
+          customProps={customProps}
           size={size}
           displayApi={displayApi}
         />
@@ -69,154 +66,124 @@ export const Player = () => {
 const PlayerInner = (props: {
   midiData: MidiData;
   midiSettings: MidiSpecificSettings;
+  rendererModule: RendererModule;
+  customProps: Record<string, number>;
   size: Size;
   displayApi: DisplayApi;
 }) => {
   useCounter("PlayerInner");
-  const { midiData, midiSettings, size, displayApi } = props;
+  const {
+    midiData,
+    midiSettings,
+    rendererModule,
+    customProps,
+    size,
+    displayApi,
+  } = props;
 
-  const audioBuffer = useAtomValue(audioBufferAtom);
+  const { playAudio, pauseAudio, audioDuration } = useAudio();
   const volume = useAtomValue(volumeAtom);
-  const renderer = useAtomValue(rendererAtom);
-  const selectedRenderer = useAtomValue(selectedRendererAtom);
-  const allRendererProps = useAtomValue(allRendererPropsAtom);
-  const [playingState, setPlayingState] = useAtom(playingStateAtom);
-  const customProps = allRendererProps[selectedRenderer];
-  const rendererModule = renderer.module;
-  const trackProps = midiSettings.tracks;
+  const notes = midiData.notes;
+
+  const {
+    playingState,
+    startPlaying,
+    pausePlaying,
+    offsetInSec,
+    setOffsetInSec,
+  } = usePlayer();
 
   const mutables = {
     size,
-    trackProps,
     customProps,
     rendererModule,
-    minNote: midiSettings.minNote,
-    maxNote: midiSettings.maxNote,
-    midiOffsetInSec: midiSettings.midiOffset,
+    midiSettings,
     volume,
   };
   const mutablesRef = useRef(mutables);
   mutablesRef.current = mutables;
 
-  const [audioBufferSource, setAudioBufferSource] =
-    useState<AudioBufferSourceNode | null>(null);
-
-  const [offsetInSec, setOffsetInSec] = useState(0);
-
-  const handlePlay = () => {
-    const ctx = new AudioContext();
-    const source = ctx.createBufferSource();
-    source.buffer = audioBuffer;
-    const gain = ctx.createGain();
-    gain.gain.value = volume;
-    if (audioBuffer) {
-      source.connect(gain).connect(ctx.destination);
-      const offset = offsetInSec;
-      if (offset > 0) {
-        source.start(0, offset);
-      } else {
-        source.start(-offset);
-      }
-      setAudioBufferSource(source);
-    }
-    const notes = midiData.notes;
-    const startTime = performance.now();
+  const handlePlay = useCallback(() => {
+    const { setVolume } = playAudio(volume, offsetInSec);
     let prevModule = rendererModule;
-    const timer = window.setInterval(() => {
+    startPlaying((currentTimeInSec) => {
       const container = displayApi.getContainer();
       const {
         size,
-        minNote,
-        maxNote,
-        trackProps,
-        customProps = {},
+        customProps,
         rendererModule,
-        midiOffsetInSec,
+        midiSettings: { midiOffset, ...midiProps },
         volume,
       } = mutablesRef.current;
-      gain.gain.value = volume;
-      const elapsedSec =
-        offsetInSec + midiOffsetInSec + (performance.now() - startTime) / 1000;
+      setVolume(volume);
+      const elapsedSec = currentTimeInSec + midiOffset;
       if (rendererModule && prevModule !== rendererModule) {
         container.innerHTML = "";
-        rendererModule?.init(container, {
+        rendererModule.init(container, {
           size,
-          notes: midiData.notes,
-          minNote,
-          maxNote,
-          tracks: trackProps,
+          notes,
           customProps,
+          ...midiProps,
         });
       }
-      rendererModule?.update(container, {
+      rendererModule.update(container, {
         notes,
         size,
-        minNote,
-        maxNote,
-        tracks: trackProps,
         elapsedSec,
-        customProps: customProps,
+        customProps,
         playing: true,
+        ...midiProps,
       });
       prevModule = rendererModule;
-    }, 1000 / 60);
-    setPlayingState({
-      startTime,
-      timer,
     });
-  };
-  const handleReturn = () => {
+  }, [
+    playAudio,
+    startPlaying,
+    offsetInSec,
+    notes,
+    displayApi,
+    rendererModule,
+    volume,
+  ]);
+
+  const handlePause = useCallback(() => {
+    pauseAudio();
+    pausePlaying();
+  }, [pauseAudio, pausePlaying]);
+
+  const handleReturn = useCallback(() => {
     handlePause();
     setOffsetInSec(0);
-  };
-  const handlePause = () => {
-    if (audioBufferSource) {
-      audioBufferSource.stop();
-      setAudioBufferSource(null);
-    }
-    if (playingState) {
-      clearInterval(playingState.timer);
-      setOffsetInSec(
-        offsetInSec + (performance.now() - playingState.startTime) / 1000,
-      );
-      setPlayingState(null);
-    }
-  };
+  }, [handlePause, setOffsetInSec]);
+
   useEffect(() => {
-    if (playingState != null || rendererModule == null) {
+    if (playingState != null) {
       return;
     }
-    const notes = midiData.notes;
     const container = displayApi.getContainer();
-    const elapsedSec = offsetInSec + midiSettings.midiOffset;
+    const { midiOffset, ...midiOptions } = midiSettings;
+    const elapsedSec = offsetInSec + midiOffset;
 
     container.innerHTML = "";
     rendererModule.init(container, {
       size,
-      minNote: midiSettings.minNote,
-      maxNote: midiSettings.maxNote,
-      notes: midiData.notes,
-      tracks: trackProps,
-      customProps: customProps ?? {},
+      notes,
+      customProps,
+      ...midiOptions,
     });
     rendererModule.update(container, {
       notes,
       size,
-      minNote: midiSettings.minNote,
-      maxNote: midiSettings.maxNote,
-      tracks: trackProps,
       elapsedSec,
-      customProps: customProps ?? {},
+      customProps,
       playing: false,
+      ...midiOptions,
     });
   }, [
-    midiData,
+    notes,
     playingState,
     offsetInSec,
-    midiSettings.minNote,
-    midiSettings.maxNote,
-    midiSettings.midiOffset,
-    trackProps,
+    midiSettings,
     size,
     displayApi,
     rendererModule,
@@ -228,7 +195,7 @@ const PlayerInner = (props: {
       <SmartSeekBar
         playingState={playingState}
         offsetInSec={offsetInSec}
-        duration={Math.max(audioBuffer?.duration ?? 0, midiData.endSec ?? 0)}
+        duration={Math.max(audioDuration ?? 0, midiData.endSec ?? 0)}
         onPlay={handlePlay}
         onPause={handlePause}
         onChangeOffset={setOffsetInSec}

@@ -1,11 +1,11 @@
 import { FileInput } from "@/ui/FileInput";
-import { Size } from "@/model/types";
+import { Size } from "@/domain/types";
 import { formatTime } from "../util";
 import { useCounter } from "@/counter";
-import { audioBufferAtom } from "@/atoms";
+import { audioBufferAtom } from "@/usecase/atoms";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
-import { useFileStorage } from "@/storage/fileStorage";
+import { useFileStorage } from "@/repository/fileStorage";
 
 export type Image = {
   imageUrl: string;

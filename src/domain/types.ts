@@ -49,27 +49,23 @@ export type PlayingState = {
   startTime: number;
   timer: number;
 };
-export type MidiSpecificSettings = {
-  midiOffset: number;
-  minNote: number;
-  maxNote: number;
-  tracks: {
-    order: number;
-    enabled: boolean;
-  }[];
-};
 export type TrackOptions = {
   enabled: boolean;
   order: number;
 };
-export type InitOptions<T> = {
-  size: Size;
-  notes: Note[];
+export type MidiSpecificSettings = MidiSpecificOptions & {
+  midiOffset: number;
+};
+export type MidiSpecificOptions = {
   minNote: number;
   maxNote: number;
   tracks: TrackOptions[];
-  customProps: T;
 };
+export type InitOptions<T> = {
+  size: Size;
+  notes: Note[];
+  customProps: T;
+} & MidiSpecificOptions;
 export type UpdateOptions<T> = {
   size: Size;
   notes: Note[];

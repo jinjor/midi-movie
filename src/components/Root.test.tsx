@@ -30,8 +30,10 @@ test("should show App", () => {
   expect(getTotalRenderCount("App")).toBe(1);
   expect(getMountCount("MidiSettings")).toBe(1);
   expect(getTotalRenderCount("MidiSettings")).toBe(2);
-  expect(getMountCount("Settings")).toBe(1);
-  expect(getTotalRenderCount("Settings")).toBe(2);
+  expect(getMountCount("RendererSettings")).toBe(1);
+  expect(getTotalRenderCount("RendererSettings")).toBe(2);
+  expect(getMountCount("PlayerSettings")).toBe(1);
+  expect(getTotalRenderCount("PlayerSettings")).toBe(2);
   expect(getMountCount("Player")).toBe(1);
   expect(getTotalRenderCount("Player")).toBe(2);
 });
@@ -48,7 +50,7 @@ test("should play", async () => {
     "AudioLoader",
     "ImageLoader",
     "MidiSettings",
-    "Settings",
+    "RendererSettings",
   ]);
   expect(getMountCount("Player")).toBe(0);
   expect(getTotalRenderCount("Player")).toBe(0);
@@ -111,8 +113,8 @@ test.skip("should update Midi Offset", async () => {
   ]);
   expect(getMountCount("Player")).toBe(0);
   expect(getTotalRenderCount("Player")).toBe(2);
-  expect(getMountCount("Settings")).toBe(0);
-  expect(getTotalRenderCount("Settings")).toBe(2);
+  expect(getMountCount("RendererSettings")).toBe(0);
+  expect(getTotalRenderCount("RendererSettings")).toBe(2);
 });
 test("should update Overlay Opacity", async () => {
   const user = userEvent.setup();

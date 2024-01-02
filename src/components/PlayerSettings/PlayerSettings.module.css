@@ -1,11 +1,11 @@
-.renderingSettings {
+.settings {
   display: flex;
   flex-direction: column;
   gap: 10px;
   width: 100%;
 }
 
-.renderingSettings label {
+.settingsParam {
   display: grid;
   grid-template-columns: 120px 1fr;
   justify-items: start;

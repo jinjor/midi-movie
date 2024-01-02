@@ -1,7 +1,7 @@
 import styles from "./App.module.css";
 
 import { MidiLoader } from "../MidiLoader";
-import { Settings } from "../Settings/Settings";
+import { RendererSettings } from "../RendererSettings";
 import { Player } from "../Player";
 import { cx } from "../../util";
 import { useCounter } from "@/counter";
@@ -9,6 +9,7 @@ import { AudioLoader } from "../AudioLoader";
 import { ImageLoader } from "../ImageLoader";
 import { MidiSettings } from "../MidiSettings";
 import { ControlLabel } from "@/ui/ControlLabel";
+import { PlayerSettings } from "../PlayerSettings";
 
 export const App = () => {
   useCounter("App");
@@ -29,8 +30,9 @@ export const App = () => {
         <div className={cx(styles.pane)}>
           <Player />
         </div>
-        <div className={cx(styles.pane)}>
-          <Settings />
+        <div className={cx(styles.pane, styles.rows)}>
+          <PlayerSettings />
+          <RendererSettings />
         </div>
         <div className={cx(styles.pane)}>
           <MidiSettings />

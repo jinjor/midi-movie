@@ -1,4 +1,4 @@
-import { ModulePropDef } from "@/model/types";
+import { ModulePropDef } from "@/domain/types";
 
 type ModulePropDefCreator = (...args: any[]) => ModulePropDef;
 
