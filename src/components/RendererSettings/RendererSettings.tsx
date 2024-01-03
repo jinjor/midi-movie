@@ -4,15 +4,15 @@ import styles from "./RendererSettings.module.css";
 import { ControlLabel } from "@/ui/ControlLabel";
 import { InputSlider } from "@/ui/InputSlider";
 import {
-  useRendererLoader as useRendererSelector,
+  useRendererLoader,
   useRendererModules,
   useRendererUpdater,
 } from "@/usecase/renderer";
 
 export const RendererSettings = () => {
   useCounter("RendererSettings");
-  const rendererModules = useRendererModules() ?? [];
-  const { selectedRenderer, selectRenderer } = useRendererSelector();
+  const rendererModules = useRendererModules();
+  const { selectedRenderer, selectRenderer } = useRendererLoader();
 
   return (
     <div className={styles.settings}>
@@ -32,7 +32,7 @@ export const RendererSettings = () => {
 const RendererConfig = () => {
   useCounter("RendererConfig");
   const { renderer, props, setProp } = useRendererUpdater();
-  if (renderer.type !== "Ready") {
+  if (renderer?.type !== "Ready") {
     return null;
   }
   return (

@@ -31,13 +31,9 @@ const root = window.location.origin;
 const ext = import.meta.env.DEV ? ".mts" : ".mjs";
 const localRendererPaths: string[] =
   import.meta.env.VITE_LOCAL_RENDERER_PATHS.split(" ");
-const renderers: RendererInfo[] = localRendererPaths.map((path) => ({
+export const renderers: RendererInfo[] = localRendererPaths.map((path) => ({
   url: `${root}${path}${ext}`,
 }));
 export function importRendererModule(url: string): Promise<RendererModule> {
   return import(/* @vite-ignore */ url) as Promise<RendererModule>;
-}
-export function importAllLocalRendererModules(): Promise<RendererModule[]> {
-  // TODO: 失敗した場合
-  return Promise.all(renderers.map((r) => importRendererModule(r.url)));
 }

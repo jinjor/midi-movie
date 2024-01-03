@@ -1,6 +1,6 @@
 import { atom, createStore } from "jotai";
 import { MidiData, PlayingState, Size } from "../domain/types";
-import { RendererModule, RendererState } from "../domain/render";
+import { RendererInfo, RendererState, renderers } from "../domain/render";
 import { StorageKey, StorageValue, get, set } from "../repository/storage";
 
 const subscribeFns: ((store: ReturnType<typeof createStore>) => void)[] = [];
@@ -36,7 +36,9 @@ export const imageSizeAtom = atom<Size | null>(null);
 export const midiDataAtom = atom<MidiData | null>(null);
 export const audioBufferAtom = atom<AudioBuffer | null>(null);
 export const playingStateAtom = atom<PlayingState | null>(null);
-export const rendererModulesAtom = atom<RendererModule[] | null>(null);
-export const rendererAtom = atom<RendererState>({
-  type: "Loading",
-});
+export const renderersAtom = atom<
+  {
+    info: RendererInfo;
+    state: RendererState;
+  }[]
+>(renderers.map((info) => ({ info, state: { type: "Loading" as const } })));

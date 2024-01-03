@@ -1,40 +1,64 @@
-import { importAllLocalRendererModules } from "@/domain/render";
+import { importRendererModule } from "@/domain/render";
 import {
   allRendererPropsAtom,
-  rendererAtom,
-  rendererModulesAtom,
+  renderersAtom,
   selectedRendererAtom,
 } from "@/usecase/atoms";
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useMemo } from "react";
 
-export const useRendererModules = () => {
-  const [rendererModules, setRendererModules] = useAtom(rendererModulesAtom);
+export const useRenderers = () => {
+  const [renderers, setRenderers] = useAtom(renderersAtom);
+
   useEffect(() => {
-    if (rendererModules != null) {
+    const completed = renderers.every((m) => m.state.type !== "Loading");
+    if (completed) {
       return;
     }
-    importAllLocalRendererModules()
-      .then((modules) => {
-        setRendererModules(modules);
-      })
-      .catch((e) => {
-        console.error(e);
-      });
-  }, [rendererModules, setRendererModules]);
+    Promise.allSettled(
+      renderers.map(({ info }) => importRendererModule(info.url)),
+    ).then((results) => {
+      setRenderers(
+        results.map((result, i) => {
+          return {
+            info: renderers[i].info,
+            state:
+              result.status === "fulfilled"
+                ? { type: "Ready", module: result.value }
+                : { type: "Error" },
+          };
+        }),
+      );
+    });
+  }, [renderers, setRenderers]);
 
-  const sortedRendererModules = useMemo(() => {
-    if (rendererModules == null) {
+  const sortedRenderers = useMemo(() => {
+    if (renderers == null) {
       return null;
     }
-    return [...rendererModules].sort((a, b) => a.meta.index - b.meta.index);
-  }, [rendererModules]);
+    return renderers
+      .filter(({ state }) => state.type === "Ready")
+      .sort(
+        (a, b) =>
+          (a.state.module?.meta.index ?? 9999) -
+          (b.state.module?.meta.index ?? 9999),
+      );
+  }, [renderers]);
 
-  return sortedRendererModules;
+  return sortedRenderers;
+};
+
+export const useRendererModules = () => {
+  const renderers = useRenderers() ?? [];
+  const rendererModules = useMemo(
+    () => renderers.flatMap((r) => r.state.module ?? []),
+    [renderers],
+  );
+  return rendererModules;
 };
 
 export const useRendererSettingsDeleter = () => {
-  const rendererModules = useRendererModules() ?? [];
+  const rendererModules = useRendererModules();
   const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
   const deleteRendererProps = useCallback(
     (rendererName: string) => {
@@ -44,7 +68,10 @@ export const useRendererSettingsDeleter = () => {
     [allRendererProps, setAllRendererProps],
   );
   const rendererNamesWhichHaveProps = useMemo(
-    () => rendererModules.filter((m) => allRendererProps[m.meta.name] != null),
+    () =>
+      rendererModules
+        .filter((m) => allRendererProps[m.meta.name] != null)
+        .map((m) => m.meta.name),
     [rendererModules, allRendererProps],
   );
   return {
@@ -54,13 +81,22 @@ export const useRendererSettingsDeleter = () => {
 };
 
 export const useRenderer = () => {
-  const renderer = useAtomValue(rendererAtom);
+  const renderers = useRenderers();
   const selectedRenderer = useAtomValue(selectedRendererAtom) ?? "Pianoroll";
   const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
+  const renderer = useMemo(() => {
+    if (renderers == null) {
+      return null;
+    }
+    return (
+      renderers.find((r) => r.state.module?.meta.name === selectedRenderer)
+        ?.state ?? null
+    );
+  }, [renderers, selectedRenderer]);
 
   const props = useMemo(() => {
     const props = { ...allRendererProps[selectedRenderer] };
-    for (const prop of renderer.module?.config.props ?? []) {
+    for (const prop of renderer?.module?.config.props ?? []) {
       props[prop.id] = props[prop.id] ?? prop.defaultValue;
     }
     return props;
@@ -68,7 +104,7 @@ export const useRenderer = () => {
 
   const setProps = useCallback(
     (props: Record<string, number>) => {
-      if (renderer.type !== "Ready") {
+      if (renderer?.type !== "Ready") {
         return;
       }
       setAllRendererProps({
@@ -106,38 +142,10 @@ export const useRendererUpdater = () => {
 };
 
 export const useRendererLoader = () => {
-  const rendererModules = useRendererModules();
-  const [renderer, setRenderer] = useAtom(rendererAtom);
   const [selectedRenderer = "Pianoroll", setSelectedRenderer] =
     useAtom(selectedRendererAtom);
-
-  const selectRenderer = useCallback(
-    (name: string | undefined) => {
-      setSelectedRenderer(name);
-      setRenderer({ type: "Loading" });
-    },
-    [setSelectedRenderer, setRenderer],
-  );
-
-  useEffect(() => {
-    if (renderer.type !== "Loading") {
-      return;
-    }
-    if (rendererModules == null) {
-      return;
-    }
-    const module = rendererModules.find(
-      (m) => m.meta.name === selectedRenderer,
-    );
-    if (module == null) {
-      console.error(`Renderer ${selectedRenderer} not found`);
-      return;
-    }
-    setRenderer({ type: "Ready", module });
-  }, [renderer, rendererModules, selectedRenderer, setRenderer]);
-
   return {
     selectedRenderer,
-    selectRenderer,
+    selectRenderer: setSelectedRenderer,
   };
 };
