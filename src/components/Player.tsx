@@ -28,6 +28,15 @@ export const Player = () => {
   const midi = useMidiWithSettings();
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
 
+  useEffect(() => {
+    if (displayApi == null) {
+      return;
+    }
+    if (midi == null) {
+      displayApi.getContainer().innerHTML = "";
+    }
+  }, [midi, displayApi]);
+
   return (
     <div style={{ width: size.width, marginLeft: "auto", marginRight: "auto" }}>
       <Display onMount={setDisplayApi} size={size} imageUrl={imageUrl} />

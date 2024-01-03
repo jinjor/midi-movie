@@ -1,12 +1,17 @@
 import { useAtom, useAtomValue } from "jotai";
 import { imageSizeAtom, imageUrlAtom, opacityAtom } from "./atoms";
 import { useCallback, useEffect, useState } from "react";
-import { useFileStorage } from "@/repository/fileStorage";
-import { Image } from "@/domain/types";
+import { Image, Size } from "@/domain/types";
+import { useFileStorage } from "./file";
+
+const defaultSize: Size = {
+  width: 512,
+  height: 512 * (9 / 16),
+};
 
 export const useImageData = () => {
   const imageUrl = useAtomValue(imageUrlAtom);
-  const size = useAtomValue(imageSizeAtom);
+  const size = useAtomValue(imageSizeAtom) ?? defaultSize;
   return {
     imageUrl,
     size,
@@ -14,7 +19,7 @@ export const useImageData = () => {
 };
 
 export const useImageSettings = () => {
-  const [opacity, setOpacity] = useAtom(opacityAtom);
+  const [opacity = 0.6, setOpacity] = useAtom(opacityAtom);
   return {
     opacity,
     setOpacity,
@@ -22,7 +27,7 @@ export const useImageSettings = () => {
 };
 
 export const useImageLoader = () => {
-  const { status, save, data: imageFile } = useFileStorage("image");
+  const { status, saveFile, data: imageFile } = useFileStorage("image");
   const [size, setSize] = useAtom(imageSizeAtom);
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useAtom(imageUrlAtom);
@@ -44,7 +49,7 @@ export const useImageLoader = () => {
         setName(file.name);
         setImageUrl(image.url);
         setSize(image.size);
-        await save({
+        await saveFile({
           name: file.name,
           type: file.type,
           loadedAt: Date.now(),
@@ -52,12 +57,12 @@ export const useImageLoader = () => {
         });
       })();
     },
-    [setSize, setImageUrl, save],
+    [setSize, setImageUrl, saveFile],
   );
   return {
     name,
     imageUrl,
-    size,
+    size: size ?? defaultSize,
     status,
     loadImage,
   };

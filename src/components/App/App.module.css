@@ -28,3 +28,6 @@
   display: flex;
   gap: 30px;
 }
+.storage {
+  margin-left: auto;
+}

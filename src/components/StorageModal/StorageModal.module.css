@@ -1,3 +1,23 @@
+.modal {
+  max-width: 350px;
+}
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 0;
+}
+.empty {
+  display: none;
+  font-size: 12px;
+}
+.sections:empty + .empty {
+  display: block;
+}
+.heading {
+  font-size: 12px;
+  text-decoration: underline;
+}
 .list {
   display: flex;
   flex-direction: column;
@@ -8,4 +28,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.itemName {
+  font-size: 12px;
 }

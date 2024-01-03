@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import { audioBufferAtom, volumeAtom } from "./atoms";
 import { useCallback, useEffect, useState } from "react";
-import { useFileStorage } from "@/repository/fileStorage";
+import { useFileStorage } from "./file";
 
 export const useAudioData = () => {
   const [audioBuffer, setAudioBuffer] = useAtom(audioBufferAtom);
@@ -14,7 +14,7 @@ export const useAudioData = () => {
 export const useAudioLoader = () => {
   const { audioBuffer, setAudioBuffer } = useAudioData();
   const [name, setName] = useState("");
-  const { status, save, data: audioFile } = useFileStorage("audio");
+  const { status, saveFile, data: audioFile } = useFileStorage("audio");
   useEffect(() => {
     if (audioFile) {
       void (async () => {
@@ -26,21 +26,24 @@ export const useAudioLoader = () => {
       })();
     }
   }, [audioFile, setAudioBuffer]);
-  const loadAudio = (file: File) => {
-    void (async () => {
-      const arrayBuffer = await file.arrayBuffer();
-      await save({
-        name: file.name,
-        type: file.type,
-        loadedAt: Date.now(),
-        data: arrayBuffer,
-      });
-      const ctx = new AudioContext();
-      const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-      setName(file.name);
-      setAudioBuffer(audioBuffer);
-    })();
-  };
+  const loadAudio = useCallback(
+    (file: File) => {
+      void (async () => {
+        const arrayBuffer = await file.arrayBuffer();
+        await saveFile({
+          name: file.name,
+          type: file.type,
+          loadedAt: Date.now(),
+          data: arrayBuffer,
+        });
+        const ctx = new AudioContext();
+        const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+        setName(file.name);
+        setAudioBuffer(audioBuffer);
+      })();
+    },
+    [saveFile, setAudioBuffer],
+  );
   return {
     audioBuffer,
     name,
@@ -50,7 +53,7 @@ export const useAudioLoader = () => {
 };
 
 export const useAudioSettings = () => {
-  const [volume, setVolume] = useAtom(volumeAtom);
+  const [volume = 1, setVolume] = useAtom(volumeAtom);
   return {
     volume,
     setVolume,
