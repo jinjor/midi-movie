@@ -11,7 +11,6 @@ import {
 } from "@/domain/types";
 import { useMidiWithSettings } from "@/usecase/midi";
 import { useRenderer } from "@/usecase/renderer";
-import { RendererModule } from "@/domain/render";
 import {
   useAudioPlayer,
   useAudioData,
@@ -27,13 +26,12 @@ export const Player = () => {
 
   const { imageUrl, size } = useImageData();
   const midi = useMidiWithSettings();
-  const { renderer, props: customProps } = useRenderer();
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
 
   return (
     <div style={{ width: size.width, marginLeft: "auto", marginRight: "auto" }}>
       <Display onMount={setDisplayApi} size={size} imageUrl={imageUrl} />
-      {midi == null || displayApi == null || renderer.module == null ? (
+      {midi == null || displayApi == null ? (
         <>
           <SmartSeekBar
             playingState={null}
@@ -55,8 +53,6 @@ export const Player = () => {
         <PlayerInner
           midiData={midi.midiData}
           midiSettings={midi.settings}
-          rendererModule={renderer.module}
-          customProps={customProps}
           size={size}
           displayApi={displayApi}
         />
@@ -68,20 +64,13 @@ export const Player = () => {
 const PlayerInner = (props: {
   midiData: MidiData;
   midiSettings: MidiSpecificSettings;
-  rendererModule: RendererModule;
-  customProps: Record<string, number>;
   size: Size;
   displayApi: DisplayApi;
 }) => {
   useCounter("PlayerInner");
-  const {
-    midiData,
-    midiSettings,
-    rendererModule,
-    customProps,
-    size,
-    displayApi,
-  } = props;
+  const { midiData, midiSettings, size, displayApi } = props;
+  const { renderer, props: customProps } = useRenderer();
+  const rendererModule = renderer?.module;
   const { audioBuffer } = useAudioData();
   const { playAudio, pauseAudio, audioDuration, setVolume } =
     useAudioPlayer(audioBuffer);
@@ -109,7 +98,7 @@ const PlayerInner = (props: {
   const handlePlay = useCallback(() => {
     setVolume(volume);
     playAudio(offsetInSec);
-    let prevModule = rendererModule;
+    let prevModule = mutablesRef.current.rendererModule;
     startPlaying((currentTimeInSec) => {
       const container = displayApi.getContainer();
       const {
@@ -130,7 +119,7 @@ const PlayerInner = (props: {
           ...midiProps,
         });
       }
-      rendererModule.update(container, {
+      rendererModule?.update(container, {
         notes,
         size,
         elapsedSec,
@@ -146,7 +135,6 @@ const PlayerInner = (props: {
     offsetInSec,
     notes,
     displayApi,
-    rendererModule,
     volume,
     setVolume,
   ]);
@@ -170,13 +158,13 @@ const PlayerInner = (props: {
     const elapsedSec = offsetInSec + midiOffset;
 
     container.innerHTML = "";
-    rendererModule.init(container, {
+    rendererModule?.init(container, {
       size,
       notes,
       customProps,
       ...midiOptions,
     });
-    rendererModule.update(container, {
+    rendererModule?.update(container, {
       notes,
       size,
       elapsedSec,
