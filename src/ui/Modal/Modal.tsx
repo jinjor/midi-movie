@@ -2,12 +2,15 @@ import { useCounter } from "@/counter";
 import { ReactNode, useCallback, useState } from "react";
 import { Portal } from "../Portal";
 import styles from "./Modal.module.css";
+import { cx } from "@/util";
 
 export const Modal = ({
+  className,
   title,
   renderButton,
   children,
 }: {
+  className?: string;
   title: string;
   renderButton: (open: () => void) => ReactNode;
   children: ReactNode;
@@ -29,8 +32,8 @@ export const Modal = ({
                 setShow(false);
               }}
             />
-            <div className={styles.content}>
-              <div className={styles.header}>
+            <div className={cx(styles.content, className)}>
+              <div className={styles.head}>
                 <div className={styles.title}>{title}</div>
                 <button
                   onClick={() => {

@@ -10,9 +10,12 @@ export const StorageModal = () => {
     <Modal
       title="Storage"
       renderButton={(open) => <button onClick={open}>Storage</button>}
+      className={styles.modal}
     >
-      <RendererList />
-      <MidiList />
+      <div className={styles.sections}>
+        <RendererList />
+        <MidiList />
+      </div>
     </Modal>
   );
 };
@@ -25,17 +28,17 @@ const RendererList = () => {
     return null;
   }
   return (
-    <div>
-      <h3>Renderer Settings</h3>
+    <section>
+      <h3 className={styles.heading}>Renderer Settings</h3>
       <ul className={styles.list}>
         {rendererNamesWhichHaveProps.map((name) => (
           <li key={name} className={styles.item}>
-            {name}
+            <span className={styles.itemName}>{name}</span>
             <button onClick={() => deleteRendererProps(name)}>Delete</button>
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 };
 
@@ -47,16 +50,16 @@ const MidiList = () => {
     return null;
   }
   return (
-    <div>
-      <h3>Midi Settings</h3>
+    <section>
+      <h3 className={styles.heading}>Midi Settings</h3>
       <ul className={styles.list}>
         {midiFileNamesWhichHaveProps.map((name) => (
           <li key={name} className={styles.item}>
-            {name}
+            <span className={styles.itemName}>{name}</span>
             <button onClick={() => deleteMidiProps(name)}>Delete</button>
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 };
