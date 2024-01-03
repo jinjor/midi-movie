@@ -28,11 +28,15 @@ export const NumberInput = ({
       max={max}
       min={min}
       step={step}
-      value={value}
-      defaultValue={defaultValue}
+      value={fixDecimal(value)}
+      defaultValue={fixDecimal(defaultValue)}
       onChange={(e) => {
         onChange(Number(e.target.value));
       }}
     />
   );
+};
+
+const fixDecimal = (value: number | undefined) => {
+  return value != null ? Math.round(value * 10000) / 10000 : undefined;
 };
