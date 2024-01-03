@@ -23,7 +23,7 @@ export const PlayerSettings = (props: {
           min={0}
           max={1}
           step={0.1}
-          defaultValue={volume}
+          value={volume}
           onChange={setVolume}
         />
       </ControlLabel>
@@ -33,7 +33,7 @@ export const PlayerSettings = (props: {
           min={0}
           max={1}
           step={0.1}
-          defaultValue={opacity}
+          value={opacity}
           onChange={setOpacity}
         />
       </ControlLabel>

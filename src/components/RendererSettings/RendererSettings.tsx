@@ -1,16 +1,18 @@
 import { useCounter } from "@/counter";
-import { RendererState, renderers } from "@/domain/render";
 import { Select } from "@/ui/Select";
 import styles from "./RendererSettings.module.css";
 import { ControlLabel } from "@/ui/ControlLabel";
 import { InputSlider } from "@/ui/InputSlider";
-import { useRenderer } from "@/usecase/renderer";
+import {
+  useRendererLoader,
+  useRendererNames,
+  useRendererUpdater,
+} from "@/usecase/renderer";
 
 export const RendererSettings = () => {
   useCounter("RendererSettings");
-
-  const { renderer, selectedRenderer, props, selectRenderer, setProp } =
-    useRenderer(true);
+  const rendererNames = useRendererNames();
+  const { selectedRenderer, selectRenderer } = useRendererLoader();
 
   return (
     <div className={styles.settings}>
@@ -19,33 +21,24 @@ export const RendererSettings = () => {
           <Select
             onChange={selectRenderer}
             value={selectedRenderer}
-            options={renderers.map((r) => r.name)}
+            options={rendererNames}
           />
         </div>
       </ControlLabel>
-      <RendererConfig
-        renderer={renderer}
-        onCustomPropChange={setProp}
-        props={props}
-      />
+      <RendererConfig />
     </div>
   );
 };
-const RendererConfig = ({
-  renderer,
-  onCustomPropChange,
-  props,
-}: {
-  renderer: RendererState;
-  onCustomPropChange: (key: string, value: number) => void;
-  props: Record<string, number>;
-}) => {
+const RendererConfig = () => {
+  useCounter("RendererConfig");
+  const { renderer, props, setProp } = useRendererUpdater();
   if (renderer.type !== "Ready") {
     return null;
   }
   return (
     <>
       {renderer.module.config.props.map((p) => {
+        const value = props[p.id];
         return (
           <ControlLabel
             key={p.id}
@@ -58,16 +51,14 @@ const RendererConfig = ({
                 min={p.min}
                 max={p.max}
                 step={p.step}
-                defaultValue={props[p.id] ?? p.defaultValue}
-                onChange={(value) => onCustomPropChange(p.id, value)}
+                value={value}
+                onChange={(value) => setProp(p.id, value)}
               />
             ) : p.type === "boolean" ? (
               <input
                 type="checkbox"
-                checked={!!(props[p.id] ?? p.defaultValue)}
-                onChange={(e) =>
-                  onCustomPropChange(p.id, e.target.checked ? 1 : 0)
-                }
+                checked={!!value}
+                onChange={(e) => setProp(p.id, e.target.checked ? 1 : 0)}
               />
             ) : null}
           </ControlLabel>

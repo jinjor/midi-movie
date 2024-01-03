@@ -43,7 +43,7 @@ const MidiSpecificParams = (props: {
           className={styles.inputSlider}
           min={-60000}
           max={60000}
-          defaultValue={settings.midiOffset * 1000}
+          value={settings.midiOffset * 1000}
           onChange={handleMidiOffsetChange}
         />
       </ControlLabel>
@@ -52,7 +52,7 @@ const MidiSpecificParams = (props: {
           className={styles.inputSlider}
           min={0}
           max={127}
-          defaultValue={settings.minNote}
+          value={settings.minNote}
           onChange={setMinNoteChange}
         />
       </ControlLabel>
@@ -61,7 +61,7 @@ const MidiSpecificParams = (props: {
           className={styles.inputSlider}
           min={0}
           max={127}
-          defaultValue={settings.maxNote}
+          value={settings.maxNote}
           onChange={setMaxNoteChange}
         />
       </ControlLabel>
