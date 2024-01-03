@@ -10,6 +10,7 @@ import { ImageLoader } from "../ImageLoader";
 import { MidiSettings } from "../MidiSettings";
 import { ControlLabel } from "@/ui/ControlLabel";
 import { PlayerSettings } from "../PlayerSettings";
+import { StorageModal } from "../StorageModal";
 
 export const App = () => {
   useCounter("App");
@@ -25,6 +26,7 @@ export const App = () => {
         <ControlLabel text="Audio">
           <AudioLoader />
         </ControlLabel>
+        <StorageModal />
       </div>
       <div className={styles.body}>
         <div className={cx(styles.pane)}>
