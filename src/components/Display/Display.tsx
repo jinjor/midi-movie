@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Size } from "@/domain/types";
 import styles from "./Display.module.css";
-import { useAtomValue } from "jotai";
-import { opacityAtom } from "@/usecase/atoms";
+import { useImageSettings } from "@/usecase/image";
 
 export type DisplayApi = {
   getContainer: () => SVGSVGElement;
@@ -16,7 +15,7 @@ type Props = {
 
 export const Display = ({ onMount, size, imageUrl }: Props) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const opacity = useAtomValue(opacityAtom);
+  const { opacity } = useImageSettings();
   useEffect(() => {
     onMount({
       getContainer: () => {
