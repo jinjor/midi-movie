@@ -16,7 +16,12 @@ export type RendererState =
       type: "Ready";
       module: RendererModule;
     };
+export type RendererModuleMeta = {
+  index: number;
+  name: string;
+};
 export type RendererModule<T = Record<string, number>> = {
+  meta: RendererModuleMeta;
   config: ModuleConfig;
   init: (svg: SVGSVGElement, props: InitOptions<T>) => void;
   update: (svg: SVGSVGElement, props: UpdateOptions<T>) => void;
@@ -24,24 +29,15 @@ export type RendererModule<T = Record<string, number>> = {
 
 const root = window.location.origin;
 const ext = import.meta.env.DEV ? ".mts" : ".mjs";
-export const renderers: (RendererInfo & { name: string })[] = [
-  {
-    name: "Pianoroll",
-    url: `${root}/renderer/pianoroll${ext}`,
-  },
-  {
-    name: "Bubble",
-    url: `${root}/renderer/bubble${ext}`,
-  },
-  {
-    name: "Arch",
-    url: `${root}/renderer/arch${ext}`,
-  },
-  {
-    name: "Layer",
-    url: `${root}/renderer/layer${ext}`,
-  },
-];
+const localRendererPaths: string[] =
+  import.meta.env.VITE_LOCAL_RENDERER_PATHS.split(" ");
+const renderers: RendererInfo[] = localRendererPaths.map((path) => ({
+  url: `${root}${path}${ext}`,
+}));
 export function importRendererModule(url: string): Promise<RendererModule> {
   return import(/* @vite-ignore */ url) as Promise<RendererModule>;
+}
+export function importAllLocalRendererModules(): Promise<RendererModule[]> {
+  // TODO: 失敗した場合
+  return Promise.all(renderers.map((r) => importRendererModule(r.url)));
 }

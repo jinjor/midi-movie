@@ -23,7 +23,12 @@ import {
   timeRangeSec,
 } from "./util/props.mts";
 import { putInRange, ratio } from "./util/calc.mts";
+import { RendererModuleMeta } from "@/domain/render";
 
+export const meta: RendererModuleMeta = {
+  index: 3,
+  name: "Layer",
+};
 export const config = {
   props: [
     timeRangeSec(6),

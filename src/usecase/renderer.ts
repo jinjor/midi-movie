@@ -1,18 +1,40 @@
-import { importRendererModule, renderers } from "@/domain/render";
+import { importAllLocalRendererModules } from "@/domain/render";
 import {
   allRendererPropsAtom,
   rendererAtom,
+  rendererModulesAtom,
   selectedRendererAtom,
 } from "@/usecase/atoms";
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useMemo } from "react";
 
-export const useRendererNames = () => {
-  return renderers.map((r) => r.name);
+export const useRendererModules = () => {
+  const [rendererModules, setRendererModules] = useAtom(rendererModulesAtom);
+  useEffect(() => {
+    if (rendererModules != null) {
+      return;
+    }
+    importAllLocalRendererModules()
+      .then((modules) => {
+        setRendererModules(modules);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  }, [rendererModules, setRendererModules]);
+
+  const sortedRendererModules = useMemo(() => {
+    if (rendererModules == null) {
+      return null;
+    }
+    return [...rendererModules].sort((a, b) => a.meta.index - b.meta.index);
+  }, [rendererModules]);
+
+  return sortedRendererModules;
 };
 
 export const useRendererSettingsDeleter = () => {
-  const rendererNames = useRendererNames();
+  const rendererModules = useRendererModules() ?? [];
   const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
   const deleteRendererProps = useCallback(
     (rendererName: string) => {
@@ -22,8 +44,8 @@ export const useRendererSettingsDeleter = () => {
     [allRendererProps, setAllRendererProps],
   );
   const rendererNamesWhichHaveProps = useMemo(
-    () => rendererNames.filter((name) => allRendererProps[name] != null),
-    [rendererNames, allRendererProps],
+    () => rendererModules.filter((m) => allRendererProps[m.meta.name] != null),
+    [rendererModules, allRendererProps],
   );
   return {
     rendererNamesWhichHaveProps,
@@ -84,6 +106,7 @@ export const useRendererUpdater = () => {
 };
 
 export const useRendererLoader = () => {
+  const rendererModules = useRendererModules();
   const [renderer, setRenderer] = useAtom(rendererAtom);
   const [selectedRenderer = "Pianoroll", setSelectedRenderer] =
     useAtom(selectedRendererAtom);
@@ -100,21 +123,18 @@ export const useRendererLoader = () => {
     if (renderer.type !== "Loading") {
       return;
     }
-    const info = renderers.find((r) => r.name === selectedRenderer);
-    if (info == null) {
+    if (rendererModules == null) {
+      return;
+    }
+    const module = rendererModules.find(
+      (m) => m.meta.name === selectedRenderer,
+    );
+    if (module == null) {
       console.error(`Renderer ${selectedRenderer} not found`);
       return;
     }
-    void (async () => {
-      try {
-        const module = await importRendererModule(info.url);
-        setRenderer({ type: "Ready", module });
-      } catch (e) {
-        console.error(e);
-        setRenderer({ type: "Error" });
-      }
-    })();
-  }, [renderer, selectedRenderer, setRenderer]);
+    setRenderer({ type: "Ready", module });
+  }, [renderer, rendererModules, selectedRenderer, setRenderer]);
 
   return {
     selectedRenderer,

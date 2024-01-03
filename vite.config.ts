@@ -22,6 +22,11 @@ const arrayBufferLoader = () => ({
   },
 });
 
+process.env.VITE_LOCAL_RENDERER_PATHS = glob
+  .sync("renderer/*.mts")
+  .map((file) => `/${file.split(".")[0]}`)
+  .join(" ");
+
 export default defineConfig({
   build: {
     rollupOptions: {
