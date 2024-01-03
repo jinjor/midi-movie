@@ -7,14 +7,15 @@ import {
   array,
   object,
   boolean,
+  optional,
 } from "valibot";
 
 const namespace = "MidiMovie.";
 
 const schemas = {
-  opacity: number(),
-  volume: number(),
-  selectedRenderer: string(),
+  opacity: optional(number()),
+  volume: optional(number()),
+  selectedRenderer: optional(string()),
   midiSpecificProps: record(
     string(),
     object({

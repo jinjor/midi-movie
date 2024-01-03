@@ -23,8 +23,8 @@ export const createStoreWithStorage = () => {
   }
   return store;
 };
-export const opacityAtom = atomWithStorage("opacity", 0.6);
-export const volumeAtom = atomWithStorage("volume", 1);
+export const opacityAtom = atomWithStorage("opacity", undefined);
+export const volumeAtom = atomWithStorage("volume", undefined);
 export const selectedRendererAtom = atomWithStorage(
   "selectedRenderer",
   "Pianoroll",

@@ -14,7 +14,7 @@ export const useImageData = () => {
 };
 
 export const useImageSettings = () => {
-  const [opacity, setOpacity] = useAtom(opacityAtom);
+  const [opacity = 0.6, setOpacity] = useAtom(opacityAtom);
   return {
     opacity,
     setOpacity,

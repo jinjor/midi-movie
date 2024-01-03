@@ -3,6 +3,7 @@ import { Modal } from "@/ui/Modal";
 import { useRendererSettingsDeleter } from "@/usecase/renderer";
 import styles from "./StorageModal.module.css";
 import { useMidiSettingsDeleter } from "@/usecase/midi";
+import { usePlayerSettingsDeleter } from "@/usecase/player";
 
 export const StorageModal = () => {
   useCounter("StorageModal");
@@ -13,15 +14,34 @@ export const StorageModal = () => {
       className={styles.modal}
     >
       <div className={styles.sections}>
-        <RendererList />
-        <MidiList />
+        <GlobalSettings />
+        <RendererSettings />
+        <MidiSettings />
       </div>
     </Modal>
   );
 };
 
-const RendererList = () => {
-  useCounter("RendererList");
+const GlobalSettings = () => {
+  useCounter("GlobalSettings");
+  const { hasPlayerSettings, deletePlayerProps } = usePlayerSettingsDeleter();
+  return (
+    <section>
+      <h3 className={styles.heading}>Global Settings</h3>
+      <ul className={styles.list}>
+        {hasPlayerSettings && (
+          <li key="player" className={styles.item}>
+            <span className={styles.itemName}>Player</span>
+            <button onClick={deletePlayerProps}>Delete</button>
+          </li>
+        )}
+      </ul>
+    </section>
+  );
+};
+
+const RendererSettings = () => {
+  useCounter("RendererSettings");
   const { rendererNamesWhichHaveProps, deleteRendererProps } =
     useRendererSettingsDeleter();
   if (rendererNamesWhichHaveProps.length === 0) {
@@ -42,8 +62,8 @@ const RendererList = () => {
   );
 };
 
-const MidiList = () => {
-  useCounter("MidiList");
+const MidiSettings = () => {
+  useCounter("MidiSettings");
   const { midiFileNamesWhichHaveProps, deleteMidiProps } =
     useMidiSettingsDeleter();
   if (midiFileNamesWhichHaveProps.length === 0) {

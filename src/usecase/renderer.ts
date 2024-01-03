@@ -33,7 +33,7 @@ export const useRendererSettingsDeleter = () => {
 
 export const useRenderer = () => {
   const renderer = useAtomValue(rendererAtom);
-  const selectedRenderer = useAtomValue(selectedRendererAtom);
+  const selectedRenderer = useAtomValue(selectedRendererAtom) ?? "Pianoroll";
   const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
 
   const props = useMemo(() => {
@@ -85,10 +85,11 @@ export const useRendererUpdater = () => {
 
 export const useRendererLoader = () => {
   const [renderer, setRenderer] = useAtom(rendererAtom);
-  const [selectedRenderer, setSelectedRenderer] = useAtom(selectedRendererAtom);
+  const [selectedRenderer = "Pianoroll", setSelectedRenderer] =
+    useAtom(selectedRendererAtom);
 
   const selectRenderer = useCallback(
-    (name: string) => {
+    (name: string | undefined) => {
       setSelectedRenderer(name);
       setRenderer({ type: "Loading" });
     },

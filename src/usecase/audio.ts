@@ -50,7 +50,7 @@ export const useAudioLoader = () => {
 };
 
 export const useAudioSettings = () => {
-  const [volume, setVolume] = useAtom(volumeAtom);
+  const [volume = 1, setVolume] = useAtom(volumeAtom);
   return {
     volume,
     setVolume,
