@@ -28,6 +28,12 @@ import {
   vertical,
 } from "./util/props.mts";
 import { putInRange, ratio } from "./util/calc.mts";
+import { RendererModuleMeta } from "@/domain/render";
+
+export const meta: RendererModuleMeta = {
+  index: 1,
+  name: "Bubble",
+};
 
 export const config = {
   props: [

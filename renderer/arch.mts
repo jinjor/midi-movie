@@ -21,6 +21,12 @@ import {
   timeRangeSec,
 } from "./util/props.mts";
 import { putInRange, ratio } from "./util/calc.mts";
+import { RendererModuleMeta } from "@/domain/render";
+
+export const meta: RendererModuleMeta = {
+  index: 2,
+  name: "Arch",
+};
 
 export const config = {
   props: [

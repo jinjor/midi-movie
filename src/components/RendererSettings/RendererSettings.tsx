@@ -5,13 +5,13 @@ import { ControlLabel } from "@/ui/ControlLabel";
 import { InputSlider } from "@/ui/InputSlider";
 import {
   useRendererLoader,
-  useRendererNames,
+  useRendererModules,
   useRendererUpdater,
 } from "@/usecase/renderer";
 
 export const RendererSettings = () => {
   useCounter("RendererSettings");
-  const rendererNames = useRendererNames();
+  const rendererModules = useRendererModules();
   const { selectedRenderer, selectRenderer } = useRendererLoader();
 
   return (
@@ -21,7 +21,7 @@ export const RendererSettings = () => {
           <Select
             onChange={selectRenderer}
             value={selectedRenderer}
-            options={rendererNames}
+            options={rendererModules.map((m) => m.meta.name)}
           />
         </div>
       </ControlLabel>
@@ -32,7 +32,7 @@ export const RendererSettings = () => {
 const RendererConfig = () => {
   useCounter("RendererConfig");
   const { renderer, props, setProp } = useRendererUpdater();
-  if (renderer.type !== "Ready") {
+  if (renderer?.type !== "Ready") {
     return null;
   }
   return (

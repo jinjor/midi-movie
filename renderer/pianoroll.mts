@@ -33,7 +33,12 @@ import {
   vertical,
 } from "./util/props.mts";
 import { putInRange, ratio } from "./util/calc.mts";
+import { RendererModuleMeta } from "@/domain/render";
 
+export const meta: RendererModuleMeta = {
+  index: 0,
+  name: "Pianoroll",
+};
 export const config = {
   props: [
     timeRangeSec(6),
