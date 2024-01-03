@@ -75,7 +75,10 @@ const TrackList = (props: {
 }) => {
   useCounter("TrackList");
   const { midiData, settings } = props;
-  const { setTracks } = useMidiSettingsSetters(midiData, settings);
+  const { setTrackEnabled, setOrders } = useMidiSettingsSetters(
+    midiData,
+    settings,
+  );
   const trackProps = settings.tracks;
 
   const sortedTracks = useMemo(() => {
@@ -86,28 +89,11 @@ const TrackList = (props: {
     return sortedTracks;
   }, [midiData, trackProps]);
 
-  const setEnabled = useCallback(
-    (trackNumber: number, enabled: boolean) => {
-      setTracks(
-        sortedTracks.map((_, i) => {
-          const props = trackProps[i];
-          return i === trackNumber - 1 ? { ...props, enabled } : props;
-        }),
-      );
-    },
-    [sortedTracks, trackProps, setTracks],
-  );
-
   const handleSort = useCallback(
     (tracks: Track[]) => {
-      setTracks(
-        trackProps.map((props, i) => ({
-          ...props,
-          order: tracks.findIndex((track) => track.number === i + 1),
-        })),
-      );
+      setOrders((i) => tracks.findIndex((track) => track.number === i + 1));
     },
-    [trackProps, setTracks],
+    [setOrders],
   );
   return (
     <SortableList<Track>
@@ -121,7 +107,7 @@ const TrackList = (props: {
             type="checkbox"
             checked={trackProps[track.number - 1].enabled}
             onChange={(e) => {
-              setEnabled(track.number, e.target.checked);
+              setTrackEnabled(track.number, e.target.checked);
             }}
           />
           {track.number}. {track.name}

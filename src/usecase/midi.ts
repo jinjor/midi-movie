@@ -128,10 +128,32 @@ export const useMidiSettingsSetters = (
     },
     [settings, setMidiSettings],
   );
+  const setTrackEnabled = useCallback(
+    (trackNumber: number, enabled: boolean) => {
+      setTracks(
+        settings.tracks.map((props, i) => {
+          return i === trackNumber - 1 ? { ...props, enabled } : props;
+        }),
+      );
+    },
+    [settings.tracks, setTracks],
+  );
+  const setOrders = useCallback(
+    (indexToOrder: (index: number) => number) => {
+      setTracks(
+        settings.tracks.map((props, i) => ({
+          ...props,
+          order: indexToOrder(i),
+        })),
+      );
+    },
+    [settings.tracks, setTracks],
+  );
   return {
     setMidiOffsetChange,
     setMinNoteChange,
     setMaxNoteChange,
-    setTracks,
+    setTrackEnabled,
+    setOrders,
   };
 };
