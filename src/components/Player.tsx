@@ -2,8 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Display, DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
-import { useAtomValue } from "jotai";
-import { imageSizeAtom, imageUrlAtom, volumeAtom } from "@/usecase/atoms";
 import { SeekBar } from "@/ui/SeekBar";
 import {
   MidiData,
@@ -14,16 +12,20 @@ import {
 import { useMidiWithSettings } from "@/usecase/midi";
 import { useRenderer } from "@/usecase/renderer";
 import { RendererModule } from "@/domain/render";
-import { useAudio } from "@/usecase/audio";
+import {
+  useAudioPlayer,
+  useAudioData,
+  useAudioSettings,
+} from "@/usecase/audio";
 import { usePlayer, usePlayingTime } from "@/usecase/player";
+import { useImageData } from "@/usecase/image";
 
 const noop = () => {};
 
 export const Player = () => {
   useCounter("Player");
 
-  const imageUrl = useAtomValue(imageUrlAtom);
-  const size = useAtomValue(imageSizeAtom);
+  const { imageUrl, size } = useImageData();
   const midi = useMidiWithSettings();
   const { renderer, props: customProps } = useRenderer();
   const [displayApi, setDisplayApi] = useState<DisplayApi | null>(null);
@@ -80,9 +82,10 @@ const PlayerInner = (props: {
     size,
     displayApi,
   } = props;
-
-  const { playAudio, pauseAudio, audioDuration } = useAudio();
-  const volume = useAtomValue(volumeAtom);
+  const { audioBuffer } = useAudioData();
+  const { playAudio, pauseAudio, audioDuration, setVolume } =
+    useAudioPlayer(audioBuffer);
+  const { volume } = useAudioSettings();
   const notes = midiData.notes;
 
   const {
@@ -104,7 +107,8 @@ const PlayerInner = (props: {
   mutablesRef.current = mutables;
 
   const handlePlay = useCallback(() => {
-    const { setVolume } = playAudio(volume, offsetInSec);
+    setVolume(volume);
+    playAudio(offsetInSec);
     let prevModule = rendererModule;
     startPlaying((currentTimeInSec) => {
       const container = displayApi.getContainer();
@@ -144,6 +148,7 @@ const PlayerInner = (props: {
     displayApi,
     rendererModule,
     volume,
+    setVolume,
   ]);
 
   const handlePause = useCallback(() => {
