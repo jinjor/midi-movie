@@ -1,12 +1,17 @@
 import { useAtom, useAtomValue } from "jotai";
 import { imageSizeAtom, imageUrlAtom, opacityAtom } from "./atoms";
 import { useCallback, useEffect, useState } from "react";
-import { Image } from "@/domain/types";
+import { Image, Size } from "@/domain/types";
 import { useFileStorage } from "./file";
+
+const defaultSize: Size = {
+  width: 512,
+  height: 512 * (9 / 16),
+};
 
 export const useImageData = () => {
   const imageUrl = useAtomValue(imageUrlAtom);
-  const size = useAtomValue(imageSizeAtom);
+  const size = useAtomValue(imageSizeAtom) ?? defaultSize;
   return {
     imageUrl,
     size,
@@ -57,7 +62,7 @@ export const useImageLoader = () => {
   return {
     name,
     imageUrl,
-    size,
+    size: size ?? defaultSize,
     status,
     loadImage,
   };

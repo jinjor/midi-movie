@@ -3,14 +3,26 @@ import { Modal } from "@/ui/Modal";
 import { useRendererSettingsDeleter } from "@/usecase/renderer";
 import styles from "./StorageModal.module.css";
 import { useMidiSettingsDeleter } from "@/usecase/midi";
-import { usePlayerSettingsDeleter } from "@/usecase/globalSettings";
+import {
+  useFileSettingsDeleter,
+  usePlayerSettingsDeleter,
+} from "@/usecase/globalSettings";
 
-export const StorageModal = () => {
+export const StorageModal = ({
+  className,
+}: {
+  className?: string;
+}) => {
   useCounter("StorageModal");
+
   return (
     <Modal
       title="Storage"
-      renderButton={(open) => <button onClick={open}>Storage</button>}
+      renderButton={(open) => (
+        <button className={className} onClick={open}>
+          Storage
+        </button>
+      )}
       className={styles.modal}
     >
       <div className={styles.sections}>
@@ -18,17 +30,28 @@ export const StorageModal = () => {
         <RendererSettings />
         <MidiSettings />
       </div>
+      <div className={styles.empty}>No settings</div>
     </Modal>
   );
 };
 
 const GlobalSettings = () => {
   useCounter("GlobalSettings");
+  const { hasFileSettings, deleteFileSettings } = useFileSettingsDeleter();
   const { hasPlayerSettings, deletePlayerProps } = usePlayerSettingsDeleter();
+  if (!hasFileSettings && !hasPlayerSettings) {
+    return null;
+  }
   return (
     <section>
       <h3 className={styles.heading}>Global Settings</h3>
       <ul className={styles.list}>
+        {hasFileSettings && (
+          <li key="file" className={styles.item}>
+            <span className={styles.itemName}>File</span>
+            <button onClick={deleteFileSettings}>Delete</button>
+          </li>
+        )}
         {hasPlayerSettings && (
           <li key="player" className={styles.item}>
             <span className={styles.itemName}>Player</span>

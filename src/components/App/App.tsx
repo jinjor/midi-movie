@@ -26,7 +26,7 @@ export const App = () => {
         <ControlLabel text="Audio">
           <AudioLoader />
         </ControlLabel>
-        <StorageModal />
+        <StorageModal className={styles.storage} />
       </div>
       <div className={styles.body}>
         <div className={cx(styles.pane)}>

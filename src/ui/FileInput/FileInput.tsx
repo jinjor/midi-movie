@@ -16,8 +16,10 @@ export const FileInput = ({
 }: Props) => {
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
-    onLoad(file);
+    event.target.value = "";
+    if (file) {
+      onLoad(file);
+    }
   };
   return (
     <span className={cx("button", styles.fileInput)}>

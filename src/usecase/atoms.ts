@@ -1,5 +1,5 @@
 import { atom, createStore } from "jotai";
-import { MidiData, PlayingState } from "../domain/types";
+import { MidiData, PlayingState, Size } from "../domain/types";
 import { RendererState } from "../domain/render";
 import { StorageKey, StorageValue, get, set } from "../repository/storage";
 
@@ -32,10 +32,7 @@ export const selectedRendererAtom = atomWithStorage(
 export const midiSpecificPropsAtom = atomWithStorage("midiSpecificProps", {});
 export const allRendererPropsAtom = atomWithStorage("allRendererProps", {});
 export const imageUrlAtom = atom<string | null>(null);
-export const imageSizeAtom = atom({
-  width: 512,
-  height: 512 * (9 / 16),
-});
+export const imageSizeAtom = atom<Size | null>(null);
 export const midiDataAtom = atom<MidiData | null>(null);
 export const audioBufferAtom = atom<AudioBuffer | null>(null);
 export const playingStateAtom = atom<PlayingState | null>(null);
