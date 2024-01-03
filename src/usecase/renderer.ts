@@ -4,14 +4,62 @@ import {
   rendererAtom,
   selectedRendererAtom,
 } from "@/usecase/atoms";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect } from "react";
 
-export const useRenderer = (loadEffect = false) => {
+export const useRendererNames = () => {
+  return renderers.map((r) => r.name);
+};
+
+export const useRenderer = () => {
+  const renderer = useAtomValue(rendererAtom);
+  const selectedRenderer = useAtomValue(selectedRendererAtom);
+  const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
+  const props = allRendererProps[selectedRenderer];
+
+  const setProps = useCallback(
+    (props: Record<string, number>) => {
+      if (renderer.type !== "Ready") {
+        return;
+      }
+      setAllRendererProps({
+        ...allRendererProps,
+        [selectedRenderer]: props,
+      });
+    },
+    [renderer, allRendererProps, selectedRenderer, setAllRendererProps],
+  );
+
+  return {
+    renderer,
+    selectedRenderer,
+    props,
+    setProps,
+  };
+};
+
+export const useRendererUpdater = () => {
+  const { renderer, props, setProps } = useRenderer();
+  const setProp = useCallback(
+    (key: string, value: number) => {
+      setProps({
+        ...props,
+        [key]: value,
+      });
+    },
+    [props, setProps],
+  );
+  return {
+    renderer,
+    props,
+    setProp,
+  };
+};
+
+export const useRendererLoader = () => {
   const [renderer, setRenderer] = useAtom(rendererAtom);
   const [selectedRenderer, setSelectedRenderer] = useAtom(selectedRendererAtom);
   const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
-  const props = allRendererProps[selectedRenderer];
 
   const selectRenderer = useCallback(
     (name: string) => {
@@ -20,26 +68,8 @@ export const useRenderer = (loadEffect = false) => {
     },
     [setSelectedRenderer, setRenderer],
   );
-  const setProp = useCallback(
-    (key: string, value: number) => {
-      if (renderer.type !== "Ready") {
-        return;
-      }
-      setAllRendererProps({
-        ...allRendererProps,
-        [selectedRenderer]: {
-          ...allRendererProps[selectedRenderer],
-          [key]: value,
-        },
-      });
-    },
-    [renderer, allRendererProps, selectedRenderer, setAllRendererProps],
-  );
 
   useEffect(() => {
-    if (!loadEffect) {
-      return;
-    }
     if (renderer.type !== "Loading") {
       return;
     }
@@ -68,14 +98,10 @@ export const useRenderer = (loadEffect = false) => {
     selectedRenderer,
     setAllRendererProps,
     setRenderer,
-    loadEffect,
   ]);
 
   return {
-    renderer,
     selectedRenderer,
-    props,
     selectRenderer,
-    setProp,
   };
 };
