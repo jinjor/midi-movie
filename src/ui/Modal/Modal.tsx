@@ -33,7 +33,6 @@ export const Modal = ({
               <div className={styles.header}>
                 <div className={styles.title}>{title}</div>
                 <button
-                  className={styles.closeButton}
                   onClick={() => {
                     setShow(false);
                   }}
