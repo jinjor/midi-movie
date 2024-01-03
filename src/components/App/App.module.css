@@ -1,16 +1,17 @@
-.App {
+.app {
   display: flex;
   flex-direction: column;
   gap: 2px;
   height: 100dvh;
 }
-.App > *:last-child {
+.app > *:last-child {
   min-height: 0;
 }
 .body {
   display: grid;
   grid-template-columns: minmax(min-content, 1fr) 350px 350px;
   gap: 2px;
+  flex-grow: 1;
 }
 .body > * {
   overflow-y: scroll;

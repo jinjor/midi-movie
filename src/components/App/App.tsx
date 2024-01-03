@@ -15,7 +15,7 @@ import { StorageModal } from "../StorageModal";
 export const App = () => {
   useCounter("App");
   return (
-    <div className={styles.App}>
+    <div className={styles.app}>
       <div className={cx(styles.pane, styles.files)}>
         <ControlLabel text="MIDI">
           <MidiLoader />
