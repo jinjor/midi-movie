@@ -7,7 +7,7 @@ import {
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useMemo } from "react";
 
-export const useRenderers = () => {
+const useRenderers = () => {
   const [renderers, setRenderers] = useAtom(renderersAtom);
 
   useEffect(() => {
@@ -33,9 +33,6 @@ export const useRenderers = () => {
   }, [renderers, setRenderers]);
 
   const sortedRenderers = useMemo(() => {
-    if (renderers == null) {
-      return null;
-    }
     return renderers
       .filter(({ state }) => state.type === "Ready")
       .sort(
@@ -49,7 +46,7 @@ export const useRenderers = () => {
 };
 
 export const useRendererModules = () => {
-  const renderers = useRenderers() ?? [];
+  const renderers = useRenderers();
   const rendererModules = useMemo(
     () => renderers.flatMap((r) => r.state.module ?? []),
     [renderers],
@@ -85,9 +82,6 @@ export const useRenderer = () => {
   const selectedRenderer = useAtomValue(selectedRendererAtom) ?? "Pianoroll";
   const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
   const renderer = useMemo(() => {
-    if (renderers == null) {
-      return null;
-    }
     return (
       renderers.find((r) => r.state.module?.meta.name === selectedRenderer)
         ?.state ?? null
