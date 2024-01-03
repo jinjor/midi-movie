@@ -38,6 +38,7 @@ const RendererConfig = () => {
   return (
     <>
       {renderer.module.config.props.map((p) => {
+        const value = props[p.id];
         return (
           <ControlLabel
             key={p.id}
@@ -50,13 +51,13 @@ const RendererConfig = () => {
                 min={p.min}
                 max={p.max}
                 step={p.step}
-                defaultValue={props[p.id] ?? p.defaultValue}
+                value={value}
                 onChange={(value) => setProp(p.id, value)}
               />
             ) : p.type === "boolean" ? (
               <input
                 type="checkbox"
-                checked={!!(props[p.id] ?? p.defaultValue)}
+                checked={!!value}
                 onChange={(e) => setProp(p.id, e.target.checked ? 1 : 0)}
               />
             ) : null}

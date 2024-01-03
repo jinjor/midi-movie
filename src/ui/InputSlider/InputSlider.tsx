@@ -1,14 +1,13 @@
 import { useCounter } from "@/counter";
 import { NumberInput } from "../NumberInput";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { NumberSlider } from "../NumberSlider";
 import styles from "./InputSlider.module.css";
 import { cx } from "@/util";
 
 type Props = {
   className?: string;
-  value?: number;
-  defaultValue?: number;
+  value: number;
   onChange: (value: number) => void;
   max?: number;
   min?: number;
@@ -18,19 +17,15 @@ type Props = {
 export const InputSlider = ({
   className,
   value,
-  defaultValue,
   onChange,
   max,
   min,
   step,
 }: Props) => {
   useCounter("InputSlider");
-  const [sharedValue, setSharedValue] = useState(
-    value ?? defaultValue ?? min ?? max ?? 0,
-  );
+  const sharedValue = value ?? min ?? max ?? 0;
   const handleChange = useCallback(
     (value: number) => {
-      setSharedValue(value);
       onChange(value);
     },
     [onChange],

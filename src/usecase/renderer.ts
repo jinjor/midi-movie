@@ -5,17 +5,38 @@ import {
   selectedRendererAtom,
 } from "@/usecase/atoms";
 import { useAtom, useAtomValue } from "jotai";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 export const useRendererNames = () => {
   return renderers.map((r) => r.name);
+};
+
+export const useRendererSettingsDeleter = () => {
+  const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
+  const deleteRendererProps = useCallback(
+    (rendererName: string) => {
+      const { [rendererName]: _, ...newProps } = allRendererProps;
+      setAllRendererProps(newProps);
+    },
+    [allRendererProps, setAllRendererProps],
+  );
+  return {
+    deleteRendererProps,
+  };
 };
 
 export const useRenderer = () => {
   const renderer = useAtomValue(rendererAtom);
   const selectedRenderer = useAtomValue(selectedRendererAtom);
   const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
-  const props = allRendererProps[selectedRenderer];
+
+  const props = useMemo(() => {
+    const props = { ...allRendererProps[selectedRenderer] };
+    for (const prop of renderer.module?.config.props ?? []) {
+      props[prop.id] = props[prop.id] ?? prop.defaultValue;
+    }
+    return props;
+  }, [renderer, allRendererProps, selectedRenderer]);
 
   const setProps = useCallback(
     (props: Record<string, number>) => {
@@ -59,7 +80,6 @@ export const useRendererUpdater = () => {
 export const useRendererLoader = () => {
   const [renderer, setRenderer] = useAtom(rendererAtom);
   const [selectedRenderer, setSelectedRenderer] = useAtom(selectedRendererAtom);
-  const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
 
   const selectRenderer = useCallback(
     (name: string) => {
@@ -81,24 +101,13 @@ export const useRendererLoader = () => {
     void (async () => {
       try {
         const module = await importRendererModule(info.url);
-        const props = { ...allRendererProps[selectedRenderer] };
-        for (const prop of module.config.props) {
-          props[prop.id] = props[prop.id] ?? prop.defaultValue;
-        }
         setRenderer({ type: "Ready", module });
-        setAllRendererProps({ ...allRendererProps, [selectedRenderer]: props });
       } catch (e) {
         console.error(e);
         setRenderer({ type: "Error" });
       }
     })();
-  }, [
-    allRendererProps,
-    renderer,
-    selectedRenderer,
-    setAllRendererProps,
-    setRenderer,
-  ]);
+  }, [renderer, selectedRenderer, setRenderer]);
 
   return {
     selectedRenderer,
