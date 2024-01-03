@@ -3,7 +3,7 @@ import { Modal } from "@/ui/Modal";
 import { useRendererSettingsDeleter } from "@/usecase/renderer";
 import styles from "./StorageModal.module.css";
 import { useMidiSettingsDeleter } from "@/usecase/midi";
-import { usePlayerSettingsDeleter } from "@/usecase/player";
+import { usePlayerSettingsDeleter } from "@/usecase/globalSettings";
 
 export const StorageModal = () => {
   useCounter("StorageModal");

@@ -2,11 +2,11 @@ import { midiDataAtom, midiSpecificPropsAtom } from "@/usecase/atoms";
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useMemo } from "react";
 import { MidiData, MidiSpecificSettings } from "../domain/types";
-import { useFileStorage } from "@/repository/fileStorage";
 import { parseMidiData } from "@/domain/midi";
+import { useFileStorage } from "./file";
 
 export const useMidiLoader = () => {
-  const { status, save, data: midiFile } = useFileStorage("midi");
+  const { status, saveFile, data: midiFile } = useFileStorage("midi");
   const [midiData, setMidiData] = useAtom(midiDataAtom);
   useEffect(() => {
     if (midiFile) {
@@ -17,22 +17,25 @@ export const useMidiLoader = () => {
       });
     }
   }, [midiFile, setMidiData]);
-  const loadMidi = (file: File) => {
-    void (async () => {
-      const buffer = await file.arrayBuffer();
-      const midiData = parseMidiData(buffer);
-      setMidiData({
-        ...midiData,
-        fileName: file.name,
-      });
-      await save({
-        name: file.name,
-        type: file.type,
-        loadedAt: Date.now(),
-        data: buffer,
-      });
-    })();
-  };
+  const loadMidi = useCallback(
+    (file: File) => {
+      void (async () => {
+        const buffer = await file.arrayBuffer();
+        const midiData = parseMidiData(buffer);
+        setMidiData({
+          ...midiData,
+          fileName: file.name,
+        });
+        await saveFile({
+          name: file.name,
+          type: file.type,
+          loadedAt: Date.now(),
+          data: buffer,
+        });
+      })();
+    },
+    [setMidiData, saveFile],
+  );
   return {
     midiData,
     status,
