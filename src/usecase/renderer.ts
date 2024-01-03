@@ -12,6 +12,7 @@ export const useRendererNames = () => {
 };
 
 export const useRendererSettingsDeleter = () => {
+  const rendererNames = useRendererNames();
   const [allRendererProps, setAllRendererProps] = useAtom(allRendererPropsAtom);
   const deleteRendererProps = useCallback(
     (rendererName: string) => {
@@ -20,7 +21,12 @@ export const useRendererSettingsDeleter = () => {
     },
     [allRendererProps, setAllRendererProps],
   );
+  const rendererNamesWhichHaveProps = useMemo(
+    () => rendererNames.filter((name) => allRendererProps[name] != null),
+    [rendererNames, allRendererProps],
+  );
   return {
+    rendererNamesWhichHaveProps,
     deleteRendererProps,
   };
 };

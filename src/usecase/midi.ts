@@ -157,3 +157,24 @@ export const useMidiSettingsSetters = (
     setOrders,
   };
 };
+
+export const useMidiSettingsDeleter = () => {
+  const [midiSpecificProps, setMidiSpecificProps] = useAtom(
+    midiSpecificPropsAtom,
+  );
+  const deleteMidiProps = useCallback(
+    (midiFileName: string) => {
+      const { [midiFileName]: _, ...newProps } = midiSpecificProps;
+      setMidiSpecificProps(newProps);
+    },
+    [midiSpecificProps, setMidiSpecificProps],
+  );
+  const midiFileNamesWhichHaveProps = useMemo(
+    () => Object.keys(midiSpecificProps),
+    [midiSpecificProps],
+  );
+  return {
+    midiFileNamesWhichHaveProps,
+    deleteMidiProps,
+  };
+};
