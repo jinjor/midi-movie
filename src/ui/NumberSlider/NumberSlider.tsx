@@ -31,6 +31,7 @@ export const NumberSlider = ({
     <SeekBar
       disabled={disabled}
       value={(truncatedValue - min) / (max - min)}
+      onStartDragging={handleChange}
       onDrag={handleChange}
     />
   );
