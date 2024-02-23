@@ -18,8 +18,8 @@ dependencies:
     specifier: ^0.8.0
     version: 0.8.0
   valibot:
-    specifier: ^0.25.0
-    version: 0.25.0
+    specifier: ^0.29.0
+    version: 0.29.0
 
 devDependencies:
   '@biomejs/biome':
@@ -2542,8 +2542,8 @@ packages:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: false
 
-  /valibot@0.25.0:
-    resolution: {integrity: sha512-cmD0ca15oyAbT75iYLNW6uU6doAeIwYfOshpXka/E1Bx4frzbkrgb7gvkI7K0YK/DVOksei4FfxWfRoBP3NFTg==}
+  /valibot@0.29.0:
+    resolution: {integrity: sha512-JhZn08lwZPhAamOCfBwBkv/btQt4KeQhekULPH8crH053zUCLSOGEF2zKExu3bFf245tsj6J1dY0ysd/jUiMIQ==}
     dev: false
 
   /vite-node@1.0.3(@types/node@20.10.0):
