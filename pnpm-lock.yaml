@@ -56,8 +56,8 @@ devDependencies:
     specifier: ^10.3.10
     version: 10.3.10
   global-jsdom:
-    specifier: ^9.1.0
-    version: 9.1.0(jsdom@24.0.0)
+    specifier: ^24.0.0
+    version: 24.0.0(jsdom@24.0.0)
   jsdom:
     specifier: ^24.0.0
     version: 24.0.0
@@ -1473,11 +1473,11 @@ packages:
       minipass: 7.0.4
       path-scurry: 1.10.1
 
-  /global-jsdom@9.1.0(jsdom@24.0.0):
-    resolution: {integrity: sha512-mNjpiQBgCTApFeRZxU3L01pjzulHIbwtk+5rGDdqUDACTupvhHywpgaZtXNMn/97HofZzHEoXdNR5qFNgjZCSg==}
-    engines: {node: '>=16'}
+  /global-jsdom@24.0.0(jsdom@24.0.0):
+    resolution: {integrity: sha512-CARBUWkqZ3O9VOc2PIVE5kQpdQeJh9eF9kQ7zSeNtmqx5vAFDKMr9XnDt1epVMMrz1s9uK/yFCa4HLwpa6TcPA==}
+    engines: {node: '>=18'}
     peerDependencies:
-      jsdom: '>=22 <23'
+      jsdom: '>=24 <25'
     dependencies:
       jsdom: 24.0.0
     dev: true
