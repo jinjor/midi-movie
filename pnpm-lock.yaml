@@ -51,7 +51,7 @@ devDependencies:
     version: 4.2.1(vite@5.0.2)
   '@vitest/browser':
     specifier: ^1.0.0
-    version: 1.0.3(playwright@1.38.0)(vitest@1.0.3)
+    version: 1.0.3(playwright@1.42.1)(vitest@1.0.3)
   glob:
     specifier: ^10.3.10
     version: 10.3.10
@@ -66,7 +66,7 @@ devDependencies:
     version: 1.2.4
   playwright:
     specifier: ^1.38.0
-    version: 1.38.0
+    version: 1.42.1
   typescript:
     specifier: ^5.0.2
     version: 5.2.2
@@ -916,7 +916,7 @@ packages:
       - supports-color
     dev: true
 
-  /@vitest/browser@1.0.3(playwright@1.38.0)(vitest@1.0.3):
+  /@vitest/browser@1.0.3(playwright@1.42.1)(vitest@1.0.3):
     resolution: {integrity: sha512-6PilzVnYjUcAGZUevhw6g8WBE3qb/ykUIKyKkzj1SX2H6jGgK3IVksZLzpQixgNmweqOZN+2iLJhWz7R0dX6jw==}
     peerDependencies:
       playwright: '*'
@@ -933,7 +933,7 @@ packages:
     dependencies:
       estree-walker: 3.0.3
       magic-string: 0.30.5
-      playwright: 1.38.0
+      playwright: 1.42.1
       sirv: 2.0.3
       vitest: 1.0.3(@types/node@20.11.20)(@vitest/browser@1.0.3)(jsdom@24.0.0)
     dev: true
@@ -2146,18 +2146,18 @@ packages:
       pathe: 1.1.1
     dev: true
 
-  /playwright-core@1.38.0:
-    resolution: {integrity: sha512-f8z1y8J9zvmHoEhKgspmCvOExF2XdcxMW8jNRuX4vkQFrzV4MlZ55iwb5QeyiFQgOFCUolXiRHgpjSEnqvO48g==}
+  /playwright-core@1.42.1:
+    resolution: {integrity: sha512-mxz6zclokgrke9p1vtdy/COWBH+eOZgYUVVU34C73M+4j4HLlQJHtfcqiqqxpP0o8HhMkflvfbquLX5dg6wlfA==}
     engines: {node: '>=16'}
     hasBin: true
     dev: true
 
-  /playwright@1.38.0:
-    resolution: {integrity: sha512-fJGw+HO0YY+fU/F1N57DMO+TmXHTrmr905J05zwAQE9xkuwP/QLDk63rVhmyxh03dYnEhnRbsdbH9B0UVVRB3A==}
+  /playwright@1.42.1:
+    resolution: {integrity: sha512-PgwB03s2DZBcNRoW+1w9E+VkLBxweib6KTXM0M3tkiT4jVxKSi6PmVJ591J+0u10LUrgxB7dLRbiJqO5s2QPMg==}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      playwright-core: 1.38.0
+      playwright-core: 1.42.1
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
@@ -2742,7 +2742,7 @@ packages:
         optional: true
     dependencies:
       '@types/node': 20.11.20
-      '@vitest/browser': 1.0.3(playwright@1.38.0)(vitest@1.0.3)
+      '@vitest/browser': 1.0.3(playwright@1.42.1)(vitest@1.0.3)
       '@vitest/expect': 1.0.3
       '@vitest/runner': 1.0.3
       '@vitest/snapshot': 1.0.3
