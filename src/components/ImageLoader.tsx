@@ -9,7 +9,7 @@ export const ImageLoader = () => {
     <FileInput
       disabled={status === "loading"}
       onLoad={loadImage}
-      extensions={[".png", "jpg", "jpeg"]}
+      extensions={[".png", ".jpg", ".jpeg"]}
     >
       {name && imageUrl && (
         <>

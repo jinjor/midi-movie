@@ -10,7 +10,7 @@ export const MidiLoader = () => {
     <FileInput
       disabled={status === "loading"}
       onLoad={loadMidi}
-      extensions={[".mid", "midi"]}
+      extensions={[".mid", ".midi"]}
     >
       {midiData && (
         <>
