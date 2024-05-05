@@ -112,7 +112,9 @@ function calculatePositions({
   const innerHeight = size.height - padding * 2;
   const trackHeight =
     (innerHeight - gap * (numberOfTracks - 1)) / numberOfTracks;
-  const minY = bidirectional ? padding + trackHeight / 2 : padding;
+  const minY = bidirectional
+    ? padding + trackHeight / 2
+    : padding + trackHeight;
   const maxY = bidirectional
     ? size.height - padding - trackHeight / 2
     : size.height - padding;
@@ -182,6 +184,7 @@ function calculatePlaceholder({
         ? "transparent"
         : `hsl(${hue}, ${saturation}%, 50%)`,
     strokeWidth: 1,
+    fill: "transparent",
   };
 }
 
@@ -250,8 +253,8 @@ function calculateNote({
     maxY,
     trackIndices.indexOf(note.trackIndex) / (trackIndices.length - 1),
   );
-  const y1 = bidirectional ? y - barLength : y;
-  const y2 = bidirectional ? y + barLength : y - barLength;
+  const y1 = bidirectional ? y - barLength / 2 : y;
+  const y2 = bidirectional ? y + barLength / 2 : y - barLength;
 
   const line = {
     x1: x,
