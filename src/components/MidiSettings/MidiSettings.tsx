@@ -1,7 +1,7 @@
 import styles from "./MidiSettings.module.css";
 import { useCounter } from "@/counter";
 import { useCallback, useMemo } from "react";
-import { MidiData, MidiSpecificSettings, Track } from "@/domain/types";
+import type { MidiData, MidiSpecificSettings, Track } from "@/domain/types";
 import { SortableList } from "@/ui/SortableList";
 import { ControlLabel } from "@/ui/ControlLabel";
 import { InputSlider } from "@/ui/InputSlider";

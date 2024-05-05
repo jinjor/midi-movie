@@ -1,6 +1,6 @@
 import styles from "./PlayerControl.module.css";
 import { formatTime } from "../../util";
-import { PlayingState } from "@/domain/types";
+import type { PlayingState } from "@/domain/types";
 import { usePlayingTime } from "@/usecase/player";
 
 type Props = {

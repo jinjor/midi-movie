@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import type { ChangeEvent } from "react";
 import styles from "./FileInput.module.css";
 import { cx } from "@/util";
 

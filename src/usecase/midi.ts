@@ -1,7 +1,7 @@
 import { midiDataAtom, midiSpecificPropsAtom } from "@/usecase/atoms";
 import { useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useMemo } from "react";
-import { MidiData, MidiSpecificSettings } from "../domain/types";
+import type { MidiData, MidiSpecificSettings } from "../domain/types";
 import { parseMidiData } from "@/domain/midi";
 import { useFileStorage } from "./file";
 

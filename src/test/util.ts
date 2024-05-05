@@ -1,5 +1,5 @@
 import { act, within } from "@testing-library/react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 
 const randomId = () => Math.random().toString(36).substring(7);

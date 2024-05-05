@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "format": "biome format src renderer --write",
-    "lint": "biome lint src renderer",
+    "lint": "biome lint src renderer --apply",
     "check": "pnpm check:type && pnpm check:lint && pnpm check:format",
     "check:type": "tcm src && tsc && find src -type f -name '*.css.d.ts' -exec rm {} \\;",
     "check:lint": "biome lint src renderer",
@@ -23,7 +23,7 @@
     "valibot": "^0.30.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.5.1",
+    "@biomejs/biome": "1.7.2",
     "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "^6.1.2",
     "@testing-library/react": "^15.0.0",

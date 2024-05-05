@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { StoredFile } from "../domain/types";
+import type { StoredFile } from "../domain/types";
 import { load, save } from "@/repository/fileStorage";
 
 export const useFileStorage = (id: string) => {

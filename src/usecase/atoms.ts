@@ -1,7 +1,16 @@
 import { atom, createStore } from "jotai";
-import { MidiData, PlayingState, Size } from "../domain/types";
-import { RendererInfo, RendererState, renderers } from "../domain/render";
-import { StorageKey, StorageValue, get, set } from "../repository/storage";
+import type { MidiData, PlayingState, Size } from "../domain/types";
+import {
+  type RendererInfo,
+  type RendererState,
+  renderers,
+} from "../domain/render";
+import {
+  type StorageKey,
+  type StorageValue,
+  get,
+  set,
+} from "../repository/storage";
 
 const subscribeFns: ((store: ReturnType<typeof createStore>) => void)[] = [];
 const atomWithStorage = <K extends StorageKey>(

@@ -1,7 +1,7 @@
 import {
   number,
   parse,
-  Output,
+  type Output,
   string,
   record,
   array,

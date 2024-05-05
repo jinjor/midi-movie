@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Size } from "@/domain/types";
+import type { Size } from "@/domain/types";
 import styles from "./Display.module.css";
 import { useImageSettings } from "@/usecase/image";
 

@@ -22,4 +22,4 @@ expect.extend({
     };
   },
 });
-export {};
+export type {};
