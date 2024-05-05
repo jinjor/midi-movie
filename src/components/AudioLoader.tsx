@@ -1,5 +1,5 @@
 import { FileInput } from "@/ui/FileInput";
-import { Size } from "@/domain/types";
+import type { Size } from "@/domain/types";
 import { formatTime } from "../util";
 import { useCounter } from "@/counter";
 import { useAudioLoader } from "@/usecase/audio";

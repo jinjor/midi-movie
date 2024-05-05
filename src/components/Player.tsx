@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Display, DisplayApi } from "./Display";
+import { Display, type DisplayApi } from "./Display";
 import { PlayerControl } from "./PlayerControl";
 import { useCounter } from "@/counter";
 import { SeekBar } from "@/ui/SeekBar";
-import {
+import type {
   MidiData,
   MidiSpecificSettings,
   PlayingState,

@@ -1,5 +1,5 @@
 import { useCounter } from "@/counter";
-import { ReactNode, useCallback, useState } from "react";
+import { type ReactNode, useCallback, useState } from "react";
 import { Portal } from "../Portal";
 import styles from "./Modal.module.css";
 import { cx } from "@/util";

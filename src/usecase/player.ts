@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import { playingStateAtom } from "./atoms";
 import { useCallback, useEffect, useState } from "react";
-import { PlayingState } from "@/domain/types";
+import type { PlayingState } from "@/domain/types";
 
 export const usePlayer = () => {
   const [playingState, setPlayingState] = useAtom(playingStateAtom);

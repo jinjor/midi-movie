@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "format": "biome format src renderer --write",
-    "lint": "biome lint src renderer",
+    "lint": "biome lint src renderer --apply",
     "check": "pnpm check:type && pnpm check:lint && pnpm check:format",
     "check:type": "tcm src && tsc && find src -type f -name '*.css.d.ts' -exec rm {} \\;",
     "check:lint": "biome lint src renderer",

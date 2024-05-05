@@ -1,4 +1,4 @@
-import { InitOptions, ModuleConfig, UpdateOptions } from "./types";
+import type { InitOptions, ModuleConfig, UpdateOptions } from "./types";
 
 export type RendererInfo = {
   url: string;

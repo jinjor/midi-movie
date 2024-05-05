@@ -1,4 +1,4 @@
-import { StoredFile } from "../domain/types";
+import type { StoredFile } from "../domain/types";
 import { number, object, string, parse } from "valibot";
 import { arrayBufferToBase64, base64ToArrayBuffer } from "../domain/base64";
 

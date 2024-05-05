@@ -1,7 +1,7 @@
 import { useAtom, useAtomValue } from "jotai";
 import { imageSizeAtom, imageUrlAtom, opacityAtom } from "./atoms";
 import { useCallback, useEffect, useState } from "react";
-import { Image, Size } from "@/domain/types";
+import type { Image, Size } from "@/domain/types";
 import { useFileStorage } from "./file";
 
 const defaultSize: Size = {
